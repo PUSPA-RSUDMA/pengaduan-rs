@@ -24,7 +24,7 @@
             <div class="absolute inset-0 bg-blue-900 bg-opacity-70"></div>
 
             <div class="absolute inset-0 flex flex-col justify-center items-center text-white p-10 text-center z-10">
-                <h1 class="text-4xl font-bold mb-2 drop-shadow-md">Sistem Pengaduan Terpadu</h1>
+                <h1 class="text-4xl font-bold mb-2 drop-shadow-md">Sistem Instalasi Pengaduan</h1>
                 <p class="text-xl font-medium tracking-wide drop-shadow-md">RSUD dr. H. Moh. Anwar Sumenep</p>
                 <div class="w-20 h-1 bg-yellow-400 mt-4 rounded-full"></div>
             </div>

@@ -48,7 +48,7 @@
             <div class="row g-0">
                 <div class="col-lg-6 d-none d-lg-block left-side">
                     <div class="left-overlay">
-                        <h2 class="fw-bold mb-3">Sistem Pengaduan Terpadu</h2>
+                        <h2 class="fw-bold mb-3">Sistem Instalasi Pengaduan</h2>
                         <p class="mb-4 opacity-75">RSUD dr. H. Moh. Anwar Sumenep</p>
                         <div class="d-flex align-items-center gap-3">
                             <div class="bg-white bg-opacity-25 p-3 rounded text-center">
