@@ -1,9 +1,6 @@
 @extends('layouts.admin')
-
 @section('title', 'Dashboard Monitoring')
-
 @section('content')
-
 <style>
     /* Efek Hover Kartu */
     .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; }
