@@ -112,7 +112,7 @@
         </div>
         
         <div class="text-center mt-4 text-muted small">
-            &copy; {{ date('Y') }} SIM-RSUD v1.0 • Built for RSUD dr. H. Moh. Anwar Sumenep
+            &copy; {{ date('Y') }} IPP-RSUD• Built for RSUD dr. H. Moh. Anwar Sumenep
         </div>
     </div>
 

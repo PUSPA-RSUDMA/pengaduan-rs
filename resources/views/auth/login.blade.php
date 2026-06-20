@@ -79,7 +79,7 @@
                 </form>
 
                 <div class="mt-8 pt-6 border-t border-gray-100 text-center">
-                    <p class="text-xs text-gray-400">&copy; {{ date('Y') }} SIM-RSUD v1.0 • Built for RSUD dr. H. Moh. Anwar Sumenep</p>
+                    <p class="text-xs text-gray-400">&copy; {{ date('Y') }} IPP-RSUD RSUD dr. H. Moh. Anwar Sumenep</p>
                 </div>
             </div>
         </div>

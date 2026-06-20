@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIM-RSUD Admin</title>
+    <title>IPP-RSUD Admin</title>
     {{-- CDN Bootstrap 5 --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     {{-- Font Google: Poppins --}}
@@ -94,7 +94,7 @@
             <div class="sidebar-header d-flex align-items-center">
                 <i class="bi bi-hospital-fill fs-3 me-3 text-info"></i>
                 <div>
-                    <div class="fw-bold fs-6">SIM-RSUD</div>
+                    <div class="fw-bold fs-6">IPP-RSUD</div>
                     <small class="text-white-50" style="font-size: 0.7rem;">dr. H. Moh. Anwar</small>
                 </div>
             </div>
@@ -203,7 +203,7 @@
                 <div class="container">
                     <small class="text-muted fw-bold">Copyright &copy; {{ date('Y') }} RSUD dr. H. Moh. Anwar Sumenep</small>
                     <br>
-                    <small class="text-muted" style="font-size: 0.75rem;">Developed by Tim Magang Informatika</small>
+                    <small class="text-muted" style="font-size: 0.75rem;">Developed by Vinda Sartika Basri</small>
                 </div>
             </footer>
 
