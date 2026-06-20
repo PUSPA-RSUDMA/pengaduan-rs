@@ -101,6 +101,7 @@ class ComplaintController extends Controller
             'reporter_type' => 'required',
             'source_id' => 'required',
             'description' => 'required',
+            'answer' => 'required',
             'unit_destination' => 'required',
             'grade' => 'required',
             'status' => 'required',

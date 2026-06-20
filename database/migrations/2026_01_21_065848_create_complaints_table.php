@@ -23,6 +23,7 @@ return new class extends Migration
             // $table->foreignId('category_id')->constrained('categories');
 
             $table->text('description');
+            $table->text('answer');
             $table->string('grade');
             $table->string('unit_destination')->nullable();
             $table->string('status')->default('Pending');

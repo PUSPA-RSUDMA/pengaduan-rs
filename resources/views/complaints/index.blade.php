@@ -126,6 +126,7 @@
                         <th>Media</th>
                         <th>Grade</th>
                         <th width="25%">Isi Keluhan</th>
+                        <th width="25%">Tindak Lanjut</th>
                         <th>Verifikasi</th>
                         <th>Unit Tujuan</th>
                         <th>Status</th>
@@ -166,7 +167,9 @@
                             @endif
                         </td>
 
-                        <td>{{ Str::limit($complaint->description, 60) }}</td>
+                        <td>{{ Str::limit($complaint->description) }}</td>
+
+                        <td>{{ Str::limit($complaint->answer) }}</td>
                         <td class="text-center small text-muted">{{ $complaint->created_at->format('d/m/Y') }}</td>
                         <td class="fw-bold">{{ $complaint->unit_destination }}</td>
                         <td class="text-center">
@@ -231,6 +234,10 @@
                                                 <div class="mb-2">
                                                     <label class="small fw-bold text-muted">Nama Pelapor (Opsional)</label>
                                                     <input type="text" name="reporter_name" class="form-control form-control-sm" value="{{ $complaint->reporter_name }}">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="small fw-bold text-muted">Tindak Lanjut</label>
+                                                    <textarea name="answer" class="form-control form-control-sm" rows="3" required>{{ $complaint->answer }}</textarea>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">

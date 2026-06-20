@@ -16,6 +16,7 @@ class Complaint extends Model
         'reporter_type',
         'reporter_name',
         'description',
+        'answer',
         'source_id',
         'unit_destination',
         'grade',

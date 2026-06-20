@@ -111,6 +111,63 @@
     </div>
 </div>
 
+{{-- Letakkan kode ini di bawah <div class="row"> grafik yang lama --}}
+
+{{-- 3. GRAFIK TAMBAHAN (UNIT & PELAPOR) --}}
+<div class="row mt-4">
+    
+    {{-- CHART UNIT TUJUAN (KIRI) --}}
+    <div class="col-lg-6 col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-2 border-bottom-0 d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-info"><i class="bi bi-building me-2"></i> Distribusi Unit Tujuan</span>
+                
+                {{-- Dropdown Filter Tahun --}}
+                <form action="{{ route('dashboard') }}" method="GET" class="m-0">
+                    <input type="hidden" name="start_year" value="{{ $startYear }}">
+                    <input type="hidden" name="end_year" value="{{ $endYear }}">
+                    <select name="year" class="form-select form-select-sm fw-bold border-info" onchange="this.form.submit()" style="width: auto;">
+                        @foreach($availableYears as $year)
+                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
+                        @endforeach
+                    </select>
+                </form>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px; position: relative;">
+                    <canvas id="unitChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- CHART MEDIA PENGADUAN (KANAN) --}}
+    <div class="col-lg-6 col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-2 border-bottom-0 d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-warning"><i class="bi bi-megaphone me-2"></i> Media Pengaduan</span>
+                
+                {{-- Dropdown Filter Tahun --}}
+                <form action="{{ route('dashboard') }}" method="GET" class="m-0">
+                    <input type="hidden" name="start_year" value="{{ $startYear }}">
+                    <input type="hidden" name="end_year" value="{{ $endYear }}">
+                    <select name="year" class="form-select form-select-sm fw-bold border-warning" onchange="this.form.submit()" style="width: auto;">
+                        @foreach($availableYears as $year)
+                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
+                        @endforeach
+                    </select>
+                </form>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px; position: relative;">
+                    <canvas id="sourceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
 
@@ -214,6 +271,79 @@
                         
                         // Batasi label tahun biar gak dempetan kalau range 1945-2026
                         ticks: { autoSkip: true, maxTicksLimit: 8 } 
+                    }
+                }
+            }
+        });
+        // ... (Kode grafik bulanan & tren tahunan sebelumnya) ...
+
+        // Data dari Controller
+        const unitLabels = {!! json_encode($unitLabels) !!};
+        const unitValues = {!! json_encode($unitValues) !!};
+        const sourceLabels = {!! json_encode($sourceLabels) !!}; // <--- Update ini
+        const sourceValues = {!! json_encode($sourceValues) !!};
+
+        // Fungsi pembuat palet warna otomatis
+        const generateColors = (count) => {
+            const colors = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#0dcaf0', '#fd7e14', '#20c997', '#6610f2', '#e83e8c'];
+            return Array.from({ length: count }, (_, i) => colors[i % colors.length]);
+        };
+
+        // 3. GRAFIK BAR HORIZONTAL (UNIT TUJUAN)
+        new Chart(document.getElementById('unitChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: unitLabels,
+                datasets: [{
+                    label: 'Total Keluhan',
+                    data: unitValues,
+                    backgroundColor: generateColors(unitLabels.length),
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Memutar grafik menjadi horizontal
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: 'black',
+                        anchor: 'end',
+                        align: 'right',
+                        font: { weight: 'bold' },
+                        formatter: (val) => val > 0 ? val : ''
+                    }
+                },
+                scales: {
+                    x: { beginAtZero: true, suggestedMax: Math.max(...unitValues) + 2, display: false },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 4. GRAFIK DOUGHNUT (TIPE PELAPOR)
+        new Chart(document.getElementById('sourceChart').getContext('2d'), { // <--- Update ID canvas
+            type: 'doughnut',
+            data: {
+                labels: sourceLabels, // <--- Gunakan variabel baru
+                datasets: [{
+                    data: sourceValues, // <--- Gunakan variabel baru
+                    backgroundColor: generateColors(sourceLabels.length),
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%', 
+                plugins: {
+                    legend: { position: 'right' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 14 },
+                        formatter: (val) => val > 0 ? val : ''
                     }
                 }
             }

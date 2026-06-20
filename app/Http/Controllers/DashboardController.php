@@ -11,15 +11,11 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         // === 1. PENGAMANAN (HANYA ADMIN BOLEH MASUK) ===
-        // Logika: Jika role user yang login BUKAN 'admin' (berarti dia staff atau user biasa),
-        // Maka langsung tendang (redirect) ke halaman Data Keluhan.
         if (auth()->user()->role !== 'admin') {
             return redirect()->route('complaints.index');
         }
 
         // === 2. DATA KARTU ATAS ===
-        // Kita tidak perlu lagi filter 'if role == user' karena user sudah ditendang di atas.
-        // Jadi query ini murni melihat semua data (karena yang lolos kesini cuma Admin).
         $query = Complaint::query();
 
         $total = (clone $query)->count();
@@ -34,20 +30,12 @@ class DashboardController extends Controller
         })->count();
 
         // === 3. PERBAIKAN DROPDOWN TAHUN ===
-        
-        // Cari tahun paling kecil dan paling besar di database
-        $minDb = Complaint::min(DB::raw('YEAR(date)'));
-        $maxDb = Complaint::max(DB::raw('YEAR(date)'));
+        $minDb = Complaint::min(DB::raw('YEAR(date)')) ?? date('Y');
+        $maxDb = Complaint::max(DB::raw('YEAR(date)')) ?? date('Y');
 
-        // Jika DB kosong, pakai tahun ini
-        $minDb = $minDb ?? date('Y');
-        $maxDb = $maxDb ?? date('Y');
-
-        // Range 5 tahun terakhir s/d tahun terdepan di DB
         $startRange = min($minDb, date('Y') - 4); 
         $endRange   = max($maxDb, date('Y'));     
 
-        // Array tahun dari Besar ke Kecil [2034, ..., 2022]
         $availableYears = range($endRange, $startRange);
 
         // === 4. DATA GRAFIK BATANG (BULANAN) ===
@@ -64,15 +52,12 @@ class DashboardController extends Controller
         }
 
         // === 5. DATA GRAFIK GARIS (TREN TAHUNAN) ===
-        
         $input1 = $request->input('start_year', date('Y') - 4);
         $input2 = $request->input('end_year', date('Y'));
 
-        // PAKSA LOGIKA: Kiri Kecil, Kanan Besar (Biar grafik tidak error)
         $startYear = min($input1, $input2);
         $endYear = max($input1, $input2);
 
-        // Query Data Tahunan
         $yearlyData = (clone $query)->selectRaw('YEAR(date) as year, count(*) as total')
             ->whereYear('date', '>=', $startYear)
             ->whereYear('date', '<=', $endYear)
@@ -88,10 +73,35 @@ class DashboardController extends Controller
             $trendData[] = $yearlyData[$y] ?? 0;
         }
 
+        // === 6. DATA GRAFIK UNIT TUJUAN (Berdasarkan Tahun) ===
+        $unitData = (clone $query)->selectRaw('unit_destination, count(*) as total')
+            ->whereYear('date', $selectedYear)
+            ->whereNotNull('unit_destination')
+            ->groupBy('unit_destination')
+            ->orderBy('total', 'desc')
+            ->pluck('total', 'unit_destination');
+
+        $unitLabels = $unitData->keys()->toArray();
+        $unitValues = $unitData->values()->toArray();
+
+        // === 7. DATA GRAFIK TIPE PELAPOR (Berdasarkan Tahun) ===
+        $sourceData = (clone $query)
+            ->join('sources', 'complaints.source_id', '=', 'sources.id')
+            ->selectRaw('sources.name as source_name, count(complaints.id) as total')
+            ->whereYear('complaints.date', $selectedYear)
+            ->groupBy('sources.name')
+            ->orderBy('total', 'desc')
+            ->pluck('total', 'source_name');
+
+        $sourceLabels = $sourceData->keys()->toArray();
+        $sourceValues = $sourceData->values()->toArray();
+
         return view('dashboard', compact(
             'total', 'pending', 'process', 'done', 'critical',
             'availableYears', 'selectedYear', 'dataBulanan',
-            'trendLabels', 'trendData', 'startYear', 'endYear'
+            'trendLabels', 'trendData', 'startYear', 'endYear',
+            'unitLabels', 'unitValues', 
+            'sourceLabels', 'sourceValues' // <--- Ubah variabel ini
         ));
     }
 }
