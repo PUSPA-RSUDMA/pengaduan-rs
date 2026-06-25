@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Dashboard Permintaan & Layanan')
+@section('title', 'Dashboard Layanan & Informasi')
 @section('content')
 <style>
     .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: default; }
@@ -59,7 +59,6 @@
 
 {{-- 2. GRAFIK DOUGHNUT (PEMISAHAN DATA) --}}
 <div class="row mb-4 g-4">
-    {{-- CHART METODE PENYAMPAIAN --}}
     <div class="col-lg-6 col-12">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-3 border-bottom-0">
@@ -73,7 +72,6 @@
         </div>
     </div>
 
-    {{-- CHART JENIS PERMINTAAN --}}
     <div class="col-lg-6 col-12">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-3 border-bottom-0">
@@ -88,16 +86,31 @@
     </div>
 </div>
 
-{{-- 3. GRAFIK KURVA/TREN (LINE CHART) --}}
-<div class="row">
-    <div class="col-12">
+{{-- 3. GRAFIK KURVA & BAR (UNIT) BERDAMPINGAN --}}
+<div class="row g-4">
+    {{-- LINE CHART - TREN BULANAN --}}
+    <div class="col-lg-6 col-12">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-3 border-bottom-0">
-                <span class="fw-bold text-primary"><i class="bi bi-graph-up-arrow me-2"></i>Kurva Permintaan Bulanan (Tahun {{ $selectedYear }})</span>
+                <span class="fw-bold text-primary"><i class="bi bi-graph-up-arrow me-2"></i>Kurva Bulanan (Tahun {{ $selectedYear }})</span>
             </div>
             <div class="card-body">
                 <div style="height: 350px; position: relative;">
                     <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- HORIZONTAL BAR CHART - UNIT TERKAIT --}}
+    <div class="col-lg-6 col-12">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <span class="fw-bold text-info"><i class="bi bi-building me-2"></i>Distribusi Unit Terkait</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 350px; position: relative;">
+                    <canvas id="unitChart"></canvas>
                 </div>
             </div>
         </div>
@@ -109,10 +122,8 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Register Datalabels Plugin
         Chart.register(ChartDataLabels);
 
-        // Ambil Data dari Controller
         const metodeLabels = {!! json_encode($metodeLabels) !!};
         const metodeValues = {!! json_encode($metodeValues) !!};
         
@@ -121,6 +132,15 @@
         
         const dataBulanan = {!! json_encode($dataBulanan) !!};
 
+        const unitLabels = {!! json_encode($unitLabels) !!};
+        const unitValues = {!! json_encode($unitValues) !!};
+
+        // Fungsi Auto-Color untuk Unit Terkait
+        const generateColors = (count) => {
+            const colors = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#0dcaf0', '#fd7e14', '#20c997', '#6610f2', '#e83e8c'];
+            return Array.from({ length: count }, (_, i) => colors[i % colors.length]);
+        };
+
         // 1. DOUGHNUT CHART - METODE PENYAMPAIAN
         new Chart(document.getElementById('metodeChart').getContext('2d'), {
             type: 'doughnut',
@@ -128,21 +148,18 @@
                 labels: metodeLabels,
                 datasets: [{
                     data: metodeValues,
-                    backgroundColor: ['#198754', '#0dcaf0'], // Chat (Hijau), Telfon (Biru Muda)
+                    backgroundColor: ['#198754', '#0dcaf0'], 
                     borderWidth: 2,
                     hoverOffset: 5
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%', 
+                responsive: true, maintainAspectRatio: false, cutout: '65%', 
                 plugins: {
                     legend: { position: 'bottom' },
                     datalabels: {
-                        color: '#fff',
-                        font: { weight: 'bold', size: 14 },
-                        formatter: (val) => val > 0 ? val : '' // Sembunyikan 0
+                        color: '#fff', font: { weight: 'bold', size: 14 },
+                        formatter: (val) => val > 0 ? val : '' 
                     }
                 }
             }
@@ -155,20 +172,17 @@
                 labels: jenisLabels,
                 datasets: [{
                     data: jenisValues,
-                    backgroundColor: ['#dc3545', '#0d6efd'], // Pengaduan (Merah), Informasi (Biru)
+                    backgroundColor: ['#dc3545', '#0d6efd'], 
                     borderWidth: 2,
                     hoverOffset: 5
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%', 
+                responsive: true, maintainAspectRatio: false, cutout: '65%', 
                 plugins: {
                     legend: { position: 'bottom' },
                     datalabels: {
-                        color: '#fff',
-                        font: { weight: 'bold', size: 14 },
+                        color: '#fff', font: { weight: 'bold', size: 14 },
                         formatter: (val) => val > 0 ? val : '' 
                     }
                 }
@@ -183,39 +197,62 @@
                 datasets: [{
                     label: 'Total Masuk',
                     data: dataBulanan,
-                    borderColor: '#6f42c1', // Ungu
+                    borderColor: '#6f42c1', 
                     backgroundColor: 'rgba(111, 66, 193, 0.1)',
                     borderWidth: 3,
                     pointBackgroundColor: '#fff',
                     pointBorderColor: '#6f42c1',
-                    pointRadius: 5,
-                    pointHoverRadius: 8,
-                    tension: 0.4, // Membuat kurva menjadi halus (melengkung)
+                    pointRadius: 5, pointHoverRadius: 8,
+                    tension: 0.4, 
                     fill: true
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 layout: { padding: { top: 20 } },
                 plugins: {
                     legend: { display: false },
                     datalabels: {
-                        display: true, 
-                        align: 'top',
-                        color: '#6f42c1',
-                        font: { weight: 'bold' },
+                        display: true, align: 'top', color: '#6f42c1', font: { weight: 'bold' },
                         formatter: (val) => val > 0 ? val : '' 
                     }
                 },
                 scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        display: true,
-                        grid: { borderDash: [3, 3] },
-                        suggestedMax: Math.max(...dataBulanan) + 2 // Space kosong di atas
-                    },
+                    y: { beginAtZero: true, display: true, grid: { borderDash: [3, 3] }, suggestedMax: Math.max(...dataBulanan) + 2 },
                     x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 4. BAR CHART HORIZONTAL - UNIT TERKAIT
+        new Chart(document.getElementById('unitChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: unitLabels,
+                datasets: [{
+                    label: 'Total Layanan',
+                    data: unitValues,
+                    backgroundColor: generateColors(unitLabels.length),
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Mengubah menjadi horizontal agar teks panjang tidak tertabrak
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: 'black',
+                        anchor: 'end',
+                        align: 'right',
+                        font: { weight: 'bold' },
+                        formatter: (val) => val > 0 ? val : ''
+                    }
+                },
+                scales: {
+                    x: { beginAtZero: true, suggestedMax: Math.max(...unitValues) + 2, display: false },
+                    y: { grid: { display: false } }
                 }
             }
         });

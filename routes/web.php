@@ -48,6 +48,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/permintaan/{id}', [PermintaanController::class, 'update'])->name('permintaan.update');
     Route::delete('/permintaan/{id}', [PermintaanController::class, 'destroy'])->name('permintaan.destroy');
 
+    // Rute Export Permintaan & Informasi
+    Route::get('/permintaan/export/pdf', [PermintaanController::class, 'exportPdf'])->name('permintaan.export.pdf');
+    Route::get('/permintaan/export/excel', [PermintaanController::class, 'exportExcel'])->name('permintaan.export.excel');
+
     // FITUR PROFIL (DATA DIRI)
     Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');

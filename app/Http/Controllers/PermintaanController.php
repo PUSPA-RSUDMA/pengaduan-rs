@@ -6,6 +6,9 @@ use App\Models\Permintaan;
 use App\Models\UnitDestination; // Pastikan model ini sudah ada (mengikuti data master sebelumnya)
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PermintaanExport;
 
 class PermintaanController extends Controller
 {
@@ -97,5 +100,24 @@ class PermintaanController extends Controller
     {
         Permintaan::findOrFail($id)->delete();
         return redirect()->route('permintaan.index')->with('success', 'Data berhasil dihapus!');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // Ambil data (Bisa disesuaikan jika ingin mengambil yang di-filter saja)
+        $permintaans = Permintaan::orderBy('tgl_masuk', 'desc')->get();
+        
+        $pdf = Pdf::loadView('exports.permintaan_pdf', compact('permintaans'))
+                  ->setPaper('a4', 'landscape');
+                  
+        return $pdf->download('Layanan-Pengaduan-Informasi.pdf');
+    }
+
+    /**
+     * EXPORT EXCEL
+     */
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(new PermintaanExport, 'Layanan-Pengaduan-Informasi.xlsx');
     }
 }

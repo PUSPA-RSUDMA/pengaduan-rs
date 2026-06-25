@@ -15,43 +15,50 @@ class DashboardPermintaanController extends Controller
             ->orderBy('year', 'desc')
             ->pluck('year');
 
-        // Jika tabel masih kosong, set tahun saat ini sebagai default agar tidak error
         if ($availableYears->isEmpty()) {
             $availableYears = collect([date('Y')]);
         }
 
-        // Tahun yang dipilih filter (default: tahun sekarang)
+        // Tahun yang dipilih filter
         $selectedYear = $request->year ?? date('Y');
 
-        // 2. Hitung Total Data untuk Kartu Atas (Cards)
+        // 2. Hitung Total Data untuk Kartu Atas
         $totalChat = Permintaan::whereYear('tgl_masuk', $selectedYear)->where('metode_penyampaian', 'Chat')->count();
         $totalTelfon = Permintaan::whereYear('tgl_masuk', $selectedYear)->where('metode_penyampaian', 'Telfon')->count();
         
         $totalPengaduan = Permintaan::whereYear('tgl_masuk', $selectedYear)->where('jenis_permintaan', 'Pengaduan')->count();
         $totalInformasi = Permintaan::whereYear('tgl_masuk', $selectedYear)->where('jenis_permintaan', 'Informasi')->count();
 
-        // 3. Persiapkan Data untuk Chart (Doughnut)
+        // 3. Persiapkan Data untuk Chart Doughnut
         $metodeLabels = ['Chat', 'Telfon'];
         $metodeValues = [$totalChat, $totalTelfon];
 
         $jenisLabels = ['Pengaduan', 'Informasi'];
         $jenisValues = [$totalPengaduan, $totalInformasi];
 
-        // 4. Data Kurva/Tren Bulanan dalam Tahun yang Dipilih (Line Chart)
+        // 4. Data Kurva/Tren Bulanan (Line Chart)
         $bulanan = Permintaan::selectRaw('MONTH(tgl_masuk) as month, count(*) as total')
             ->whereYear('tgl_masuk', $selectedYear)
             ->groupBy('month')
             ->pluck('total', 'month')
             ->toArray();
 
-        // 5. Susun array 12 bulan (Januari - Desember) agar urut di grafik
         $dataBulanan = [];
         for ($i = 1; $i <= 12; $i++) {
-            // Jika ada data di bulan tersebut masukkan angkanya, jika tidak isi 0
             $dataBulanan[] = $bulanan[$i] ?? 0;
         }
 
-        // 6. Return data ke view Dashboard Permintaan
+        // 5. DATA BARU: Grafik Batang untuk Unit Terkait
+        // Dikelompokkan berdasarkan nama unit dan diurutkan dari yang terbanyak
+        $unitData = Permintaan::selectRaw('unit_terkait, count(*) as total')
+            ->whereYear('tgl_masuk', $selectedYear)
+            ->groupBy('unit_terkait')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        $unitLabels = $unitData->pluck('unit_terkait')->toArray();
+        $unitValues = $unitData->pluck('total')->toArray();
+
         return view('permintaan.dashboard', compact(
             'availableYears', 
             'selectedYear', 
@@ -63,7 +70,9 @@ class DashboardPermintaanController extends Controller
             'metodeValues', 
             'jenisLabels', 
             'jenisValues', 
-            'dataBulanan'
+            'dataBulanan',
+            'unitLabels', // <--- Variabel baru
+            'unitValues'  // <--- Variabel baru
         ));
     }
 }

@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', 'Data Permintaan & Informasi')
+@section('title', 'Data Layanan Pengadun & Informasi')
 
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white py-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="m-0 font-weight-bold text-primary"><i class="bi bi-table me-2"></i>Daftar Permintaan & Layanan</h5>
+            <h5 class="m-0 font-weight-bold text-primary"><i class="bi bi-table me-2"></i>Daftar Layanan Pengaduan & Layanan</h5>
             
             <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInput">    
                 <i class="bi bi-plus-lg me-1"></i> Buat Baru
@@ -58,9 +58,22 @@
 
                     {{-- 5. TOMBOL FILTER --}}
                     <div class="col-auto d-flex gap-1">
+                        {{-- Tombol Filter --}}
                         <button type="submit" class="btn btn-secondary btn-sm" title="Terapkan Filter">
                             <i class="bi bi-filter"></i>
                         </button>
+                        
+                        {{-- Tombol PDF --}}
+                        <a href="{{ route('permintaan.export.pdf', request()->query()) }}" class="btn btn-danger btn-sm text-white" target="_blank" title="Download PDF">
+                            <i class="bi bi-file-pdf"></i>
+                        </a>
+
+                        {{-- Tombol Excel --}}
+                        <a href="{{ route('permintaan.export.excel', request()->query()) }}" class="btn btn-success btn-sm" title="Download Excel">
+                            <i class="bi bi-file-excel"></i>
+                        </a>
+
+                        {{-- Tombol Reset --}}
                         <a href="{{ route('permintaan.index') }}" class="btn btn-outline-danger btn-sm" title="Reset Filter">
                             <i class="bi bi-x-lg"></i>
                         </a>
