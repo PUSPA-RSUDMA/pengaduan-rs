@@ -10,6 +10,8 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController; 
 use App\Http\Controllers\MasterController;
+use App\Http\Controllers\PermintaanController;
+use App\Http\Controllers\DashboardPermintaanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +39,15 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 // GRUP WAJIB LOGIN
 Route::middleware('auth')->group(function () {
-    
+    // 1. Rute Dashboard Permintaan
+    Route::get('/dashboard-permintaan', [DashboardPermintaanController::class, 'index'])->name('dashboard.permintaan');
+
+    // 2. Rute CRUD Permintaan
+    Route::get('/permintaan', [PermintaanController::class, 'index'])->name('permintaan.index');
+    Route::post('/permintaan', [PermintaanController::class, 'store'])->name('permintaan.store');
+    Route::put('/permintaan/{id}', [PermintaanController::class, 'update'])->name('permintaan.update');
+    Route::delete('/permintaan/{id}', [PermintaanController::class, 'destroy'])->name('permintaan.destroy');
+
     // FITUR PROFIL (DATA DIRI)
     Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');

@@ -112,6 +112,19 @@
                     <i class="bi bi-table me-2"></i> Data Keluhan
                 </a>
 
+                {{-- MENU BARU: PERMINTAAN & INFORMASI --}}
+                <div class="sidebar-label mt-2">Layanan & Informasi</div>
+
+                @if(auth()->user()->role == 'admin')
+                    <a href="{{ route('dashboard.permintaan') }}" class="list-group-item list-group-item-action {{ request()->routeIs('dashboard.permintaan') ? 'active' : '' }}">
+                        <i class="bi bi-pie-chart-fill me-2"></i> Dashboard Layanan
+                    </a>
+                @endif
+
+                <a href="{{ route('permintaan.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('permintaan.*') ? 'active' : '' }}">
+                    <i class="bi bi-journal-text me-2"></i> Data Permintaan
+                </a>
+
                 @if(auth()->user()->role == 'admin')
                     <div class="sidebar-label mt-2">Data Master</div>
                     

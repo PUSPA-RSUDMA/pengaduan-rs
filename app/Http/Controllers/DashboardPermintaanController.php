@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Permintaan;
+use Illuminate\Http\Request;
+
+class DashboardPermintaanController extends Controller
+{
+    public function index(Request $request)
+    {
+        // 1. Ambil Tahun yang Tersedia dari Database (berdasarkan tgl_masuk)
+        $availableYears = Permintaan::selectRaw('YEAR(tgl_masuk) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        // Jika tabel masih kosong, set tahun saat ini sebagai default agar tidak error
+        if ($availableYears->isEmpty()) {
+            $availableYears = collect([date('Y')]);
+        }
+
+        // Tahun yang dipilih filter (default: tahun sekarang)
+        $selectedYear = $request->year ?? date('Y');
+
+        // 2. Hitung Total Data untuk Kartu Atas (Cards)
+        $totalChat = Permintaan::whereYear('tgl_masuk', $selectedYear)->where('metode_penyampaian', 'Chat')->count();
+        $totalTelfon = Permintaan::whereYear('tgl_masuk', $selectedYear)->where('metode_penyampaian', 'Telfon')->count();
+        
+        $totalPengaduan = Permintaan::whereYear('tgl_masuk', $selectedYear)->where('jenis_permintaan', 'Pengaduan')->count();
+        $totalInformasi = Permintaan::whereYear('tgl_masuk', $selectedYear)->where('jenis_permintaan', 'Informasi')->count();
+
+        // 3. Persiapkan Data untuk Chart (Doughnut)
+        $metodeLabels = ['Chat', 'Telfon'];
+        $metodeValues = [$totalChat, $totalTelfon];
+
+        $jenisLabels = ['Pengaduan', 'Informasi'];
+        $jenisValues = [$totalPengaduan, $totalInformasi];
+
+        // 4. Data Kurva/Tren Bulanan dalam Tahun yang Dipilih (Line Chart)
+        $bulanan = Permintaan::selectRaw('MONTH(tgl_masuk) as month, count(*) as total')
+            ->whereYear('tgl_masuk', $selectedYear)
+            ->groupBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // 5. Susun array 12 bulan (Januari - Desember) agar urut di grafik
+        $dataBulanan = [];
+        for ($i = 1; $i <= 12; $i++) {
+            // Jika ada data di bulan tersebut masukkan angkanya, jika tidak isi 0
+            $dataBulanan[] = $bulanan[$i] ?? 0;
+        }
+
+        // 6. Return data ke view Dashboard Permintaan
+        return view('permintaan.dashboard', compact(
+            'availableYears', 
+            'selectedYear', 
+            'totalChat', 
+            'totalTelfon', 
+            'totalPengaduan', 
+            'totalInformasi',
+            'metodeLabels', 
+            'metodeValues', 
+            'jenisLabels', 
+            'jenisValues', 
+            'dataBulanan'
+        ));
+    }
+}
