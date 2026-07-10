@@ -117,6 +117,59 @@
     </div>
 </div>
 
+{{-- 4. DAFTAR TOP NOMOR HP TERBANYAK --}}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-dark">
+                    <i class="bi bi-telephone-inbound text-warning me-2"></i>Top 5 Nomor HP (Pengirim Terbanyak)
+                </span>
+                <span class="badge bg-warning text-dark">Tahun {{ $selectedYear }}</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4" style="width: 10%;">Peringkat</th>
+                                <th style="width: 50%;">Nomor HP / WA</th>
+                                <th style="width: 40%;">Total Permintaan (Masuk)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($topPhones as $index => $phone)
+                                <tr>
+                                    <td class="ps-4">
+                                        {{-- Tampilan Peringkat: Beri warna spesial untuk Top 3 --}}
+                                        @if($index == 0)
+                                            <span class="badge bg-success rounded-pill px-3 py-2 fs-6">#{{ $index + 1 }}</span>
+                                        @elseif($index == 1)
+                                            <span class="badge bg-primary rounded-pill px-3 py-2">#{{ $index + 1 }}</span>
+                                        @elseif($index == 2)
+                                            <span class="badge bg-info rounded-pill px-3 py-2">#{{ $index + 1 }}</span>
+                                        @else
+                                            <span class="badge bg-secondary rounded-pill px-3 py-2">#{{ $index + 1 }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="fw-bold text-secondary">{{ $phone->no_hp }}</td>
+                                    <td>
+                                        <span class="fw-bold fs-6">{{ $phone->total }}</span> Layanan
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">Belum ada data untuk tahun {{ $selectedYear }}</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
 

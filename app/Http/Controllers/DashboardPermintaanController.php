@@ -48,8 +48,7 @@ class DashboardPermintaanController extends Controller
             $dataBulanan[] = $bulanan[$i] ?? 0;
         }
 
-        // 5. DATA BARU: Grafik Batang untuk Unit Terkait
-        // Dikelompokkan berdasarkan nama unit dan diurutkan dari yang terbanyak
+        // 5. Grafik Batang untuk Unit Terkait
         $unitData = Permintaan::selectRaw('unit_terkait, count(*) as total')
             ->whereYear('tgl_masuk', $selectedYear)
             ->groupBy('unit_terkait')
@@ -58,6 +57,16 @@ class DashboardPermintaanController extends Controller
 
         $unitLabels = $unitData->pluck('unit_terkait')->toArray();
         $unitValues = $unitData->pluck('total')->toArray();
+
+        // 6. DATA BARU: Top Nomor HP (Paling Banyak)
+        $topPhones = Permintaan::selectRaw('no_hp, count(*) as total')
+            ->whereYear('tgl_masuk', $selectedYear)
+            ->whereNotNull('no_hp')
+            ->where('no_hp', '!=', '') // Menghindari data kosong
+            ->groupBy('no_hp')
+            ->orderBy('total', 'desc')
+            ->limit(5) // Batasi hanya menampilkan top 5 (bisa diubah sesuai kebutuhan)
+            ->get();
 
         return view('permintaan.dashboard', compact(
             'availableYears', 
@@ -71,8 +80,9 @@ class DashboardPermintaanController extends Controller
             'jenisLabels', 
             'jenisValues', 
             'dataBulanan',
-            'unitLabels', // <--- Variabel baru
-            'unitValues'  // <--- Variabel baru
+            'unitLabels',
+            'unitValues',
+            'topPhones' // <--- Variabel baru yang dikirim ke view
         ));
     }
 }
