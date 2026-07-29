@@ -92,16 +92,15 @@
                         <th width="10%">Unit Pelapor</th>
                         <th width="7%">Media</th>
                         <th width="5%">Grade</th>
-                        {{-- Kolom Keluhan Dipisah Menjadi 6 Kategori --}}
-                        <th width="11%">1. SDM / Petugas</th>
-                        <th width="11%">2. Sarpras</th>
-                        <th width="11%">3. Administrasi</th>
-                        <th width="10%">4. Farmasi</th>
-                        <th width="10%">5. Gizi</th>
-                        <th width="10%">6. Keamanan</th>
+                        <th width="10%">1. SDM</th>
+                        <th width="10%">2. Sarpras</th>
+                        <th width="10%">3. Admin</th>
+                        <th width="9%">4. Farmasi</th>
+                        <th width="9%">5. Gizi</th>
+                        <th width="9%">6. Keamanan</th>
                         <th width="10%">Lainnya</th>
-                        <th width="12%">Tindak Lanjut</th>
-                        <th width="7%">Unit Tujuan</th>
+                        <th width="10%">Tindak Lanjut</th>
+                        <th width="7%">Tujuan</th>
                         <th width="6%">Status</th>
                         <th width="7%">Aksi</th>
                     </tr>
@@ -139,90 +138,110 @@
                             @endif
                         </td>
 
-                        {{-- KELUHAN 1: SDM --}}
+                        {{-- KELUHAN 1: SDM (Bungkus max-height scroll) --}}
                         <td>
-                            @if(!empty($complaint->keluhan_sdm) && is_array($complaint->keluhan_sdm))
-                                <ul class="ps-3 mb-0">
-                                    @foreach($complaint->keluhan_sdm as $item)
-                                        <li>{{ $item }}</li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <span class="text-muted fst-italic">-</span>
-                            @endif
+                            <div style="max-height: 80px; overflow-y: auto;">
+                                @if(!empty($complaint->keluhan_sdm) && is_array($complaint->keluhan_sdm))
+                                    <ul class="ps-3 mb-0">
+                                        @foreach($complaint->keluhan_sdm as $item)
+                                            <li>{{ $item }}</li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <span class="text-muted fst-italic">-</span>
+                                @endif
+                            </div>
                         </td>
 
                         {{-- KELUHAN 2: SARPRAS --}}
                         <td>
-                            @if(!empty($complaint->keluhan_sarpras) && is_array($complaint->keluhan_sarpras))
-                                <ul class="ps-3 mb-0">
-                                    @foreach($complaint->keluhan_sarpras as $item)
-                                        <li>{{ $item }}</li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <span class="text-muted fst-italic">-</span>
-                            @endif
+                            <div style="max-height: 80px; overflow-y: auto;">
+                                @if(!empty($complaint->keluhan_sarpras) && is_array($complaint->keluhan_sarpras))
+                                    <ul class="ps-3 mb-0">
+                                        @foreach($complaint->keluhan_sarpras as $item)
+                                            <li>{{ $item }}</li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <span class="text-muted fst-italic">-</span>
+                                @endif
+                            </div>
                         </td>
 
                         {{-- KELUHAN 3: ADMINISTRASI --}}
                         <td>
-                            @if(!empty($complaint->keluhan_administrasi) && is_array($complaint->keluhan_administrasi))
-                                <ul class="ps-3 mb-0">
-                                    @foreach($complaint->keluhan_administrasi as $item)
-                                        <li>{{ $item }}</li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <span class="text-muted fst-italic">-</span>
-                            @endif
+                            <div style="max-height: 80px; overflow-y: auto;">
+                                @if(!empty($complaint->keluhan_administrasi) && is_array($complaint->keluhan_administrasi))
+                                    <ul class="ps-3 mb-0">
+                                        @foreach($complaint->keluhan_administrasi as $item)
+                                            <li>{{ $item }}</li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <span class="text-muted fst-italic">-</span>
+                                @endif
+                            </div>
                         </td>
 
                         {{-- KELUHAN 4: FARMASI --}}
                         <td>
-                            @if(!empty($complaint->keluhan_farmasi) && is_array($complaint->keluhan_farmasi))
-                                <ul class="ps-3 mb-0">
-                                    @foreach($complaint->keluhan_farmasi as $item)
-                                        <li>{{ $item }}</li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <span class="text-muted fst-italic">-</span>
-                            @endif
+                            <div style="max-height: 80px; overflow-y: auto;">
+                                @if(!empty($complaint->keluhan_farmasi) && is_array($complaint->keluhan_farmasi))
+                                    <ul class="ps-3 mb-0">
+                                        @foreach($complaint->keluhan_farmasi as $item)
+                                            <li>{{ $item }}</li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <span class="text-muted fst-italic">-</span>
+                                @endif
+                            </div>
                         </td>
 
                         {{-- KELUHAN 5: GIZI --}}
                         <td>
-                            @if(!empty($complaint->keluhan_gizi) && is_array($complaint->keluhan_gizi))
-                                <ul class="ps-3 mb-0">
-                                    @foreach($complaint->keluhan_gizi as $item)
-                                        <li>{{ $item }}</li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <span class="text-muted fst-italic">-</span>
-                            @endif
+                            <div style="max-height: 80px; overflow-y: auto;">
+                                @if(!empty($complaint->keluhan_gizi) && is_array($complaint->keluhan_gizi))
+                                    <ul class="ps-3 mb-0">
+                                        @foreach($complaint->keluhan_gizi as $item)
+                                            <li>{{ $item }}</li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <span class="text-muted fst-italic">-</span>
+                                @endif
+                            </div>
                         </td>
 
                         {{-- KELUHAN 6: KEAMANAN --}}
                         <td>
-                            @if(!empty($complaint->keluhan_keamanan) && is_array($complaint->keluhan_keamanan))
-                                <ul class="ps-3 mb-0">
-                                    @foreach($complaint->keluhan_keamanan as $item)
-                                        <li>{{ $item }}</li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <span class="text-muted fst-italic">-</span>
-                            @endif
+                            <div style="max-height: 80px; overflow-y: auto;">
+                                @if(!empty($complaint->keluhan_keamanan) && is_array($complaint->keluhan_keamanan))
+                                    <ul class="ps-3 mb-0">
+                                        @foreach($complaint->keluhan_keamanan as $item)
+                                            <li>{{ $item }}</li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <span class="text-muted fst-italic">-</span>
+                                @endif
+                            </div>
                         </td>
 
-                        {{-- LAINNYA / DESKRIPSI --}}
+                        {{-- LAINNYA / DESKRIPSI (DIBUAT SCROLLABLE KECIL) --}}
                         <td>
-                            {{ $complaint->description ?? '-' }}
+                            <div style="max-height: 80px; overflow-y: auto; white-space: pre-line;">
+                                {{ $complaint->description ?? '-' }}
+                            </div>
                         </td>
 
-                        <td>{{ Str::limit($complaint->answer, 50) }}</td>
+                        {{-- TINDAK LANJUT --}}
+                        <td>
+                            <div style="max-height: 80px; overflow-y: auto; white-space: pre-line;">
+                                {{ $complaint->answer ?? '-' }}
+                            </div>
+                        </td>
+
                         <td class="fw-bold">{{ $complaint->unit_destination }}</td>
                         <td class="text-center">
                             @if($complaint->status == 'Pending')
@@ -364,7 +383,7 @@
 
                                         <div class="row g-3 mt-1">
                                             <div class="col-md-6">
-                                                <label class="small fw-bold text-muted">Deskripsi Tambahan / Lain-lain</label>
+                                                <label class="small fw-bold text-muted">Deskripsi Tambahan / Lain-lain (Textarea)</label>
                                                 <textarea name="description" class="form-control form-control-sm" rows="3">{{ $complaint->description }}</textarea>
                                             </div>
                                             <div class="col-md-6">
