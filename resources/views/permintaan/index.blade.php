@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', 'Data Layanan Pengadun & Informasi')
+@section('title', 'Data Layanan Informasi')
 
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white py-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="m-0 font-weight-bold text-primary"><i class="bi bi-table me-2"></i>Daftar Layanan Pengaduan & Layanan</h5>
+            <h5 class="m-0 font-weight-bold text-primary"><i class="bi bi-table me-2"></i>Daftar Layanan Informasi</h5>
             
             <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInput">    
                 <i class="bi bi-plus-lg me-1"></i> Buat Baru
