@@ -84,25 +84,18 @@
         @endif
 
         <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle" style="font-size: 0.8rem;">
+            <table class="table table-bordered table-hover align-middle" style="font-size: 0.85rem;">
                 <thead class="table-light text-center text-uppercase align-middle">
                     <tr>
-                        <th width="3%">No</th>
-                        <th width="7%">Tgl Masuk</th>
-                        <th width="10%">Unit Pelapor</th>
-                        <th width="7%">Media</th>
+                        <th width="5%">No</th>
+                        <th width="10%">Tgl Masuk</th>
+                        <th width="15%">Unit Pelapor</th>
+                        <th width="10%">Media</th>
                         <th width="5%">Grade</th>
-                        <th width="10%">1. SDM</th>
-                        <th width="10%">2. Sarpras</th>
-                        <th width="10%">3. Admin</th>
-                        <th width="9%">4. Farmasi</th>
-                        <th width="9%">5. Gizi</th>
-                        <th width="9%">6. Keamanan</th>
-                        <th width="10%">Lainnya</th>
-                        <th width="10%">Tindak Lanjut</th>
-                        <th width="7%">Tujuan</th>
-                        <th width="6%">Status</th>
-                        <th width="7%">Aksi</th>
+                        <th width="20%">Isi Keluhan & Detail</th>
+                        <th width="15%">Unit Tujuan</th>
+                        <th width="10%">Status</th>
+                        <th width="10%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,111 +131,26 @@
                             @endif
                         </td>
 
-                        {{-- KELUHAN 1: SDM (Bungkus max-height scroll) --}}
-                        <td>
-                            <div style="max-height: 80px; overflow-y: auto;">
-                                @if(!empty($complaint->keluhan_sdm) && is_array($complaint->keluhan_sdm))
-                                    <ul class="ps-3 mb-0">
-                                        @foreach($complaint->keluhan_sdm as $item)
-                                            <li>{{ $item }}</li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <span class="text-muted fst-italic">-</span>
-                                @endif
+                        {{-- KOLOM DETAIL KELUHAN (DENGAN TOMBOL POPUP) --}}
+                        <td class="text-center">
+                            {{-- Tampilkan Label Kategori Secara Singkat --}}
+                            <div class="mb-2 d-flex flex-wrap justify-content-center gap-1">
+                                @if(!empty($complaint->keluhan_sdm)) <span class="badge bg-primary" style="font-size: 0.7rem;">SDM</span> @endif
+                                @if(!empty($complaint->keluhan_sarpras)) <span class="badge bg-danger" style="font-size: 0.7rem;">Sarpras</span> @endif
+                                @if(!empty($complaint->keluhan_administrasi)) <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">Admin</span> @endif
+                                @if(!empty($complaint->keluhan_farmasi)) <span class="badge bg-success" style="font-size: 0.7rem;">Farmasi</span> @endif
+                                @if(!empty($complaint->keluhan_gizi)) <span class="badge bg-info text-dark" style="font-size: 0.7rem;">Gizi</span> @endif
+                                @if(!empty($complaint->keluhan_keamanan)) <span class="badge bg-secondary" style="font-size: 0.7rem;">Aman</span> @endif
                             </div>
+                            
+                            {{-- Tombol Lihat Detail --}}
+                            <button class="btn btn-outline-info btn-sm rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#modalDetail{{ $complaint->id }}">
+                                <i class="bi bi-search me-1"></i> Lihat Lengkap
+                            </button>
                         </td>
 
-                        {{-- KELUHAN 2: SARPRAS --}}
-                        <td>
-                            <div style="max-height: 80px; overflow-y: auto;">
-                                @if(!empty($complaint->keluhan_sarpras) && is_array($complaint->keluhan_sarpras))
-                                    <ul class="ps-3 mb-0">
-                                        @foreach($complaint->keluhan_sarpras as $item)
-                                            <li>{{ $item }}</li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <span class="text-muted fst-italic">-</span>
-                                @endif
-                            </div>
-                        </td>
-
-                        {{-- KELUHAN 3: ADMINISTRASI --}}
-                        <td>
-                            <div style="max-height: 80px; overflow-y: auto;">
-                                @if(!empty($complaint->keluhan_administrasi) && is_array($complaint->keluhan_administrasi))
-                                    <ul class="ps-3 mb-0">
-                                        @foreach($complaint->keluhan_administrasi as $item)
-                                            <li>{{ $item }}</li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <span class="text-muted fst-italic">-</span>
-                                @endif
-                            </div>
-                        </td>
-
-                        {{-- KELUHAN 4: FARMASI --}}
-                        <td>
-                            <div style="max-height: 80px; overflow-y: auto;">
-                                @if(!empty($complaint->keluhan_farmasi) && is_array($complaint->keluhan_farmasi))
-                                    <ul class="ps-3 mb-0">
-                                        @foreach($complaint->keluhan_farmasi as $item)
-                                            <li>{{ $item }}</li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <span class="text-muted fst-italic">-</span>
-                                @endif
-                            </div>
-                        </td>
-
-                        {{-- KELUHAN 5: GIZI --}}
-                        <td>
-                            <div style="max-height: 80px; overflow-y: auto;">
-                                @if(!empty($complaint->keluhan_gizi) && is_array($complaint->keluhan_gizi))
-                                    <ul class="ps-3 mb-0">
-                                        @foreach($complaint->keluhan_gizi as $item)
-                                            <li>{{ $item }}</li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <span class="text-muted fst-italic">-</span>
-                                @endif
-                            </div>
-                        </td>
-
-                        {{-- KELUHAN 6: KEAMANAN --}}
-                        <td>
-                            <div style="max-height: 80px; overflow-y: auto;">
-                                @if(!empty($complaint->keluhan_keamanan) && is_array($complaint->keluhan_keamanan))
-                                    <ul class="ps-3 mb-0">
-                                        @foreach($complaint->keluhan_keamanan as $item)
-                                            <li>{{ $item }}</li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <span class="text-muted fst-italic">-</span>
-                                @endif
-                            </div>
-                        </td>
-
-                        {{-- LAINNYA / DESKRIPSI (DIBUAT SCROLLABLE KECIL) --}}
-                        <td>
-                            <div style="max-height: 80px; overflow-y: auto; white-space: pre-line;">
-                                {{ $complaint->description ?? '-' }}
-                            </div>
-                        </td>
-
-                        {{-- TINDAK LANJUT --}}
-                        <td>
-                            <div style="max-height: 80px; overflow-y: auto; white-space: pre-line;">
-                                {{ $complaint->answer ?? '-' }}
-                            </div>
-                        </td>
-
-                        <td class="fw-bold">{{ $complaint->unit_destination }}</td>
+                        <td class="text-center fw-bold">{{ $complaint->unit_destination }}</td>
+                        
                         <td class="text-center">
                             @if($complaint->status == 'Pending')
                                 <span class="badge bg-secondary">Pending</span>
@@ -267,6 +175,110 @@
                             </div>
                         </td>
                     </tr>
+
+                    {{-- MODAL LIHAT DETAIL KELUHAN --}}
+                    <div class="modal fade" id="modalDetail{{ $complaint->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content border-0 shadow-lg">
+                                <div class="modal-header bg-info text-white py-2">
+                                    <h6 class="modal-title fw-bold"><i class="bi bi-card-text me-2"></i>Rincian Pengaduan Lengkap</h6>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body p-4 bg-light">
+                                    
+                                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">Item yang Dikeluhkan:</h6>
+                                    <div class="row g-3">
+                                        {{-- Cek Kategori per Kategori --}}
+                                        @if(!empty($complaint->keluhan_sdm))
+                                        <div class="col-md-6">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-header bg-white fw-bold text-primary py-1 small">SDM & Petugas</div>
+                                                <div class="card-body p-2 small">
+                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_sdm as $item) <li>{{ $item }}</li> @endforeach</ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        @if(!empty($complaint->keluhan_sarpras))
+                                        <div class="col-md-6">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-header bg-white fw-bold text-danger py-1 small">Sarana Prasarana</div>
+                                                <div class="card-body p-2 small">
+                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_sarpras as $item) <li>{{ $item }}</li> @endforeach</ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        @if(!empty($complaint->keluhan_administrasi))
+                                        <div class="col-md-6">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-header bg-white fw-bold text-warning py-1 small">Administrasi</div>
+                                                <div class="card-body p-2 small">
+                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_administrasi as $item) <li>{{ $item }}</li> @endforeach</ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        @if(!empty($complaint->keluhan_farmasi))
+                                        <div class="col-md-6">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-header bg-white fw-bold text-success py-1 small">Farmasi & Obat</div>
+                                                <div class="card-body p-2 small">
+                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_farmasi as $item) <li>{{ $item }}</li> @endforeach</ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        @if(!empty($complaint->keluhan_gizi))
+                                        <div class="col-md-6">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-header bg-white fw-bold text-info py-1 small">Gizi & Makanan</div>
+                                                <div class="card-body p-2 small">
+                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_gizi as $item) <li>{{ $item }}</li> @endforeach</ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        @if(!empty($complaint->keluhan_keamanan))
+                                        <div class="col-md-6">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-header bg-white fw-bold text-secondary py-1 small">Keamanan</div>
+                                                <div class="card-body p-2 small">
+                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_keamanan as $item) <li>{{ $item }}</li> @endforeach</ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <h6 class="fw-bold text-dark border-bottom pb-1">Deskripsi Tambahan (Lainnya):</h6>
+                                        <div class="p-2 bg-white rounded border border-light small" style="white-space: pre-line;">
+                                            {{ $complaint->description ?: 'Tidak ada deskripsi tambahan.' }}
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <h6 class="fw-bold text-success border-bottom pb-1">Tindak Lanjut / Solusi:</h6>
+                                        <div class="p-2 bg-white rounded border border-light small" style="white-space: pre-line;">
+                                            {{ $complaint->answer ?: 'Belum ada tindak lanjut.' }}
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer py-2 bg-white border-top">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{-- END MODAL DETAIL --}}
+
 
                     {{-- MODAL EDIT --}}
                     <div class="modal fade" id="modalEdit{{ $complaint->id }}" tabindex="-1" data-bs-backdrop="static">
@@ -383,7 +395,7 @@
 
                                         <div class="row g-3 mt-1">
                                             <div class="col-md-6">
-                                                <label class="small fw-bold text-muted">Deskripsi Tambahan / Lain-lain (Textarea)</label>
+                                                <label class="small fw-bold text-muted">Deskripsi Tambahan / Lain-lain</label>
                                                 <textarea name="description" class="form-control form-control-sm" rows="3">{{ $complaint->description }}</textarea>
                                             </div>
                                             <div class="col-md-6">
@@ -432,7 +444,7 @@
                     {{-- END MODAL EDIT --}}
 
                     @empty
-                    <tr><td colspan="16" class="text-center py-4 text-muted">Data tidak ditemukan.</td></tr>
+                    <tr><td colspan="10" class="text-center py-4 text-muted">Data tidak ditemukan.</td></tr>
                     @endforelse
                 </tbody>
             </table>
