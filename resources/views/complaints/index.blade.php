@@ -84,20 +84,26 @@
         @endif
 
         <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle" style="font-size: 0.85rem;">
+            <table class="table table-bordered table-hover align-middle" style="font-size: 0.8rem;">
                 <thead class="table-light text-center text-uppercase align-middle">
                     <tr>
-                        <th width="5%">No</th>
-                        <th>Tgl Masuk</th>
-                        <th>Unit Pelapor</th>
-                        <th>Media</th>
-                        <th>Grade</th>
-                        <th width="25%">Isi Keluhan</th>
-                        <th width="25%">Tindak Lanjut</th>
-                        <th>Verifikasi</th>
-                        <th>Unit Tujuan</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
+                        <th width="3%">No</th>
+                        <th width="7%">Tgl Masuk</th>
+                        <th width="10%">Unit Pelapor</th>
+                        <th width="7%">Media</th>
+                        <th width="5%">Grade</th>
+                        {{-- Kolom Keluhan Dipisah Menjadi 6 Kategori --}}
+                        <th width="11%">1. SDM / Petugas</th>
+                        <th width="11%">2. Sarpras</th>
+                        <th width="11%">3. Administrasi</th>
+                        <th width="10%">4. Farmasi</th>
+                        <th width="10%">5. Gizi</th>
+                        <th width="10%">6. Keamanan</th>
+                        <th width="10%">Lainnya</th>
+                        <th width="12%">Tindak Lanjut</th>
+                        <th width="7%">Unit Tujuan</th>
+                        <th width="6%">Status</th>
+                        <th width="7%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -113,6 +119,7 @@
                         </td>
                         <td class="text-center">{{ $complaint->source->name ?? '-' }}</td>
                         
+                        {{-- GRADE --}}
                         <td class="text-center">
                             @php
                                 $isHex = Str::startsWith($complaint->grade, '#'); 
@@ -132,18 +139,90 @@
                             @endif
                         </td>
 
+                        {{-- KELUHAN 1: SDM --}}
                         <td>
-                            @if(!empty($complaint->keluhan_sdm) && is_array($complaint->keluhan_sdm)) <div class="mb-1"><span class="badge bg-secondary">SDM:</span> {{ implode(', ', $complaint->keluhan_sdm) }}</div> @endif
-                            @if(!empty($complaint->keluhan_sarpras) && is_array($complaint->keluhan_sarpras)) <div class="mb-1"><span class="badge bg-secondary">Sarpras:</span> {{ implode(', ', $complaint->keluhan_sarpras) }}</div> @endif
-                            @if(!empty($complaint->keluhan_administrasi) && is_array($complaint->keluhan_administrasi)) <div class="mb-1"><span class="badge bg-secondary">Admin:</span> {{ implode(', ', $complaint->keluhan_administrasi) }}</div> @endif
-                            @if(!empty($complaint->keluhan_farmasi) && is_array($complaint->keluhan_farmasi)) <div class="mb-1"><span class="badge bg-secondary">Farmasi:</span> {{ implode(', ', $complaint->keluhan_farmasi) }}</div> @endif
-                            @if(!empty($complaint->keluhan_gizi) && is_array($complaint->keluhan_gizi)) <div class="mb-1"><span class="badge bg-secondary">Gizi:</span> {{ implode(', ', $complaint->keluhan_gizi) }}</div> @endif
-                            @if(!empty($complaint->keluhan_keamanan) && is_array($complaint->keluhan_keamanan)) <div class="mb-1"><span class="badge bg-secondary">Aman:</span> {{ implode(', ', $complaint->keluhan_keamanan) }}</div> @endif
-                            @if(!empty($complaint->description)) <div class="mb-1"><span class="badge bg-dark">Lainnya:</span> {{ $complaint->description }}</div> @endif
+                            @if(!empty($complaint->keluhan_sdm) && is_array($complaint->keluhan_sdm))
+                                <ul class="ps-3 mb-0">
+                                    @foreach($complaint->keluhan_sdm as $item)
+                                        <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <span class="text-muted fst-italic">-</span>
+                            @endif
                         </td>
 
-                        <td>{{ Str::limit($complaint->answer) }}</td>
-                        <td class="text-center small text-muted">{{ $complaint->created_at->format('d/m/Y') }}</td>
+                        {{-- KELUHAN 2: SARPRAS --}}
+                        <td>
+                            @if(!empty($complaint->keluhan_sarpras) && is_array($complaint->keluhan_sarpras))
+                                <ul class="ps-3 mb-0">
+                                    @foreach($complaint->keluhan_sarpras as $item)
+                                        <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <span class="text-muted fst-italic">-</span>
+                            @endif
+                        </td>
+
+                        {{-- KELUHAN 3: ADMINISTRASI --}}
+                        <td>
+                            @if(!empty($complaint->keluhan_administrasi) && is_array($complaint->keluhan_administrasi))
+                                <ul class="ps-3 mb-0">
+                                    @foreach($complaint->keluhan_administrasi as $item)
+                                        <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <span class="text-muted fst-italic">-</span>
+                            @endif
+                        </td>
+
+                        {{-- KELUHAN 4: FARMASI --}}
+                        <td>
+                            @if(!empty($complaint->keluhan_farmasi) && is_array($complaint->keluhan_farmasi))
+                                <ul class="ps-3 mb-0">
+                                    @foreach($complaint->keluhan_farmasi as $item)
+                                        <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <span class="text-muted fst-italic">-</span>
+                            @endif
+                        </td>
+
+                        {{-- KELUHAN 5: GIZI --}}
+                        <td>
+                            @if(!empty($complaint->keluhan_gizi) && is_array($complaint->keluhan_gizi))
+                                <ul class="ps-3 mb-0">
+                                    @foreach($complaint->keluhan_gizi as $item)
+                                        <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <span class="text-muted fst-italic">-</span>
+                            @endif
+                        </td>
+
+                        {{-- KELUHAN 6: KEAMANAN --}}
+                        <td>
+                            @if(!empty($complaint->keluhan_keamanan) && is_array($complaint->keluhan_keamanan))
+                                <ul class="ps-3 mb-0">
+                                    @foreach($complaint->keluhan_keamanan as $item)
+                                        <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <span class="text-muted fst-italic">-</span>
+                            @endif
+                        </td>
+
+                        {{-- LAINNYA / DESKRIPSI --}}
+                        <td>
+                            {{ $complaint->description ?? '-' }}
+                        </td>
+
+                        <td>{{ Str::limit($complaint->answer, 50) }}</td>
                         <td class="fw-bold">{{ $complaint->unit_destination }}</td>
                         <td class="text-center">
                             @if($complaint->status == 'Pending')
@@ -211,7 +290,6 @@
                                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan</h6>
                                         <div class="row g-3">
                                             @php
-                                                // Helper untuk mempermudah pengecekan data array checkbox
                                                 $sdm = is_array($complaint->keluhan_sdm) ? $complaint->keluhan_sdm : [];
                                                 $srp = is_array($complaint->keluhan_sarpras) ? $complaint->keluhan_sarpras : [];
                                                 $adm = is_array($complaint->keluhan_administrasi) ? $complaint->keluhan_administrasi : [];
@@ -221,7 +299,7 @@
                                             @endphp
                                             <!-- SDM -->
                                             <div class="col-md-4">
-                                                <div class="card h-100 border-0">
+                                                <div class="card h-100 border-0 shadow-sm">
                                                     <div class="card-header bg-white fw-bold text-primary py-2 small">1. SDM / Petugas</div>
                                                     <div class="card-body small p-2">
                                                         <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_sdm[]" value="Etika & perilaku kurang ramah" {{ in_array("Etika & perilaku kurang ramah", $sdm) ? 'checked' : '' }}> Etika & perilaku kurang ramah</div>
@@ -232,7 +310,7 @@
                                             </div>
                                             <!-- Sarpras -->
                                             <div class="col-md-4">
-                                                <div class="card h-100 border-0">
+                                                <div class="card h-100 border-0 shadow-sm">
                                                     <div class="card-header bg-white fw-bold text-primary py-2 small">2. Sarpras</div>
                                                     <div class="card-body small p-2">
                                                         <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_sarpras[]" value="Fasilitas rusak (AC, Toilet, dll)" {{ in_array("Fasilitas rusak (AC, Toilet, dll)", $srp) ? 'checked' : '' }}> Fasilitas rusak (AC, Toilet, dll)</div>
@@ -243,7 +321,7 @@
                                             </div>
                                             <!-- Administrasi -->
                                             <div class="col-md-4">
-                                                <div class="card h-100 border-0">
+                                                <div class="card h-100 border-0 shadow-sm">
                                                     <div class="card-header bg-white fw-bold text-primary py-2 small">3. Administrasi</div>
                                                     <div class="card-body small p-2">
                                                         <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_administrasi[]" value="Antrean terlalu lama" {{ in_array("Antrean terlalu lama", $adm) ? 'checked' : '' }}> Antrean terlalu lama</div>
@@ -254,7 +332,7 @@
                                             </div>
                                             <!-- Farmasi -->
                                             <div class="col-md-4">
-                                                <div class="card h-100 border-0">
+                                                <div class="card h-100 border-0 shadow-sm">
                                                     <div class="card-header bg-white fw-bold text-primary py-2 small">4. Farmasi</div>
                                                     <div class="card-body small p-2">
                                                         <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_farmasi[]" value="Tunggu obat terlalu lama" {{ in_array("Tunggu obat terlalu lama", $frm) ? 'checked' : '' }}> Tunggu obat terlalu lama</div>
@@ -264,7 +342,7 @@
                                             </div>
                                             <!-- Gizi -->
                                             <div class="col-md-4">
-                                                <div class="card h-100 border-0">
+                                                <div class="card h-100 border-0 shadow-sm">
                                                     <div class="card-header bg-white fw-bold text-primary py-2 small">5. Gizi</div>
                                                     <div class="card-body small p-2">
                                                         <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_gizi[]" value="Makanan terlambat" {{ in_array("Makanan terlambat", $gzi) ? 'checked' : '' }}> Makanan terlambat</div>
@@ -274,7 +352,7 @@
                                             </div>
                                             <!-- Keamanan -->
                                             <div class="col-md-4">
-                                                <div class="card h-100 border-0">
+                                                <div class="card h-100 border-0 shadow-sm">
                                                     <div class="card-header bg-white fw-bold text-primary py-2 small">6. Keamanan & Parkir</div>
                                                     <div class="card-body small p-2">
                                                         <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_keamanan[]" value="Parkir penuh/semrawut" {{ in_array("Parkir penuh/semrawut", $kmn) ? 'checked' : '' }}> Parkir penuh/semrawut</div>
@@ -335,7 +413,7 @@
                     {{-- END MODAL EDIT --}}
 
                     @empty
-                    <tr><td colspan="11" class="text-center py-4 text-muted">Data tidak ditemukan.</td></tr>
+                    <tr><td colspan="16" class="text-center py-4 text-muted">Data tidak ditemukan.</td></tr>
                     @endforelse
                 </tbody>
             </table>
