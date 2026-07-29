@@ -2,7 +2,6 @@
 @section('title', 'Dashboard Monitoring')
 @section('content')
 <style>
-    /* Efek Hover Kartu */
     .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; }
     .hover-card:hover { transform: translateY(-5px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; z-index: 10; }
 </style>
@@ -45,31 +44,23 @@
 
 {{-- 2. GRAFIK BULANAN & TREN --}}
 <div class="row">
-    
     {{-- CHART BULANAN (KIRI) --}}
     <div class="col-lg-6 col-12 mb-4"> 
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-2 border-bottom-0 d-flex justify-content-between align-items-center">
                 <span class="fw-bold text-primary"><i class="bi bi-bar-chart-fill me-2"></i> Statistik Bulanan</span>
-                
                 <form action="{{ route('dashboard') }}" method="GET">
                     <input type="hidden" name="start_year" value="{{ $startYear }}">
                     <input type="hidden" name="end_year" value="{{ $endYear }}">
                     <input type="hidden" name="cat_month" value="{{ $catMonth }}">
                     <input type="hidden" name="cat_year" value="{{ $catYear }}">
                     <input type="hidden" name="cat_sort" value="{{ $catSort }}">
-                    <select name="year" class="form-select form-select-sm fw-bold border-primary" onchange="this.form.submit()" style="width: auto;">
-                        @foreach($availableYears as $year)
-                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
-                        @endforeach
+                    <select name="year" class="form-select form-select-sm fw-bold border-primary" onchange="this.form.submit()">
+                        @foreach($availableYears as $year) <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option> @endforeach
                     </select>
                 </form>
             </div>
-            <div class="card-body">
-                <div style="height: 300px; position: relative;">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
-            </div>
+            <div class="card-body"><div style="height: 300px; position: relative;"><canvas id="monthlyChart"></canvas></div></div>
         </div>
     </div>
 
@@ -80,64 +71,46 @@
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-bold text-success"><i class="bi bi-graph-up-arrow me-2"></i> Tren Tahunan</span>
                 </div>
-                
                 <form action="{{ route('dashboard') }}" method="GET" id="formTren">
                     <input type="hidden" name="year" value="{{ $selectedYear }}">
                     <input type="hidden" name="cat_month" value="{{ $catMonth }}">
                     <input type="hidden" name="cat_year" value="{{ $catYear }}">
                     <input type="hidden" name="cat_sort" value="{{ $catSort }}">
-                    
                     <div class="input-group input-group-sm">
                         <select name="start_year" id="start_year" class="form-select" onchange="validateAndSubmit('start')">
-                            @foreach($availableYears as $y) 
-                                <option value="{{ $y }}" {{ $startYear == $y ? 'selected' : '' }}>{{ $y }}</option> 
-                            @endforeach
+                            @foreach($availableYears as $y) <option value="{{ $y }}" {{ $startYear == $y ? 'selected' : '' }}>{{ $y }}</option> @endforeach
                         </select>
                         <span class="input-group-text bg-light text-muted">s/d</span>
                         <select name="end_year" id="end_year" class="form-select" onchange="validateAndSubmit('end')">
-                            @foreach($availableYears as $y) 
-                                <option value="{{ $y }}" {{ $endYear == $y ? 'selected' : '' }}>{{ $y }}</option> 
-                            @endforeach
+                            @foreach($availableYears as $y) <option value="{{ $y }}" {{ $endYear == $y ? 'selected' : '' }}>{{ $y }}</option> @endforeach
                         </select>
                     </div>
                 </form>
             </div>
-            <div class="card-body">
-                <div style="height: 300px; position: relative;">
-                    <canvas id="trendChart"></canvas>
-                </div>
-            </div>
+            <div class="card-body"><div style="height: 300px; position: relative;"><canvas id="trendChart"></canvas></div></div>
         </div>
     </div>
 </div>
 
 {{-- 3. GRAFIK UNIT & MEDIA --}}
 <div class="row">
-    
     {{-- CHART UNIT TUJUAN (KIRI) --}}
     <div class="col-lg-6 col-12 mb-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-2 border-bottom-0 d-flex justify-content-between align-items-center">
                 <span class="fw-bold text-info"><i class="bi bi-building me-2"></i> Distribusi Unit Tujuan</span>
-                
                 <form action="{{ route('dashboard') }}" method="GET" class="m-0">
                     <input type="hidden" name="start_year" value="{{ $startYear }}">
                     <input type="hidden" name="end_year" value="{{ $endYear }}">
                     <input type="hidden" name="cat_month" value="{{ $catMonth }}">
                     <input type="hidden" name="cat_year" value="{{ $catYear }}">
                     <input type="hidden" name="cat_sort" value="{{ $catSort }}">
-                    <select name="year" class="form-select form-select-sm fw-bold border-info" onchange="this.form.submit()" style="width: auto;">
-                        @foreach($availableYears as $year)
-                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
-                        @endforeach
+                    <select name="year" class="form-select form-select-sm fw-bold border-info" onchange="this.form.submit()">
+                        @foreach($availableYears as $year) <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option> @endforeach
                     </select>
                 </form>
             </div>
-            <div class="card-body">
-                <div style="height: 300px; position: relative;">
-                    <canvas id="unitChart"></canvas>
-                </div>
-            </div>
+            <div class="card-body"><div style="height: 300px; position: relative;"><canvas id="unitChart"></canvas></div></div>
         </div>
     </div>
 
@@ -146,77 +119,108 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-2 border-bottom-0 d-flex justify-content-between align-items-center">
                 <span class="fw-bold text-warning"><i class="bi bi-megaphone me-2"></i> Media Pengaduan</span>
-                
                 <form action="{{ route('dashboard') }}" method="GET" class="m-0">
                     <input type="hidden" name="start_year" value="{{ $startYear }}">
                     <input type="hidden" name="end_year" value="{{ $endYear }}">
                     <input type="hidden" name="cat_month" value="{{ $catMonth }}">
                     <input type="hidden" name="cat_year" value="{{ $catYear }}">
                     <input type="hidden" name="cat_sort" value="{{ $catSort }}">
-                    <select name="year" class="form-select form-select-sm fw-bold border-warning" onchange="this.form.submit()" style="width: auto;">
-                        @foreach($availableYears as $year)
-                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
-                        @endforeach
+                    <select name="year" class="form-select form-select-sm fw-bold border-warning" onchange="this.form.submit()">
+                        @foreach($availableYears as $year) <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option> @endforeach
                     </select>
                 </form>
             </div>
-            <div class="card-body">
-                <div style="height: 300px; position: relative;">
-                    <canvas id="sourceChart"></canvas>
-                </div>
-            </div>
+            <div class="card-body"><div style="height: 300px; position: relative;"><canvas id="sourceChart"></canvas></div></div>
         </div>
     </div>
-
 </div>
 
-{{-- 4. FITUR BARU: GRAFIK KATEGORI KELUHAN (SDM, SARPRAS, DLL) --}}
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card border-0 shadow-sm h-100">
+{{-- 4. FITUR BARU: 6 DASHBOARD SUB-KATEGORI --}}
+<div class="card border-0 shadow-sm mb-4 bg-light">
+    <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 border-bottom">
+        <span class="fw-bold text-primary fs-5"><i class="bi bi-grid-1x2-fill me-2"></i> Analisis Detail Sub-Kategori Keluhan</span>
+        
+        {{-- Form Filter Utama untuk 6 Grafik --}}
+        <form action="{{ route('dashboard') }}" method="GET" class="d-flex gap-2 m-0">
+            <input type="hidden" name="year" value="{{ $selectedYear }}">
+            <input type="hidden" name="start_year" value="{{ $startYear }}">
+            <input type="hidden" name="end_year" value="{{ $endYear }}">
+
+            <!-- Filter Bulan -->
+            <select name="cat_month" class="form-select form-select-sm border-secondary shadow-sm" onchange="this.form.submit()">
+                <option value="">- Semua Bulan -</option>
+                @foreach(['01'=>'Januari', '02'=>'Februari', '03'=>'Maret', '04'=>'April', '05'=>'Mei', '06'=>'Juni', '07'=>'Juli', '08'=>'Agustus', '09'=>'September', '10'=>'Oktober', '11'=>'November', '12'=>'Desember'] as $num => $name)
+                    <option value="{{ $num }}" {{ $catMonth == $num ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+            </select>
+
+            <!-- Filter Tahun -->
+            <select name="cat_year" class="form-select form-select-sm border-secondary shadow-sm" onchange="this.form.submit()">
+                @foreach($availableYears as $y) <option value="{{ $y }}" {{ $catYear == $y ? 'selected' : '' }}>{{ $y }}</option> @endforeach
+            </select>
+
+            <!-- Filter Sorting -->
+            <select name="cat_sort" class="form-select form-select-sm fw-bold border-secondary shadow-sm" onchange="this.form.submit()">
+                <option value="desc" {{ $catSort == 'desc' ? 'selected' : '' }}>⬇️ Terbanyak</option>
+                <option value="asc" {{ $catSort == 'asc' ? 'selected' : '' }}>⬆️ Terendah</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <div class="row g-4">
             
-            <div class="card-header bg-white py-3 border-bottom-0 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-                <span class="fw-bold text-primary"><i class="bi bi-ui-checks-grid me-2"></i> Detail Kategori Keluhan (SDM, Sarpras, dll)</span>
-                
-                {{-- Form Filter Kategori --}}
-                <form action="{{ route('dashboard') }}" method="GET" class="d-flex gap-2 m-0">
-                    {{-- Hidden input agar filter grafik lain tidak hilang saat form ini disubmit --}}
-                    <input type="hidden" name="year" value="{{ $selectedYear }}">
-                    <input type="hidden" name="start_year" value="{{ $startYear }}">
-                    <input type="hidden" name="end_year" value="{{ $endYear }}">
-
-                    <!-- Filter Bulan -->
-                    <select name="cat_month" class="form-select form-select-sm border-secondary" onchange="this.form.submit()">
-                        <option value="">- Semua Bulan -</option>
-                        @foreach(['01'=>'Januari', '02'=>'Februari', '03'=>'Maret', '04'=>'April', '05'=>'Mei', '06'=>'Juni', '07'=>'Juli', '08'=>'Agustus', '09'=>'September', '10'=>'Oktober', '11'=>'November', '12'=>'Desember'] as $num => $name)
-                            <option value="{{ $num }}" {{ $catMonth == $num ? 'selected' : '' }}>{{ $name }}</option>
-                        @endforeach
-                    </select>
-
-                    <!-- Filter Tahun -->
-                    <select name="cat_year" class="form-select form-select-sm border-secondary" onchange="this.form.submit()">
-                        @foreach($availableYears as $y)
-                            <option value="{{ $y }}" {{ $catYear == $y ? 'selected' : '' }}>{{ $y }}</option>
-                        @endforeach
-                    </select>
-
-                    <!-- Filter Sorting (Terbanyak / Terendah) -->
-                    <select name="cat_sort" class="form-select form-select-sm fw-bold border-secondary" onchange="this.form.submit()">
-                        <option value="desc" {{ $catSort == 'desc' ? 'selected' : '' }}>⬇️ Terbanyak</option>
-                        <option value="asc" {{ $catSort == 'asc' ? 'selected' : '' }}>⬆️ Terendah</option>
-                    </select>
-                </form>
-            </div>
-
-            <div class="card-body">
-                <div style="height: 350px; position: relative;">
-                    <canvas id="categoryChart"></canvas>
+            {{-- 1. SDM --}}
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-person-badge me-2"></i> 1. SDM & Petugas</div>
+                    <div class="card-body"><div style="height: 200px;"><canvas id="sdmChart"></canvas></div></div>
                 </div>
             </div>
+
+            {{-- 2. SARPRAS --}}
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-buildings me-2"></i> 2. Sarana & Prasarana</div>
+                    <div class="card-body"><div style="height: 200px;"><canvas id="sarprasChart"></canvas></div></div>
+                </div>
+            </div>
+
+            {{-- 3. ADMINISTRASI --}}
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-clipboard-data me-2"></i> 3. Administrasi & Antrean</div>
+                    <div class="card-body"><div style="height: 200px;"><canvas id="adminChart"></canvas></div></div>
+                </div>
+            </div>
+
+            {{-- 4. FARMASI --}}
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-capsule me-2"></i> 4. Farmasi / Obat</div>
+                    <div class="card-body"><div style="height: 200px;"><canvas id="farmasiChart"></canvas></div></div>
+                </div>
+            </div>
+
+            {{-- 5. GIZI --}}
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-egg-fried me-2"></i> 5. Gizi / Makanan</div>
+                    <div class="card-body"><div style="height: 200px;"><canvas id="giziChart"></canvas></div></div>
+                </div>
+            </div>
+
+            {{-- 6. KEAMANAN --}}
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-shield-lock me-2"></i> 6. Keamanan & Parkir</div>
+                    <div class="card-body"><div style="height: 200px;"><canvas id="keamananChart"></canvas></div></div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
@@ -225,202 +229,128 @@
     document.addEventListener("DOMContentLoaded", function() {
         Chart.register(ChartDataLabels);
 
-        // DATA CONTROLLER (Grafik 1-4)
-        const dataBulanan = {!! json_encode($dataBulanan) !!};
-        const trendLabels = {!! json_encode($trendLabels) !!};
-        const trendData = {!! json_encode($trendData) !!};
-        const unitLabels = {!! json_encode($unitLabels) !!};
-        const unitValues = {!! json_encode($unitValues) !!};
-        const sourceLabels = {!! json_encode($sourceLabels) !!}; 
-        const sourceValues = {!! json_encode($sourceValues) !!};
-
-        // DATA CONTROLLER (Kategori Baru)
-        const catLabels = {!! json_encode($catLabels) !!};
-        const catValues = {!! json_encode($catValues) !!};
-
+        // --- CHART UTAMA ---
         const generateColors = (count) => {
             const colors = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#0dcaf0', '#fd7e14', '#20c997', '#6610f2', '#e83e8c'];
             return Array.from({ length: count }, (_, i) => colors[i % colors.length]);
         };
 
-        // 1. GRAFIK BATANG (BULANAN)
+        // 1. Bulanan
         new Chart(document.getElementById('monthlyChart').getContext('2d'), {
             type: 'bar',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                datasets: [{
-                    label: 'Jml',
-                    data: dataBulanan,
-                    backgroundColor: '#3498db',
-                    borderRadius: 4,
-                    barPercentage: 0.6
-                }]
+                datasets: [{ data: {!! json_encode($dataBulanan) !!}, backgroundColor: '#3498db', borderRadius: 4 }]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                layout: { padding: { top: 25 } },
-                plugins: {
-                    legend: { display: false },
-                    datalabels: {
-                        display: true, anchor: 'end', align: 'top', color: 'black',
-                        font: { weight: 'bold' },
-                        formatter: (val) => val > 0 ? val : ''
-                    }
-                },
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { borderDash: [2, 2] } } }
+                plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' }, formatter: (v) => v > 0 ? v : '' } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
             }
         });
 
-        // 2. GRAFIK GARIS (TREN TAHUNAN)
-        const isCrowded = trendLabels.length > 15; 
+        // 2. Tren
         new Chart(document.getElementById('trendChart').getContext('2d'), {
             type: 'line',
             data: {
-                labels: trendLabels,
-                datasets: [{
-                    label: 'Total',
-                    data: trendData,
-                    borderColor: '#198754',
-                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#198754',
-                    pointRadius: isCrowded ? 2 : 5, 
-                    pointHoverRadius: isCrowded ? 4 : 7,
-                    tension: 0.3,
-                    fill: true
-                }]
+                labels: {!! json_encode($trendLabels) !!},
+                datasets: [{ data: {!! json_encode($trendData) !!}, borderColor: '#198754', backgroundColor: 'rgba(25, 135, 84, 0.1)', fill: true, tension: 0.3 }]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                layout: { padding: { top: 25, right: 10, left: 10 } },
-                plugins: {
-                    legend: { display: false },
-                    datalabels: {
-                        display: true, align: 'top', color: '#198754',
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        borderRadius: 4, font: { weight: 'bold' },
-                        formatter: (val) => val > 0 ? val : '' 
-                    }
-                },
-                scales: {
-                    y: { beginAtZero: true, display: false, suggestedMax: Math.max(...trendData) + 1 },
-                    x: { grid: { display: false }, offset: true, ticks: { autoSkip: true, maxTicksLimit: 8 } }
-                }
+                plugins: { legend: { display: false }, datalabels: { align: 'top', font: { weight: 'bold' }, formatter: (v) => v > 0 ? v : '' } },
+                scales: { y: { display: false, beginAtZero: true }, x: { grid: { display: false }, offset: true } }
             }
         });
 
-        // 3. GRAFIK BAR HORIZONTAL (UNIT TUJUAN)
+        // 3. Unit & Media (Horizontal Bar & Doughnut)
+        const uLabels = {!! json_encode($unitLabels) !!}, uVals = {!! json_encode($unitValues) !!};
         new Chart(document.getElementById('unitChart').getContext('2d'), {
             type: 'bar',
-            data: {
-                labels: unitLabels,
-                datasets: [{
-                    label: 'Total Keluhan',
-                    data: unitValues,
-                    backgroundColor: generateColors(unitLabels.length),
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: {
-                        color: 'black', anchor: 'end', align: 'right', font: { weight: 'bold' },
-                        formatter: (val) => val > 0 ? val : ''
-                    }
-                },
-                scales: {
-                    x: { beginAtZero: true, suggestedMax: Math.max(...unitValues) + 2, display: false },
-                    y: { grid: { display: false } }
-                }
-            }
+            data: { labels: uLabels, datasets: [{ data: uVals, backgroundColor: generateColors(uLabels.length), borderRadius: 4 }] },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'right', font: { weight: 'bold' }, formatter: (v) => v > 0 ? v : '' } }, scales: { x: { display: false }, y: { grid: { display: false } } } }
         });
 
-        // 4. GRAFIK DOUGHNUT (TIPE PELAPOR)
+        const sLabels = {!! json_encode($sourceLabels) !!}, sVals = {!! json_encode($sourceValues) !!};
         new Chart(document.getElementById('sourceChart').getContext('2d'), {
             type: 'doughnut',
-            data: {
-                labels: sourceLabels, 
-                datasets: [{
-                    data: sourceValues, 
-                    backgroundColor: generateColors(sourceLabels.length),
-                    borderWidth: 2,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false, cutout: '60%', 
-                plugins: {
-                    legend: { position: 'right' },
-                    datalabels: {
-                        color: '#fff', font: { weight: 'bold', size: 14 },
-                        formatter: (val) => val > 0 ? val : ''
-                    }
-                }
-            }
+            data: { labels: sLabels, datasets: [{ data: sVals, backgroundColor: generateColors(sLabels.length) }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { datalabels: { color: '#fff', font: { weight: 'bold' }, formatter: (v) => v > 0 ? v : '' } } }
         });
 
-        // 5. FITUR BARU: GRAFIK KATEGORI KELUHAN (BAR CHART)
-        new Chart(document.getElementById('categoryChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: catLabels,
-                datasets: [{
-                    label: 'Jumlah Isu/Keluhan',
-                    data: catValues,
-                    backgroundColor: generateColors(catLabels.length),
-                    borderRadius: 6,
-                    barPercentage: 0.6
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                layout: { padding: { top: 30 } },
-                plugins: {
-                    legend: { display: false },
-                    datalabels: {
-                        display: true, anchor: 'end', align: 'top', color: 'black',
-                        font: { weight: 'bold', size: 14 },
-                        formatter: (val) => val > 0 ? val : ''
-                    }
+
+        // =========================================================
+        // --- 6 CHART SUB-KATEGORI (FUNGSI REUSABLE) ---
+        // =========================================================
+        function createSubChart(ctxId, dataObj, colorCode) {
+            let labels = Object.keys(dataObj);
+            let data = Object.values(dataObj);
+
+            new Chart(document.getElementById(ctxId).getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colorCode,
+                        borderRadius: 4,
+                        barPercentage: 0.7
+                    }]
                 },
-                scales: { 
-                    y: { 
-                        beginAtZero: true, 
-                        ticks: { precision: 0 },
-                        suggestedMax: Math.max(...catValues) + 2, // Ruang kosong atas angka
-                        grid: { borderDash: [2, 2] } 
+                options: {
+                    indexAxis: 'y', // BAR HORIZONTAL AGAR TEKS PANJANG TERBACA
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 30 } }, // Ruang untuk angka di ujung kanan
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            color: 'black',
+                            anchor: 'end', 
+                            align: 'right', 
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (val) => val > 0 ? val : '' // Sembunyikan angka 0
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Jumlah: ' + context.parsed.x;
+                                }
+                            }
+                        }
                     },
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { weight: 'bold' } }
+                    scales: {
+                        x: { 
+                            beginAtZero: true, 
+                            display: false, // Sembunyikan grid bawah
+                            suggestedMax: Math.max(...data) + 1 
+                        },
+                        y: { 
+                            grid: { display: false },
+                            ticks: { font: { size: 11 } } // Perkecil teks label sedikit
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
+        // Panggil Fungsi Untuk Ke-6 Grafik
+        createSubChart('sdmChart', {!! json_encode($sdmCounts) !!}, '#0d6efd');         // Biru
+        createSubChart('sarprasChart', {!! json_encode($sarprasCounts) !!}, '#dc3545'); // Merah
+        createSubChart('adminChart', {!! json_encode($adminCounts) !!}, '#fd7e14');    // Orange
+        createSubChart('farmasiChart', {!! json_encode($farmasiCounts) !!}, '#198754'); // Hijau
+        createSubChart('giziChart', {!! json_encode($giziCounts) !!}, '#ffc107');       // Kuning
+        createSubChart('keamananChart', {!! json_encode($keamananCounts) !!}, '#6c757d'); // Abu-abu
     });
 
-    // --- LOGIKA JS (VALIDASI TAHUN) ---
     function validateAndSubmit(source) {
         const startSelect = document.getElementById('start_year');
         const endSelect = document.getElementById('end_year');
         const form = document.getElementById('formTren');
 
-        let startVal = parseInt(startSelect.value);
-        let endVal = parseInt(endSelect.value);
-
-        if (source === 'start') {
-            if (startVal > endVal) endSelect.value = startVal;
-        } 
-        else if (source === 'end') {
-            if (endVal < startVal) startSelect.value = endVal;
-        }
+        if (source === 'start' && parseInt(startSelect.value) > parseInt(endSelect.value)) endSelect.value = startSelect.value;
+        else if (source === 'end' && parseInt(endSelect.value) < parseInt(startSelect.value)) startSelect.value = endSelect.value;
         form.submit();
     }
 </script>
-
 @endsection

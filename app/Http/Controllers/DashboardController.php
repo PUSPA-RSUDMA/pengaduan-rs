@@ -73,84 +73,106 @@ class DashboardController extends Controller
             $trendData[] = $yearlyData[$y] ?? 0;
         }
 
-        // === 6. DATA GRAFIK UNIT TUJUAN (Berdasarkan Tahun) ===
+        // === 6. DATA GRAFIK UNIT & MEDIA ===
         $unitData = (clone $query)->selectRaw('unit_destination, count(*) as total')
-            ->whereYear('date', $selectedYear)
-            ->whereNotNull('unit_destination')
-            ->groupBy('unit_destination')
-            ->orderBy('total', 'desc')
-            ->pluck('total', 'unit_destination');
-
+            ->whereYear('date', $selectedYear)->whereNotNull('unit_destination')
+            ->groupBy('unit_destination')->orderBy('total', 'desc')->pluck('total', 'unit_destination');
+        
         $unitLabels = $unitData->keys()->toArray();
         $unitValues = $unitData->values()->toArray();
 
-        // === 7. DATA GRAFIK TIPE PELAPOR (Berdasarkan Tahun) ===
-        $sourceData = (clone $query)
-            ->join('sources', 'complaints.source_id', '=', 'sources.id')
+        $sourceData = (clone $query)->join('sources', 'complaints.source_id', '=', 'sources.id')
             ->selectRaw('sources.name as source_name, count(complaints.id) as total')
             ->whereYear('complaints.date', $selectedYear)
-            ->groupBy('sources.name')
-            ->orderBy('total', 'desc')
-            ->pluck('total', 'source_name');
-
+            ->groupBy('sources.name')->orderBy('total', 'desc')->pluck('total', 'source_name');
+        
         $sourceLabels = $sourceData->keys()->toArray();
         $sourceValues = $sourceData->values()->toArray();
 
-        // === 8. FITUR BARU: GRAFIK KATEGORI KELUHAN (SDM, SARPRAS, DLL) ===
-        // Ambil filter dari request
+
+        // === 7. FITUR BARU: 6 DASHBOARD / GRAFIK SUB-KATEGORI ===
         $catMonth = $request->input('cat_month', ''); // Kosong = Semua Bulan
         $catYear  = $request->input('cat_year', date('Y'));
         $catSort  = $request->input('cat_sort', 'desc'); // desc = terbanyak, asc = terendah
 
-        // Query khusus kategori
         $catQuery = Complaint::query()->whereYear('date', $catYear);
         if (!empty($catMonth)) {
             $catQuery->whereMonth('date', $catMonth);
         }
 
-        // Ambil data untuk dihitung array JSON-nya
         $complaintsCategory = $catQuery->get([
             'keluhan_sdm', 'keluhan_sarpras', 'keluhan_administrasi', 
             'keluhan_farmasi', 'keluhan_gizi', 'keluhan_keamanan'
         ]);
 
-        $catCounts = [
-            'SDM & Petugas' => 0,
-            'Sarana Prasarana' => 0,
-            'Administrasi' => 0,
-            'Farmasi' => 0,
-            'Gizi & Makanan' => 0,
-            'Keamanan' => 0,
+        // Inisialisasi Counter Array untuk masing-masing 6 kategori
+        $sdmCounts = [
+            'Etika & perilaku kurang ramah' => 0,
+            'Keterlambatan kehadiran' => 0,
+            'Komunikasi/penjelasan kurang' => 0,
+        ];
+        $sarprasCounts = [
+            'Fasilitas rusak (AC, Toilet, dll)' => 0,
+            'Kebersihan kurang' => 0,
+            'Alat medis/umum tidak lengkap' => 0,
+        ];
+        $adminCounts = [
+            'Antrean terlalu lama' => 0,
+            'Proses pendaftaran rumit' => 0,
+            'Masalah BPJS/Asuransi' => 0,
+        ];
+        $farmasiCounts = [
+            'Tunggu obat terlalu lama' => 0,
+            'Stok obat kosong' => 0,
+        ];
+        $giziCounts = [
+            'Makanan terlambat' => 0,
+            'Rasa makanan hambar/dingin' => 0,
+        ];
+        $keamananCounts = [
+            'Parkir penuh/semrawut' => 0,
+            'Barang hilang' => 0,
         ];
 
-        // Hitung total issue yang dicentang di setiap kategori
+        // Looping data dan hitung frekuensinya
         foreach ($complaintsCategory as $c) {
-            if (!empty($c->keluhan_sdm) && is_array($c->keluhan_sdm)) $catCounts['SDM & Petugas'] += count($c->keluhan_sdm);
-            if (!empty($c->keluhan_sarpras) && is_array($c->keluhan_sarpras)) $catCounts['Sarana Prasarana'] += count($c->keluhan_sarpras);
-            if (!empty($c->keluhan_administrasi) && is_array($c->keluhan_administrasi)) $catCounts['Administrasi'] += count($c->keluhan_administrasi);
-            if (!empty($c->keluhan_farmasi) && is_array($c->keluhan_farmasi)) $catCounts['Farmasi'] += count($c->keluhan_farmasi);
-            if (!empty($c->keluhan_gizi) && is_array($c->keluhan_gizi)) $catCounts['Gizi & Makanan'] += count($c->keluhan_gizi);
-            if (!empty($c->keluhan_keamanan) && is_array($c->keluhan_keamanan)) $catCounts['Keamanan'] += count($c->keluhan_keamanan);
+            if (!empty($c->keluhan_sdm) && is_array($c->keluhan_sdm)) {
+                foreach ($c->keluhan_sdm as $item) if (isset($sdmCounts[$item])) $sdmCounts[$item]++;
+            }
+            if (!empty($c->keluhan_sarpras) && is_array($c->keluhan_sarpras)) {
+                foreach ($c->keluhan_sarpras as $item) if (isset($sarprasCounts[$item])) $sarprasCounts[$item]++;
+            }
+            if (!empty($c->keluhan_administrasi) && is_array($c->keluhan_administrasi)) {
+                foreach ($c->keluhan_administrasi as $item) if (isset($adminCounts[$item])) $adminCounts[$item]++;
+            }
+            if (!empty($c->keluhan_farmasi) && is_array($c->keluhan_farmasi)) {
+                foreach ($c->keluhan_farmasi as $item) if (isset($farmasiCounts[$item])) $farmasiCounts[$item]++;
+            }
+            if (!empty($c->keluhan_gizi) && is_array($c->keluhan_gizi)) {
+                foreach ($c->keluhan_gizi as $item) if (isset($giziCounts[$item])) $giziCounts[$item]++;
+            }
+            if (!empty($c->keluhan_keamanan) && is_array($c->keluhan_keamanan)) {
+                foreach ($c->keluhan_keamanan as $item) if (isset($keamananCounts[$item])) $keamananCounts[$item]++;
+            }
         }
 
-        // Lakukan pengurutan (Sort)
-        if ($catSort == 'asc') {
-            asort($catCounts); // Terendah
-        } else {
-            arsort($catCounts); // Terbanyak
-        }
-
-        $catLabels = array_keys($catCounts);
-        $catValues = array_values($catCounts);
+        // Sorting Data berdasarkan filter 'cat_sort' (Terbanyak/Terendah)
+        $sortFunc = $catSort == 'asc' ? 'asort' : 'arsort';
+        $sortFunc($sdmCounts);
+        $sortFunc($sarprasCounts);
+        $sortFunc($adminCounts);
+        $sortFunc($farmasiCounts);
+        $sortFunc($giziCounts);
+        $sortFunc($keamananCounts);
 
         return view('dashboard', compact(
             'total', 'pending', 'process', 'done', 'critical',
             'availableYears', 'selectedYear', 'dataBulanan',
             'trendLabels', 'trendData', 'startYear', 'endYear',
-            'unitLabels', 'unitValues', 
-            'sourceLabels', 'sourceValues',
-            // Variabel Kategori Baru
-            'catMonth', 'catYear', 'catSort', 'catLabels', 'catValues'
+            'unitLabels', 'unitValues', 'sourceLabels', 'sourceValues',
+            // Variabel 6 Kategori 
+            'catMonth', 'catYear', 'catSort',
+            'sdmCounts', 'sarprasCounts', 'adminCounts', 'farmasiCounts', 'giziCounts', 'keamananCounts'
         ));
     }
 }
