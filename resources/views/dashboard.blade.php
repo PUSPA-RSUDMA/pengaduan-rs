@@ -43,7 +43,7 @@
     </div>
 </div>
 
-{{-- 2. GRAFIK --}}
+{{-- 2. GRAFIK BULANAN & TREN --}}
 <div class="row">
     
     {{-- CHART BULANAN (KIRI) --}}
@@ -55,6 +55,9 @@
                 <form action="{{ route('dashboard') }}" method="GET">
                     <input type="hidden" name="start_year" value="{{ $startYear }}">
                     <input type="hidden" name="end_year" value="{{ $endYear }}">
+                    <input type="hidden" name="cat_month" value="{{ $catMonth }}">
+                    <input type="hidden" name="cat_year" value="{{ $catYear }}">
+                    <input type="hidden" name="cat_sort" value="{{ $catSort }}">
                     <select name="year" class="form-select form-select-sm fw-bold border-primary" onchange="this.form.submit()" style="width: auto;">
                         @foreach($availableYears as $year)
                             <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
@@ -78,9 +81,11 @@
                     <span class="fw-bold text-success"><i class="bi bi-graph-up-arrow me-2"></i> Tren Tahunan</span>
                 </div>
                 
-                {{-- FORM FILTER TREN --}}
                 <form action="{{ route('dashboard') }}" method="GET" id="formTren">
                     <input type="hidden" name="year" value="{{ $selectedYear }}">
+                    <input type="hidden" name="cat_month" value="{{ $catMonth }}">
+                    <input type="hidden" name="cat_year" value="{{ $catYear }}">
+                    <input type="hidden" name="cat_sort" value="{{ $catSort }}">
                     
                     <div class="input-group input-group-sm">
                         <select name="start_year" id="start_year" class="form-select" onchange="validateAndSubmit('start')">
@@ -88,9 +93,7 @@
                                 <option value="{{ $y }}" {{ $startYear == $y ? 'selected' : '' }}>{{ $y }}</option> 
                             @endforeach
                         </select>
-                        
                         <span class="input-group-text bg-light text-muted">s/d</span>
-                        
                         <select name="end_year" id="end_year" class="form-select" onchange="validateAndSubmit('end')">
                             @foreach($availableYears as $y) 
                                 <option value="{{ $y }}" {{ $endYear == $y ? 'selected' : '' }}>{{ $y }}</option> 
@@ -108,10 +111,8 @@
     </div>
 </div>
 
-{{-- Letakkan kode ini di bawah <div class="row"> grafik yang lama --}}
-
-{{-- 3. GRAFIK TAMBAHAN (UNIT & PELAPOR) --}}
-<div class="row mt-4">
+{{-- 3. GRAFIK UNIT & MEDIA --}}
+<div class="row">
     
     {{-- CHART UNIT TUJUAN (KIRI) --}}
     <div class="col-lg-6 col-12 mb-4">
@@ -119,10 +120,12 @@
             <div class="card-header bg-white py-2 border-bottom-0 d-flex justify-content-between align-items-center">
                 <span class="fw-bold text-info"><i class="bi bi-building me-2"></i> Distribusi Unit Tujuan</span>
                 
-                {{-- Dropdown Filter Tahun --}}
                 <form action="{{ route('dashboard') }}" method="GET" class="m-0">
                     <input type="hidden" name="start_year" value="{{ $startYear }}">
                     <input type="hidden" name="end_year" value="{{ $endYear }}">
+                    <input type="hidden" name="cat_month" value="{{ $catMonth }}">
+                    <input type="hidden" name="cat_year" value="{{ $catYear }}">
+                    <input type="hidden" name="cat_sort" value="{{ $catSort }}">
                     <select name="year" class="form-select form-select-sm fw-bold border-info" onchange="this.form.submit()" style="width: auto;">
                         @foreach($availableYears as $year)
                             <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
@@ -144,10 +147,12 @@
             <div class="card-header bg-white py-2 border-bottom-0 d-flex justify-content-between align-items-center">
                 <span class="fw-bold text-warning"><i class="bi bi-megaphone me-2"></i> Media Pengaduan</span>
                 
-                {{-- Dropdown Filter Tahun --}}
                 <form action="{{ route('dashboard') }}" method="GET" class="m-0">
                     <input type="hidden" name="start_year" value="{{ $startYear }}">
                     <input type="hidden" name="end_year" value="{{ $endYear }}">
+                    <input type="hidden" name="cat_month" value="{{ $catMonth }}">
+                    <input type="hidden" name="cat_year" value="{{ $catYear }}">
+                    <input type="hidden" name="cat_sort" value="{{ $catSort }}">
                     <select name="year" class="form-select form-select-sm fw-bold border-warning" onchange="this.form.submit()" style="width: auto;">
                         @foreach($availableYears as $year)
                             <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
@@ -165,6 +170,54 @@
 
 </div>
 
+{{-- 4. FITUR BARU: GRAFIK KATEGORI KELUHAN (SDM, SARPRAS, DLL) --}}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            
+            <div class="card-header bg-white py-3 border-bottom-0 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <span class="fw-bold text-primary"><i class="bi bi-ui-checks-grid me-2"></i> Detail Kategori Keluhan (SDM, Sarpras, dll)</span>
+                
+                {{-- Form Filter Kategori --}}
+                <form action="{{ route('dashboard') }}" method="GET" class="d-flex gap-2 m-0">
+                    {{-- Hidden input agar filter grafik lain tidak hilang saat form ini disubmit --}}
+                    <input type="hidden" name="year" value="{{ $selectedYear }}">
+                    <input type="hidden" name="start_year" value="{{ $startYear }}">
+                    <input type="hidden" name="end_year" value="{{ $endYear }}">
+
+                    <!-- Filter Bulan -->
+                    <select name="cat_month" class="form-select form-select-sm border-secondary" onchange="this.form.submit()">
+                        <option value="">- Semua Bulan -</option>
+                        @foreach(['01'=>'Januari', '02'=>'Februari', '03'=>'Maret', '04'=>'April', '05'=>'Mei', '06'=>'Juni', '07'=>'Juli', '08'=>'Agustus', '09'=>'September', '10'=>'Oktober', '11'=>'November', '12'=>'Desember'] as $num => $name)
+                            <option value="{{ $num }}" {{ $catMonth == $num ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
+                    </select>
+
+                    <!-- Filter Tahun -->
+                    <select name="cat_year" class="form-select form-select-sm border-secondary" onchange="this.form.submit()">
+                        @foreach($availableYears as $y)
+                            <option value="{{ $y }}" {{ $catYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                        @endforeach
+                    </select>
+
+                    <!-- Filter Sorting (Terbanyak / Terendah) -->
+                    <select name="cat_sort" class="form-select form-select-sm fw-bold border-secondary" onchange="this.form.submit()">
+                        <option value="desc" {{ $catSort == 'desc' ? 'selected' : '' }}>⬇️ Terbanyak</option>
+                        <option value="asc" {{ $catSort == 'asc' ? 'selected' : '' }}>⬆️ Terendah</option>
+                    </select>
+                </form>
+            </div>
+
+            <div class="card-body">
+                <div style="height: 350px; position: relative;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
 
@@ -172,9 +225,23 @@
     document.addEventListener("DOMContentLoaded", function() {
         Chart.register(ChartDataLabels);
 
+        // DATA CONTROLLER (Grafik 1-4)
         const dataBulanan = {!! json_encode($dataBulanan) !!};
         const trendLabels = {!! json_encode($trendLabels) !!};
         const trendData = {!! json_encode($trendData) !!};
+        const unitLabels = {!! json_encode($unitLabels) !!};
+        const unitValues = {!! json_encode($unitValues) !!};
+        const sourceLabels = {!! json_encode($sourceLabels) !!}; 
+        const sourceValues = {!! json_encode($sourceValues) !!};
+
+        // DATA CONTROLLER (Kategori Baru)
+        const catLabels = {!! json_encode($catLabels) !!};
+        const catValues = {!! json_encode($catValues) !!};
+
+        const generateColors = (count) => {
+            const colors = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#0dcaf0', '#fd7e14', '#20c997', '#6610f2', '#e83e8c'];
+            return Array.from({ length: count }, (_, i) => colors[i % colors.length]);
+        };
 
         // 1. GRAFIK BATANG (BULANAN)
         new Chart(document.getElementById('monthlyChart').getContext('2d'), {
@@ -190,30 +257,22 @@
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 layout: { padding: { top: 25 } },
                 plugins: {
                     legend: { display: false },
                     datalabels: {
                         display: true, anchor: 'end', align: 'top', color: 'black',
                         font: { weight: 'bold' },
-                        // HANYA TAMPILKAN JIKA LEBIH DARI 0
                         formatter: (val) => val > 0 ? val : ''
                     }
                 },
-                scales: { 
-                    y: { beginAtZero: true, ticks: { precision: 0 }, grid: { borderDash: [2, 2] } } 
-                }
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { borderDash: [2, 2] } } }
             }
         });
 
-        // 2. GRAFIK GARIS (TREN TAHUNAN) - PERBAIKAN VISUAL DISINI
-        
-        // Logika Visual: Jika data lebih dari 15 tahun, titiknya dikecilkan biar tidak numpuk
-        const totalPoints = trendLabels.length;
-        const isCrowded = totalPoints > 15; 
-        
+        // 2. GRAFIK GARIS (TREN TAHUNAN)
+        const isCrowded = trendLabels.length > 15; 
         new Chart(document.getElementById('trendChart').getContext('2d'), {
             type: 'line',
             data: {
@@ -226,65 +285,30 @@
                     borderWidth: 2,
                     pointBackgroundColor: '#fff',
                     pointBorderColor: '#198754',
-                    
-                    // -- TITIK DINAMIS --
-                    // Kalau data banyak (>15), titik jadi kecil (radius 2). Kalau sedikit, radius 5.
                     pointRadius: isCrowded ? 2 : 5, 
                     pointHoverRadius: isCrowded ? 4 : 7,
-                    
                     tension: 0.3,
                     fill: true
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 layout: { padding: { top: 25, right: 10, left: 10 } },
                 plugins: {
                     legend: { display: false },
                     datalabels: {
-                        display: true, align: 'top',
-                        color: '#198754',
+                        display: true, align: 'top', color: '#198754',
                         backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        borderRadius: 4,
-                        font: { weight: 'bold' },
-                        // -- SEMBUNYIKAN ANGKA 0 --
-                        // Ini akan menghilangkan tumpukan angka "00000" di bawah grafik
+                        borderRadius: 4, font: { weight: 'bold' },
                         formatter: (val) => val > 0 ? val : '' 
                     }
                 },
                 scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        display: false,
-                        suggestedMax: Math.max(...trendData) + 1 
-                    },
-                    x: { 
-                        grid: { display: false },
-                        // -- OFFSET TRUE --
-                        // Ini bikin grafik tidak nempel tembok kiri/kanan. 
-                        // Jadi kalau cuma 1 tahun, titiknya ada di TENGAH.
-                        offset: true, 
-                        
-                        // Batasi label tahun biar gak dempetan kalau range 1945-2026
-                        ticks: { autoSkip: true, maxTicksLimit: 8 } 
-                    }
+                    y: { beginAtZero: true, display: false, suggestedMax: Math.max(...trendData) + 1 },
+                    x: { grid: { display: false }, offset: true, ticks: { autoSkip: true, maxTicksLimit: 8 } }
                 }
             }
         });
-        // ... (Kode grafik bulanan & tren tahunan sebelumnya) ...
-
-        // Data dari Controller
-        const unitLabels = {!! json_encode($unitLabels) !!};
-        const unitValues = {!! json_encode($unitValues) !!};
-        const sourceLabels = {!! json_encode($sourceLabels) !!}; // <--- Update ini
-        const sourceValues = {!! json_encode($sourceValues) !!};
-
-        // Fungsi pembuat palet warna otomatis
-        const generateColors = (count) => {
-            const colors = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#0dcaf0', '#fd7e14', '#20c997', '#6610f2', '#e83e8c'];
-            return Array.from({ length: count }, (_, i) => colors[i % colors.length]);
-        };
 
         // 3. GRAFIK BAR HORIZONTAL (UNIT TUJUAN)
         new Chart(document.getElementById('unitChart').getContext('2d'), {
@@ -299,16 +323,12 @@
                 }]
             },
             options: {
-                indexAxis: 'y', // Memutar grafik menjadi horizontal
-                responsive: true,
-                maintainAspectRatio: false,
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
                     datalabels: {
-                        color: 'black',
-                        anchor: 'end',
-                        align: 'right',
-                        font: { weight: 'bold' },
+                        color: 'black', anchor: 'end', align: 'right', font: { weight: 'bold' },
                         formatter: (val) => val > 0 ? val : ''
                     }
                 },
@@ -320,31 +340,68 @@
         });
 
         // 4. GRAFIK DOUGHNUT (TIPE PELAPOR)
-        new Chart(document.getElementById('sourceChart').getContext('2d'), { // <--- Update ID canvas
+        new Chart(document.getElementById('sourceChart').getContext('2d'), {
             type: 'doughnut',
             data: {
-                labels: sourceLabels, // <--- Gunakan variabel baru
+                labels: sourceLabels, 
                 datasets: [{
-                    data: sourceValues, // <--- Gunakan variabel baru
+                    data: sourceValues, 
                     backgroundColor: generateColors(sourceLabels.length),
                     borderWidth: 2,
                     hoverOffset: 4
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '60%', 
+                responsive: true, maintainAspectRatio: false, cutout: '60%', 
                 plugins: {
                     legend: { position: 'right' },
                     datalabels: {
-                        color: '#fff',
-                        font: { weight: 'bold', size: 14 },
+                        color: '#fff', font: { weight: 'bold', size: 14 },
                         formatter: (val) => val > 0 ? val : ''
                     }
                 }
             }
         });
+
+        // 5. FITUR BARU: GRAFIK KATEGORI KELUHAN (BAR CHART)
+        new Chart(document.getElementById('categoryChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    label: 'Jumlah Isu/Keluhan',
+                    data: catValues,
+                    backgroundColor: generateColors(catLabels.length),
+                    borderRadius: 6,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                layout: { padding: { top: 30 } },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        display: true, anchor: 'end', align: 'top', color: 'black',
+                        font: { weight: 'bold', size: 14 },
+                        formatter: (val) => val > 0 ? val : ''
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { precision: 0 },
+                        suggestedMax: Math.max(...catValues) + 2, // Ruang kosong atas angka
+                        grid: { borderDash: [2, 2] } 
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { weight: 'bold' } }
+                    }
+                }
+            }
+        });
+
     });
 
     // --- LOGIKA JS (VALIDASI TAHUN) ---
@@ -357,14 +414,10 @@
         let endVal = parseInt(endSelect.value);
 
         if (source === 'start') {
-            if (startVal > endVal) {
-                endSelect.value = startVal;
-            }
+            if (startVal > endVal) endSelect.value = startVal;
         } 
         else if (source === 'end') {
-            if (endVal < startVal) {
-                startSelect.value = endVal;
-            }
+            if (endVal < startVal) startSelect.value = endVal;
         }
         form.submit();
     }
