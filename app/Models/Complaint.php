@@ -14,12 +14,28 @@ class Complaint extends Model
         'date',
         'reporter_type',
         'reporter_name',
+        'source_id',
+        'keluhan_sdm',
+        'keluhan_sarpras',
+        'keluhan_administrasi',
+        'keluhan_farmasi',
+        'keluhan_gizi',
+        'keluhan_keamanan',
         'description',
         'answer',
-        'source_id',
         'unit_destination',
         'grade',
         'status',
+    ];
+
+    // Memberitahu Laravel untuk meng-cast (mengubah) data array checkbox menjadi format JSON otomatis ke Database
+    protected $casts = [
+        'keluhan_sdm' => 'array',
+        'keluhan_sarpras' => 'array',
+        'keluhan_administrasi' => 'array',
+        'keluhan_farmasi' => 'array',
+        'keluhan_gizi' => 'array',
+        'keluhan_keamanan' => 'array',
     ];
 
     public function user()

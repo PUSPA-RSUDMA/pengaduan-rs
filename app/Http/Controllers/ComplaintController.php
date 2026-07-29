@@ -8,11 +8,11 @@ use App\Models\ReporterType;
 use App\Models\UnitDestination;
 use App\Models\Grade;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; 
-use Barryvdh\DomPDF\Facade\Pdf;      
-use App\Exports\ComplaintsExport;    
+use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\ComplaintsExport;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\ComplaintsImport; 
+use App\Imports\ComplaintsImport;
 
 class ComplaintController extends Controller
 {
@@ -62,28 +62,38 @@ class ComplaintController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi form tunggal (bukan array dinamis lagi)
         $request->validate([
-            'inputs.*.date' => 'required|date',
-            'inputs.*.reporter_type' => 'required',
-            'inputs.*.source_id' => 'required',
-            'inputs.*.description' => 'required',
-            'inputs.*.unit_destination' => 'required',
-            'inputs.*.grade' => 'required',
+            'date' => 'required|date',
+            'reporter_type' => 'required',
+            'source_id' => 'required',
+            'unit_destination' => 'required',
+            'grade' => 'required',
+            'keluhan_sdm' => 'nullable|array',
+            'keluhan_sarpras' => 'nullable|array',
+            'keluhan_administrasi' => 'nullable|array',
+            'keluhan_farmasi' => 'nullable|array',
+            'keluhan_gizi' => 'nullable|array',
+            'keluhan_keamanan' => 'nullable|array',
         ]);
 
-        foreach ($request->inputs as $key => $value) {
-            Complaint::create([
-                'user_id'           => Auth::id(),
-                'date'              => $value['date'],
-                'reporter_type'     => $value['reporter_type'],
-                'reporter_name'     => $value['reporter_name'] ?? Auth::user()->name,
-                'description'       => $value['description'],
-                'source_id'         => $value['source_id'],
-                'unit_destination'  => $value['unit_destination'],
-                'grade'             => $value['grade'],
-                'status'            => 'Pending',
-            ]);
-        }
+        Complaint::create([
+            'user_id'            => Auth::id(),
+            'date'               => $request->date,
+            'reporter_type'      => $request->reporter_type,
+            'reporter_name'      => $request->reporter_name ?? Auth::user()->name,
+            'source_id'          => $request->source_id,
+            'keluhan_sdm'        => $request->keluhan_sdm,
+            'keluhan_sarpras'    => $request->keluhan_sarpras,
+            'keluhan_administrasi'=> $request->keluhan_administrasi,
+            'keluhan_farmasi'    => $request->keluhan_farmasi,
+            'keluhan_gizi'       => $request->keluhan_gizi,
+            'keluhan_keamanan'   => $request->keluhan_keamanan,
+            'description'        => $request->description,
+            'unit_destination'   => $request->unit_destination,
+            'grade'              => $request->grade,
+            'status'             => 'Pending',
+        ]);
 
         return redirect()->route('complaints.index')->with('success', 'Laporan berhasil dikirim!');
     }
@@ -100,14 +110,28 @@ class ComplaintController extends Controller
             'date' => 'required|date',
             'reporter_type' => 'required',
             'source_id' => 'required',
-            'description' => 'required',
-            'answer' => 'required',
             'unit_destination' => 'required',
             'grade' => 'required',
             'status' => 'required',
         ]);
 
-        $complaint->update($request->all());
+        $complaint->update([
+            'date'               => $request->date,
+            'reporter_type'      => $request->reporter_type,
+            'reporter_name'      => $request->reporter_name,
+            'source_id'          => $request->source_id,
+            'keluhan_sdm'        => $request->keluhan_sdm,
+            'keluhan_sarpras'    => $request->keluhan_sarpras,
+            'keluhan_administrasi'=> $request->keluhan_administrasi,
+            'keluhan_farmasi'    => $request->keluhan_farmasi,
+            'keluhan_gizi'       => $request->keluhan_gizi,
+            'keluhan_keamanan'   => $request->keluhan_keamanan,
+            'description'        => $request->description,
+            'answer'             => $request->answer, // Bisa diedit dan ditambahkan jawaban
+            'unit_destination'   => $request->unit_destination,
+            'grade'              => $request->grade,
+            'status'             => $request->status,
+        ]);
 
         return redirect()->route('complaints.index')->with('success', 'Data berhasil diperbarui!');
     }
@@ -150,18 +174,14 @@ class ComplaintController extends Controller
         }
     }
 
-    /**
-     * DOWNLOAD TEMPLATE EXCEL
-     */
     public function downloadTemplate()
     {
-        // file "template_pengaduan.xlsx" di folder public
         $path = public_path('template_pengaduan.xlsx');
 
         if (file_exists($path)) {
             return response()->download($path);
         } else {
-            return redirect()->back()->with('error', 'File template belum tersedia di server. Harap hubungi Admin.');
+            return redirect()->back()->with('error', 'File template belum tersedia di server.');
         }
     }
 }
