@@ -139,6 +139,10 @@
                     <a href="{{ route('master.reporters.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('master.reporters.*') ? 'active' : '' }}">
                         <i class="bi bi-person-badge me-2"></i> Unit Pelapor
                     </a>
+
+                    <a href="{{ route('kategori-keluhan.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('kategori-keluhan.*') ? 'active' : '' }}">
+                        <i class="bi bi-ui-checks-grid me-2"></i> Kategori & Detail Keluhan
+                    </a>
                     
                     <a href="{{ route('master.grades.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('master.grades.*') ? 'active' : '' }}">
                         <i class="bi bi-flag-fill me-2"></i> Kegawatan
