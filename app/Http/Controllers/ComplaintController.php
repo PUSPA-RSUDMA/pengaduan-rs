@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KategoriKeluhan;
 use App\Models\Complaint;
 use App\Models\Source;
 use App\Models\ReporterType;
