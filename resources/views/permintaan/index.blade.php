@@ -306,110 +306,122 @@
     </div>
 </div>
 
-{{-- MODAL INPUT BARU (MULTI ROW DENGAN CHECKLIST MASTER) --}}
+{{-- MODAL INPUT BARU (MULTI-ROW BERBASIS KARTU YANG LUAS & MUDAH DIOPERASIKAN) --}}
 <div class="modal fade" id="modalInput" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
             
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title fw-bold">
-                    <i class="bi bi-table me-2"></i>Input Data Baru
+                    <i class="bi bi-journal-plus me-2"></i>Input Data Baru (Multi-Row)
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             
-            <form action="{{ route('permintaan.store') }}" method="POST" id="formSimpan" onsubmit="showLoading()" class="d-flex flex-column" style="overflow: hidden;">
+            <form action="{{ route('permintaan.store') }}" method="POST" id="formSimpan" onsubmit="showLoading()">
                 @csrf
                 
-                <div class="modal-body p-3 bg-light" style="overflow-y: auto;">
+                <div class="modal-body p-4 bg-light">
                     
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <small class="text-muted fst-italic">* Pastikan No HP diisi menggunakan angka.</small>
-                        <button type="button" class="btn btn-success btn-sm shadow-sm" onclick="addRow()">
-                            <i class="bi bi-plus-circle-fill me-1"></i> Tambah Baris
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted fst-italic">* Anda dapat menambahkan beberapa baris data sekaligus sebelum disimpan.</small>
+                        <button type="button" class="btn btn-success btn-sm fw-bold shadow-sm" onclick="addRow()">
+                            <i class="bi bi-plus-circle-fill me-1"></i> Tambah Baris Baru
                         </button>
                     </div>
 
-                    <div class="table-responsive bg-white shadow-sm border rounded">
-                        <table class="table table-bordered table-sm align-middle mb-0" id="tableInput">
-                            <thead class="table-dark text-center small sticky-top">
-                                <tr>
-                                    <th style="width: 10%">Tgl Masuk</th>
-                                    <th style="width: 10%">No HP</th>
-                                    <th style="width: 10%">Metode</th>
-                                    <th style="width: 10%">Jenis</th>
-                                    <th style="width: 25%">Detail Keluhan (Checklist)</th>
-                                    <th style="width: 15%">Uraian</th>
-                                    <th style="width: 10%">Unit Terkait</th>
-                                    <th style="width: 10%">Tgl Verifikasi</th>
-                                    <th style="width: 5%"><i class="bi bi-trash"></i></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><input type="date" name="inputs[0][tgl_masuk]" class="form-control form-control-sm mb-1" value="{{ date('Y-m-d') }}" required></td>
-                                    <td><input type="number" name="inputs[0][no_hp]" class="form-control form-control-sm mb-1" placeholder="08..." required></td>
-                                    <td>
-                                        <select name="inputs[0][metode_penyampaian]" class="form-select form-select-sm mb-1" required>
-                                            <option value="">- Pilih -</option>
+                    {{-- CONTAINER UNTUK MENAMPUNG KARTU BARIS INPUT --}}
+                    <div id="rowsContainer">
+                        {{-- BARIS PERTAMA (DEFAULT) --}}
+                        <div class="card border mb-3 shadow-sm row-item" id="row_0">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="fw-bold text-primary"><i class="bi bi-pencil-square me-1"></i> Baris #1</span>
+                                <button type="button" class="btn btn-outline-danger btn-sm px-2 py-0" disabled>
+                                    <i class="bi bi-trash"></i> Hapus
+                                </button>
+                            </div>
+                            <div class="card-body bg-white">
+                                <div class="row g-3">
+                                    {{-- Data Utama --}}
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold">Tanggal Masuk</label>
+                                        <input type="date" name="inputs[0][tgl_masuk]" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold">No HP</label>
+                                        <input type="number" name="inputs[0][no_hp]" class="form-control form-control-sm" placeholder="08..." required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold">Metode Penyampaian</label>
+                                        <select name="inputs[0][metode_penyampaian]" class="form-select form-select-sm" required>
+                                            <option value="">- Pilih Metode -</option>
                                             <option value="Chat">Chat</option>
                                             <option value="Telfon">Telfon</option>
                                         </select>
-                                    </td>
-                                    <td>
-                                        <select name="inputs[0][jenis_permintaan]" class="form-select form-select-sm mb-1" required>
-                                            <option value="">- Pilih -</option>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold">Jenis Permintaan</label>
+                                        <select name="inputs[0][jenis_permintaan]" class="form-select form-select-sm" required>
+                                            <option value="">- Pilih Jenis -</option>
                                             <option value="Pengaduan">Pengaduan</option>
                                             <option value="Informasi">Informasi</option>
                                         </select>
-                                    </td>
-                                    <td>
-                                        {{-- DROPDOWN / AKORDEON CHECKLIST DI TABEL INPUT MULTI-ROW --}}
-                                        <div class="dropdown">
-                                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle w-100 text-start text-truncate" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                                Pilih Detail Keluhan
-                                            </button>
-                                            <div class="dropdown-menu p-3 shadow" style="max-height: 250px; overflow-y: auto; width: 300px;">
-                                                @foreach($kategoriKeluhan as $kat)
-                                                    <div class="fw-bold small text-primary mb-1">{{ $kat->name }}</div>
-                                                    @foreach($kat->items as $sub)
-                                                        <div class="form-check small mb-1">
-                                                            <input class="form-check-input" type="checkbox" name="inputs[0][detail_keluhan][{{ $kat->name }}][]" value="{{ $sub->name }}" id="c_0_{{ $sub->id }}">
-                                                            <label class="form-check-label" for="c_0_{{ $sub->id }}">{{ $sub->name }}</label>
-                                                        </div>
-                                                    @endforeach
-                                                    <hr class="my-1">
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><textarea name="inputs[0][uraian]" class="form-control form-control-sm" rows="2" placeholder="Uraian..." required></textarea></td>
-                                    <td>
-                                        <select name="inputs[0][unit_terkait]" class="form-select form-select-sm mb-1" required>
-                                            <option value="">- Tujuan -</option>
+                                    </div>
+
+                                    {{-- Unit, Verifikasi, Uraian --}}
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold">Unit Terkait</label>
+                                        <select name="inputs[0][unit_terkait]" class="form-select form-select-sm" required>
+                                            <option value="">- Pilih Unit -</option>
                                             @foreach($unitDestinations as $unit)
                                                 <option value="{{ $unit->name }}">{{ $unit->name }}</option>
                                             @endforeach
                                         </select>
-                                    </td>
-                                    <td><input type="date" name="inputs[0][tgl_verifikasi]" class="form-control form-control-sm mb-1"></td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-danger btn-sm disabled" disabled>
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold">Tanggal Verifikasi (Opsional)</label>
+                                        <input type="date" name="inputs[0][tgl_verifikasi]" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold">Uraian</label>
+                                        <input type="text" name="inputs[0][uraian]" class="form-control form-control-sm" placeholder="Tulis uraian singkat..." required>
+                                    </div>
+
+                                    {{-- DETAIL KELUHAN (CHECKLIST BERSTRUKTUR GRID) --}}
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-dark"><i class="bi bi-ui-checks-grid me-1 text-primary"></i> Detail Keluhan (Pilih yang sesuai):</label>
+                                        <div class="border rounded p-3 bg-light" style="max-height: 220px; overflow-y: auto;">
+                                            <div class="row g-3">
+                                                @foreach($kategoriKeluhan as $kat)
+                                                    <div class="col-md-4">
+                                                        <div class="border bg-white rounded p-2 h-100 shadow-sm">
+                                                            <div class="fw-bold small text-primary border-bottom pb-1 mb-1">{{ $kat->name }}</div>
+                                                            @foreach($kat->items as $sub)
+                                                                <div class="form-check small mb-1">
+                                                                    <input class="form-check-input" type="checkbox" name="inputs[0][detail_keluhan][{{ $kat->name }}][]" value="{{ $sub->name }}" id="c_0_{{ $sub->id }}">
+                                                                    <label class="form-check-label" for="c_0_{{ $sub->id }}">{{ $sub->name }}</label>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
 
-                <div class="modal-footer bg-white border-top shadow-sm">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary fw-bold" id="btnSubmit">
-                        <i class="bi bi-save me-1"></i> SIMPAN SEMUA
+                <div class="modal-footer bg-white border-top shadow-sm py-2">
+                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary btn-sm fw-bold px-4" id="btnSubmit">
+                        <i class="bi bi-save me-1"></i> SIMPAN SEMUA DATA
                     </button>
-                    <button type="button" class="btn btn-primary fw-bold d-none" id="btnLoading" disabled>
+                    <button type="button" class="btn btn-primary btn-sm fw-bold px-4 d-none" id="btnLoading" disabled>
                         <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                         Menyimpan...
                     </button>
@@ -426,64 +438,100 @@
 
     function addRow() {
         ++i;
-        let table = document.getElementById('tableInput').getElementsByTagName('tbody')[0];
-        let newRow = table.insertRow(table.rows.length);
+        let container = document.getElementById('rowsContainer');
         
-        let optionsUnit = '<option value="">- Tujuan -</option>';
+        let optionsUnit = '<option value="">- Pilih Unit -</option>';
         masterUnits.forEach(u => optionsUnit += `<option value="${u.name}">${u.name}</option>`);
 
-        let checklistHtml = '';
+        let kategoriHtml = '';
         masterKategori.forEach(kat => {
-            checklistHtml += `<div class="fw-bold small text-primary mb-1">${kat.name}</div>`;
+            let itemsHtml = '';
             kat.items.forEach(sub => {
-                checklistHtml += `
+                itemsHtml += `
                     <div class="form-check small mb-1">
                         <input class="form-check-input" type="checkbox" name="inputs[${i}][detail_keluhan][${kat.name}][]" value="${sub.name}" id="c_${i}_${sub.id}">
                         <label class="form-check-label" for="c_${i}_${sub.id}">${sub.name}</label>
                     </div>
                 `;
             });
-            checklistHtml += `<hr class="my-1">`;
-        });
 
-        let html = `
-            <td><input type="date" name="inputs[${i}][tgl_masuk]" class="form-control form-control-sm mb-1" value="{{ date('Y-m-d') }}" required></td>
-            <td><input type="number" name="inputs[${i}][no_hp]" class="form-control form-control-sm mb-1" placeholder="08..." required></td>
-            <td>
-                <select name="inputs[${i}][metode_penyampaian]" class="form-select form-select-sm mb-1" required>
-                    <option value="">- Pilih -</option>
-                    <option value="Chat">Chat</option>
-                    <option value="Telfon">Telfon</option>
-                </select>
-            </td>
-            <td>
-                <select name="inputs[${i}][jenis_permintaan]" class="form-select form-select-sm mb-1" required>
-                    <option value="">- Pilih -</option>
-                    <option value="Pengaduan">Pengaduan</option>
-                    <option value="Informasi">Informasi</option>
-                </select>
-            </td>
-            <td>
-                <div class="dropdown">
-                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle w-100 text-start text-truncate" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                        Pilih Detail Keluhan
-                    </button>
-                    <div class="dropdown-menu p-3 shadow" style="max-height: 250px; overflow-y: auto; width: 300px;">
-                        ${checklistHtml}
+            kategoriHtml += `
+                <div class="col-md-4">
+                    <div class="border bg-white rounded p-2 h-100 shadow-sm">
+                        <div class="fw-bold small text-primary border-bottom pb-1 mb-1">${kat.name}</div>
+                        ${itemsHtml}
                     </div>
                 </div>
-            </td>
-            <td><textarea name="inputs[${i}][uraian]" class="form-control form-control-sm" rows="2" placeholder="Uraian..." required></textarea></td>
-            <td><select name="inputs[${i}][unit_terkait]" class="form-select form-select-sm mb-1" required>${optionsUnit}</select></td>
-            <td><input type="date" name="inputs[${i}][tgl_verifikasi]" class="form-control form-control-sm mb-1"></td>
-            <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)"><i class="bi bi-x-lg"></i></button></td>
+            `;
+        });
+
+        let cardHtml = `
+            <div class="card border mb-3 shadow-sm row-item" id="row_${i}">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <span class="fw-bold text-primary"><i class="bi bi-pencil-square me-1"></i> Baris #${i + 1}</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm px-2 py-0" onclick="removeRow(this)">
+                        <i class="bi bi-trash"></i> Hapus
+                    </button>
+                </div>
+                <div class="card-body bg-white">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Tanggal Masuk</label>
+                            <input type="date" name="inputs[${i}][tgl_masuk]" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">No HP</label>
+                            <input type="number" name="inputs[${i}][no_hp]" class="form-control form-control-sm" placeholder="08..." required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Metode Penyampaian</label>
+                            <select name="inputs[${i}][metode_penyampaian]" class="form-select form-select-sm" required>
+                                <option value="">- Pilih Metode -</option>
+                                <option value="Chat">Chat</option>
+                                <option value="Telfon">Telfon</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Jenis Permintaan</label>
+                            <select name="inputs[${i}][jenis_permintaan]" class="form-select form-select-sm" required>
+                                <option value="">- Pilih Jenis -</option>
+                                <option value="Pengaduan">Pengaduan</option>
+                                <option value="Informasi">Informasi</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Unit Terkait</label>
+                            <select name="inputs[${i}][unit_terkait]" class="form-select form-select-sm" required>${optionsUnit}</select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Tanggal Verifikasi (Opsional)</label>
+                            <input type="date" name="inputs[${i}][tgl_verifikasi]" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Uraian</label>
+                            <input type="text" name="inputs[${i}][uraian]" class="form-control form-control-sm" placeholder="Tulis uraian singkat..." required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-dark"><i class="bi bi-ui-checks-grid me-1 text-primary"></i> Detail Keluhan (Pilih yang sesuai):</label>
+                            <div class="border rounded p-3 bg-light" style="max-height: 220px; overflow-y: auto;">
+                                <div class="row g-3">
+                                    ${kategoriHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
-        newRow.innerHTML = html;
+        
+        container.insertAdjacentHTML('beforeend', cardHtml);
     }
 
     function removeRow(btn) {
-        let row = btn.parentNode.parentNode;
-        row.parentNode.removeChild(row);
+        let card = btn.closest('.row-item');
+        card.remove();
     }
 
     function showLoading() {
