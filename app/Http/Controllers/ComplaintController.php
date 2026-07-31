@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\KategoriKeluhan;
 use App\Models\Complaint;
 use App\Models\Source;
 use App\Models\ReporterType;
 use App\Models\UnitDestination;
 use App\Models\Grade;
+use App\Models\KategoriKeluhan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -23,41 +23,46 @@ class ComplaintController extends Controller
         $reporterTypes = ReporterType::all();
         $unitDestinations = UnitDestination::all();
         $grades = Grade::all();
+        
+        // 2. AMBIL MASTER KATEGORI BESERTA ITEMNYA
         $kategoriKeluhan = KategoriKeluhan::with('items')->get();
+
         $query = Complaint::query();
 
-        $user = Auth::user();
-        if ($user->role === 'user') {
-            $query->where('user_id', $user->id);
-        }
-
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('reporter_name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('unit_destination', 'like', "%{$search}%");
-            });
-        }
-
+        // Filter Tanggal
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
         }
 
+        // Filter Unit Tujuan
         if ($request->filled('unit_destination')) {
             $query->where('unit_destination', $request->unit_destination);
         }
 
-        if ($request->sort == 'terlama') {
-            $query->orderBy('date', 'asc')->orderBy('created_at', 'asc');
+        // Search Keyword
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('reporter_name', 'like', "%{$search}%")
+                  ->orWhere('reporter_type', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('answer', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting
+        $sort = $request->input('sort', 'terbaru');
+        if ($sort == 'terlama') {
+            $query->orderBy('date', 'asc')->orderBy('id', 'asc');
         } else {
-            $query->orderBy('date', 'desc')->orderBy('created_at', 'desc');
+            $query->orderBy('date', 'desc')->orderBy('id', 'desc');
         }
 
         $complaints = $query->paginate(10)->withQueryString();
 
+        // 3. KIRIM $kategoriKeluhan KE VIEW MELALUI COMPACT
         return view('complaints.index', compact(
-            'complaints', 'sources', 'reporterTypes', 'unitDestinations', 'grades'
+            'complaints', 'sources', 'reporterTypes', 'unitDestinations', 'grades', 'kategoriKeluhan'
         ));
     }
 
