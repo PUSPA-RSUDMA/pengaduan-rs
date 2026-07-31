@@ -91,7 +91,7 @@ class DashboardController extends Controller
         $sourceValues = $sourceData->values()->toArray();
 
 
-        // === 7. FITUR GRAFIK SUB-KATEGORI (DINAMIS BERDASARKAN MASTER DATA) ===
+        // === 7. FITUR GRAFIK SUB-KATEGORI (OTOMATIS & DINAMIS) ===
         $catMonth = $request->input('cat_month', ''); // Kosong = Semua Bulan
         $catYear  = $request->input('cat_year', date('Y'));
         $catSort  = $request->input('cat_sort', 'desc'); // desc = terbanyak, asc = terendah
@@ -101,7 +101,6 @@ class DashboardController extends Controller
             $catQuery->whereMonth('date', $catMonth);
         }
 
-        // Ambil semua data detail_keluhan pada periode tersebut
         $complaintsCategory = $catQuery->pluck('detail_keluhan');
 
         // Ambil Master Kategori & Item dari Database secara dinamis
@@ -110,7 +109,7 @@ class DashboardController extends Controller
         $subCategoryCounts = [];
 
         foreach ($masterKategori as $kat) {
-            $catName = $kat->name; // Contoh: "1. SDM / Petugas"
+            $catName = $kat->name;
             $subCategoryCounts[$catName] = [];
 
             // Inisialisasi awal nilai item menjadi 0
@@ -119,7 +118,7 @@ class DashboardController extends Controller
             }
         }
 
-        // Looping data pengaduan untuk menghitung frekuensi kemunculan item di dalam JSON detail_keluhan
+        // Looping data pengaduan untuk menghitung frekuensi kemunculan item
         foreach ($complaintsCategory as $detailJson) {
             if (!empty($detailJson) && is_array($detailJson)) {
                 foreach ($detailJson as $catName => $items) {
@@ -134,7 +133,7 @@ class DashboardController extends Controller
             }
         }
 
-        // Sorting data masing-masing kategori berdasarkan pilihan 'cat_sort' (Terbanyak/Terendah)
+        // Sorting Data berdasarkan filter 'cat_sort' (Terbanyak/Terendah)
         foreach ($subCategoryCounts as $catName => &$counts) {
             if ($catSort == 'asc') {
                 asort($counts);
@@ -144,25 +143,12 @@ class DashboardController extends Controller
         }
         unset($counts);
 
-        // Ekstraksi array ke variabel terpisah untuk dikirim ke view
-        // Menggunakan mapping nama kategori master Anda
-        $kategoriKeys = $masterKategori->pluck('name')->toArray();
-        
-        $sdmCounts     = $subCategoryCounts[$kategoriKeys[0] ?? '1. SDM / Petugas'] ?? [];
-        $sarprasCounts = $subCategoryCounts[$kategoriKeys[1] ?? '2. Sarana & Prasarana'] ?? [];
-        $adminCounts   = $subCategoryCounts[$kategoriKeys[2] ?? '3. Administrasi & Antrean'] ?? [];
-        $farmasiCounts = $subCategoryCounts[$kategoriKeys[3] ?? '4. Farmasi / Obat'] ?? [];
-        $giziCounts    = $subCategoryCounts[$kategoriKeys[4] ?? '5. Gizi / Makanan'] ?? [];
-        $keamananCounts= $subCategoryCounts[$kategoriKeys[5] ?? '6. Keamanan & Parkir'] ?? [];
-
         return view('dashboard', compact(
             'total', 'pending', 'process', 'done', 'critical',
             'availableYears', 'selectedYear', 'dataBulanan',
             'trendLabels', 'trendData', 'startYear', 'endYear',
             'unitLabels', 'unitValues', 'sourceLabels', 'sourceValues',
-            // Variabel Filter & Sub-Kategori Dinamis
-            'catMonth', 'catYear', 'catSort', 'masterKategori',
-            'sdmCounts', 'sarprasCounts', 'adminCounts', 'farmasiCounts', 'giziCounts', 'keamananCounts'
+            'catMonth', 'catYear', 'catSort', 'masterKategori', 'subCategoryCounts'
         ));
     }
 }

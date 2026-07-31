@@ -135,12 +135,12 @@
     </div>
 </div>
 
-{{-- 4. FITUR ANALISIS SUB-KATEGORI --}}
+{{-- 4. FITUR ANALISIS SUB-KATEGORI (100% DINAMIS BERDASARKAN DATABASE) --}}
 <div class="card border-0 shadow-sm mb-4 bg-light">
     <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 border-bottom">
         <span class="fw-bold text-primary fs-5"><i class="bi bi-grid-1x2-fill me-2"></i> Analisis Detail Sub-Kategori Keluhan</span>
         
-        {{-- Form Filter Utama untuk 6 Grafik --}}
+        {{-- Form Filter Utama untuk Grafik Sub-Kategori --}}
         <form action="{{ route('dashboard') }}" method="GET" class="d-flex gap-2 m-0">
             <input type="hidden" name="year" value="{{ $selectedYear }}">
             <input type="hidden" name="start_year" value="{{ $startYear }}">
@@ -169,55 +169,21 @@
 
     <div class="card-body">
         <div class="row g-4">
-            
-            {{-- 1. SDM --}}
+            {{-- LOOPING DINAMIS SEMUA KATEGORI DARI DATABASE --}}
+            @foreach($masterKategori as $kat)
             <div class="col-lg-6">
                 <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-person-badge me-2"></i> {{ $masterKategori[0]->name ?? '1. SDM / Petugas' }}</div>
-                    <div class="card-body"><div style="height: 200px;"><canvas id="sdmChart"></canvas></div></div>
+                    <div class="card-header bg-white fw-bold text-primary py-2">
+                        <i class="bi bi-ui-checks-grid me-2"></i> {{ $kat->name }}
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 200px;">
+                            <canvas id="subChart_{{ $kat->id }}"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            {{-- 2. SARPRAS --}}
-            <div class="col-lg-6">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-buildings me-2"></i> {{ $masterKategori[1]->name ?? '2. Sarana & Prasarana' }}</div>
-                    <div class="card-body"><div style="height: 200px;"><canvas id="sarprasChart"></canvas></div></div>
-                </div>
-            </div>
-
-            {{-- 3. ADMINISTRASI --}}
-            <div class="col-lg-6">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-clipboard-data me-2"></i> {{ $masterKategori[2]->name ?? '3. Administrasi & Antrean' }}</div>
-                    <div class="card-body"><div style="height: 200px;"><canvas id="adminChart"></canvas></div></div>
-                </div>
-            </div>
-
-            {{-- 4. FARMASI --}}
-            <div class="col-lg-6">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-capsule me-2"></i> {{ $masterKategori[3]->name ?? '4. Farmasi / Obat' }}</div>
-                    <div class="card-body"><div style="height: 200px;"><canvas id="farmasiChart"></canvas></div></div>
-                </div>
-            </div>
-
-            {{-- 5. GIZI --}}
-            <div class="col-lg-6">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-egg-fried me-2"></i> {{ $masterKategori[4]->name ?? '5. Gizi / Makanan' }}</div>
-                    <div class="card-body"><div style="height: 200px;"><canvas id="giziChart"></canvas></div></div>
-                </div>
-            </div>
-
-            {{-- 6. KEAMANAN --}}
-            <div class="col-lg-6">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-white fw-bold text-primary py-2"><i class="bi bi-shield-lock me-2"></i> {{ $masterKategori[5]->name ?? '6. Keamanan & Parkir' }}</div>
-                    <div class="card-body"><div style="height: 200px;"><canvas id="keamananChart"></canvas></div></div>
-                </div>
-            </div>
-
+            @endforeach
         </div>
     </div>
 </div>
@@ -280,13 +246,16 @@
 
 
         // =========================================================
-        // --- 6 CHART SUB-KATEGORI (FUNGSI REUSABLE) ---
+        // --- FUNGSI REUSABLE SUB-KATEGORI DINAMIS ---
         // =========================================================
         function createSubChart(ctxId, dataObj, colorCode) {
+            const canvasEl = document.getElementById(ctxId);
+            if (!canvasEl) return;
+
             let labels = Object.keys(dataObj);
             let data = Object.values(dataObj);
 
-            new Chart(document.getElementById(ctxId).getContext('2d'), {
+            new Chart(canvasEl.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -322,25 +291,29 @@
                     scales: {
                         x: { 
                             beginAtZero: true, 
-                            display: false, // Sembunyikan grid bawah
+                            display: false, 
                             suggestedMax: Math.max(...data, 1) + 1 
                         },
                         y: { 
                             grid: { display: false },
-                            ticks: { font: { size: 11 } } // Perkecil teks label sedikit
+                            ticks: { font: { size: 11 } } 
                         }
                     }
                 }
             });
         }
 
-        // Panggil Fungsi Untuk Ke-6 Grafik Sub-Kategori
-        createSubChart('sdmChart', {!! json_encode($sdmCounts) !!}, '#0d6efd');         // Biru
-        createSubChart('sarprasChart', {!! json_encode($sarprasCounts) !!}, '#dc3545'); // Merah
-        createSubChart('adminChart', {!! json_encode($adminCounts) !!}, '#fd7e14');     // Orange
-        createSubChart('farmasiChart', {!! json_encode($farmasiCounts) !!}, '#198754'); // Hijau
-        createSubChart('giziChart', {!! json_encode($giziCounts) !!}, '#ffc107');       // Kuning
-        createSubChart('keamananChart', {!! json_encode($keamananCounts) !!}, '#6c757d'); // Abu-abu
+        // Palette warna otomatis untuk grafik sub-kategori
+        const subColors = ['#0d6efd', '#dc3545', '#fd7e14', '#198754', '#ffc107', '#6c757d', '#6f42c1', '#0dcaf0', '#20c997', '#e83e8c'];
+
+        // GENERATE CHART SUB-KATEGORI SECARA OTOMATIS BERDASARKAN DATA DARI CONTROLLER
+        @foreach($masterKategori as $index => $kat)
+            createSubChart(
+                'subChart_{{ $kat->id }}', 
+                {!! json_encode($subCategoryCounts[$kat->name] ?? []) !!}, 
+                subColors[{{ $index }} % subColors.length]
+            );
+        @endforeach
     });
 
     function validateAndSubmit(source) {
