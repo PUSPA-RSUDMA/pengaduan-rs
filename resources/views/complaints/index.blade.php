@@ -131,16 +131,16 @@
                             @endif
                         </td>
 
-                        {{-- KOLOM DETAIL KELUHAN (DENGAN TOMBOL POPUP) --}}
+                        {{-- KOLOM DETAIL KELUHAN DINAMIS (DARI DATABASE) --}}
                         <td class="text-center">
-                            {{-- Tampilkan Label Kategori Secara Singkat --}}
                             <div class="mb-2 d-flex flex-wrap justify-content-center gap-1">
-                                @if(!empty($complaint->keluhan_sdm)) <span class="badge bg-primary" style="font-size: 0.7rem;">SDM</span> @endif
-                                @if(!empty($complaint->keluhan_sarpras)) <span class="badge bg-danger" style="font-size: 0.7rem;">Sarpras</span> @endif
-                                @if(!empty($complaint->keluhan_administrasi)) <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">Admin</span> @endif
-                                @if(!empty($complaint->keluhan_farmasi)) <span class="badge bg-success" style="font-size: 0.7rem;">Farmasi</span> @endif
-                                @if(!empty($complaint->keluhan_gizi)) <span class="badge bg-info text-dark" style="font-size: 0.7rem;">Gizi</span> @endif
-                                @if(!empty($complaint->keluhan_keamanan)) <span class="badge bg-secondary" style="font-size: 0.7rem;">Aman</span> @endif
+                                @if(!empty($complaint->detail_keluhan) && is_array($complaint->detail_keluhan))
+                                    @foreach($complaint->detail_keluhan as $catName => $items)
+                                        <span class="badge bg-secondary" style="font-size: 0.7rem;">{{ $catName }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="text-muted fst-italic" style="font-size: 0.7rem;">Lainnya</span>
+                                @endif
                             </div>
                             
                             {{-- Tombol Lihat Detail --}}
@@ -176,7 +176,7 @@
                         </td>
                     </tr>
 
-                    {{-- MODAL LIHAT DETAIL KELUHAN --}}
+                    {{-- MODAL LIHAT DETAIL KELUHAN (DINAMIS DARI DATABASE) --}}
                     <div class="modal fade" id="modalDetail{{ $complaint->id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-lg modal-dialog-centered">
                             <div class="modal-content border-0 shadow-lg">
@@ -188,71 +188,23 @@
                                     
                                     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">Item yang Dikeluhkan:</h6>
                                     <div class="row g-3">
-                                        {{-- Cek Kategori per Kategori --}}
-                                        @if(!empty($complaint->keluhan_sdm))
-                                        <div class="col-md-6">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-header bg-white fw-bold text-primary py-1 small">SDM & Petugas</div>
-                                                <div class="card-body p-2 small">
-                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_sdm as $item) <li>{{ $item }}</li> @endforeach</ul>
+                                        @if(!empty($complaint->detail_keluhan) && is_array($complaint->detail_keluhan))
+                                            @foreach($complaint->detail_keluhan as $catName => $items)
+                                            <div class="col-md-6">
+                                                <div class="card border-0 shadow-sm h-100">
+                                                    <div class="card-header bg-white fw-bold text-dark py-1 small">{{ $catName }}</div>
+                                                    <div class="card-body p-2 small">
+                                                        <ul class="mb-0 ps-3">
+                                                            @foreach($items as $item) 
+                                                                <li>{{ $item }}</li> 
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        @endif
-
-                                        @if(!empty($complaint->keluhan_sarpras))
-                                        <div class="col-md-6">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-header bg-white fw-bold text-danger py-1 small">Sarana Prasarana</div>
-                                                <div class="card-body p-2 small">
-                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_sarpras as $item) <li>{{ $item }}</li> @endforeach</ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endif
-
-                                        @if(!empty($complaint->keluhan_administrasi))
-                                        <div class="col-md-6">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-header bg-white fw-bold text-warning py-1 small">Administrasi</div>
-                                                <div class="card-body p-2 small">
-                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_administrasi as $item) <li>{{ $item }}</li> @endforeach</ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endif
-
-                                        @if(!empty($complaint->keluhan_farmasi))
-                                        <div class="col-md-6">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-header bg-white fw-bold text-success py-1 small">Farmasi & Obat</div>
-                                                <div class="card-body p-2 small">
-                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_farmasi as $item) <li>{{ $item }}</li> @endforeach</ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endif
-
-                                        @if(!empty($complaint->keluhan_gizi))
-                                        <div class="col-md-6">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-header bg-white fw-bold text-info py-1 small">Gizi & Makanan</div>
-                                                <div class="card-body p-2 small">
-                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_gizi as $item) <li>{{ $item }}</li> @endforeach</ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endif
-
-                                        @if(!empty($complaint->keluhan_keamanan))
-                                        <div class="col-md-6">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-header bg-white fw-bold text-secondary py-1 small">Keamanan</div>
-                                                <div class="card-body p-2 small">
-                                                    <ul class="mb-0 ps-3">@foreach($complaint->keluhan_keamanan as $item) <li>{{ $item }}</li> @endforeach</ul>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            @endforeach
+                                        @else
+                                            <div class="col-12"><p class="text-muted fst-italic">Tidak ada item kategori (checklist) yang dipilih.</p></div>
                                         @endif
                                     </div>
 
@@ -279,8 +231,7 @@
                     </div>
                     {{-- END MODAL DETAIL --}}
 
-
-                    {{-- MODAL EDIT --}}
+                    {{-- MODAL EDIT (MENGGUNAKAN MASTER KATEGORI DINAMIS) --}}
                     <div class="modal fade" id="modalEdit{{ $complaint->id }}" tabindex="-1" data-bs-backdrop="static">
                         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                             <div class="modal-content border-0 shadow-lg">
@@ -318,79 +269,33 @@
                                             </div>
                                         </div>
 
-                                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan</h6>
+                                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan (Dinamic Checklist)</h6>
                                         <div class="row g-3">
-                                            @php
-                                                $sdm = is_array($complaint->keluhan_sdm) ? $complaint->keluhan_sdm : [];
-                                                $srp = is_array($complaint->keluhan_sarpras) ? $complaint->keluhan_sarpras : [];
-                                                $adm = is_array($complaint->keluhan_administrasi) ? $complaint->keluhan_administrasi : [];
-                                                $frm = is_array($complaint->keluhan_farmasi) ? $complaint->keluhan_farmasi : [];
-                                                $gzi = is_array($complaint->keluhan_gizi) ? $complaint->keluhan_gizi : [];
-                                                $kmn = is_array($complaint->keluhan_keamanan) ? $complaint->keluhan_keamanan : [];
+                                            @php 
+                                                // Ambil JSON yang tersimpan, pastikan berupa array
+                                                $savedDetails = is_array($complaint->detail_keluhan) ? $complaint->detail_keluhan : []; 
                                             @endphp
-                                            <!-- SDM -->
+                                            
+                                            {{-- LOOPING MASTER KATEGORI --}}
+                                            @foreach($kategoriKeluhan as $kategori)
                                             <div class="col-md-4">
                                                 <div class="card h-100 border-0 shadow-sm">
-                                                    <div class="card-header bg-white fw-bold text-primary py-2 small">1. SDM / Petugas</div>
+                                                    <div class="card-header bg-white fw-bold text-primary py-2 small">{{ $kategori->name }}</div>
                                                     <div class="card-body small p-2">
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_sdm[]" value="Etika & perilaku kurang ramah" {{ in_array("Etika & perilaku kurang ramah", $sdm) ? 'checked' : '' }}> Etika & perilaku kurang ramah</div>
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_sdm[]" value="Keterlambatan kehadiran" {{ in_array("Keterlambatan kehadiran", $sdm) ? 'checked' : '' }}> Keterlambatan kehadiran</div>
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_sdm[]" value="Komunikasi/penjelasan kurang" {{ in_array("Komunikasi/penjelasan kurang", $sdm) ? 'checked' : '' }}> Komunikasi/penjelasan kurang</div>
+                                                        @foreach($kategori->items as $item)
+                                                        <div class="form-check mb-1">
+                                                            <input class="form-check-input" type="checkbox" 
+                                                                name="detail_keluhan[{{ $kategori->name }}][]" 
+                                                                value="{{ $item->name }}" 
+                                                                id="edit_item_{{ $complaint->id }}_{{ $item->id }}"
+                                                                {{ isset($savedDetails[$kategori->name]) && in_array($item->name, $savedDetails[$kategori->name]) ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="edit_item_{{ $complaint->id }}_{{ $item->id }}">{{ $item->name }}</label>
+                                                        </div>
+                                                        @endforeach
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- Sarpras -->
-                                            <div class="col-md-4">
-                                                <div class="card h-100 border-0 shadow-sm">
-                                                    <div class="card-header bg-white fw-bold text-primary py-2 small">2. Sarpras</div>
-                                                    <div class="card-body small p-2">
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_sarpras[]" value="Fasilitas rusak (AC, Toilet, dll)" {{ in_array("Fasilitas rusak (AC, Toilet, dll)", $srp) ? 'checked' : '' }}> Fasilitas rusak (AC, Toilet, dll)</div>
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_sarpras[]" value="Kebersihan kurang" {{ in_array("Kebersihan kurang", $srp) ? 'checked' : '' }}> Kebersihan kurang</div>
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_sarpras[]" value="Alat medis/umum tidak lengkap" {{ in_array("Alat medis/umum tidak lengkap", $srp) ? 'checked' : '' }}> Alat medis tidak lengkap</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Administrasi -->
-                                            <div class="col-md-4">
-                                                <div class="card h-100 border-0 shadow-sm">
-                                                    <div class="card-header bg-white fw-bold text-primary py-2 small">3. Administrasi</div>
-                                                    <div class="card-body small p-2">
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_administrasi[]" value="Antrean terlalu lama" {{ in_array("Antrean terlalu lama", $adm) ? 'checked' : '' }}> Antrean terlalu lama</div>
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_administrasi[]" value="Proses pendaftaran rumit" {{ in_array("Proses pendaftaran rumit", $adm) ? 'checked' : '' }}> Proses pendaftaran rumit</div>
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_administrasi[]" value="Masalah BPJS/Asuransi" {{ in_array("Masalah BPJS/Asuransi", $adm) ? 'checked' : '' }}> Masalah BPJS/Asuransi</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Farmasi -->
-                                            <div class="col-md-4">
-                                                <div class="card h-100 border-0 shadow-sm">
-                                                    <div class="card-header bg-white fw-bold text-primary py-2 small">4. Farmasi</div>
-                                                    <div class="card-body small p-2">
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_farmasi[]" value="Tunggu obat terlalu lama" {{ in_array("Tunggu obat terlalu lama", $frm) ? 'checked' : '' }}> Tunggu obat terlalu lama</div>
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_farmasi[]" value="Stok obat kosong" {{ in_array("Stok obat kosong", $frm) ? 'checked' : '' }}> Stok obat kosong</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Gizi -->
-                                            <div class="col-md-4">
-                                                <div class="card h-100 border-0 shadow-sm">
-                                                    <div class="card-header bg-white fw-bold text-primary py-2 small">5. Gizi</div>
-                                                    <div class="card-body small p-2">
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_gizi[]" value="Makanan terlambat" {{ in_array("Makanan terlambat", $gzi) ? 'checked' : '' }}> Makanan terlambat</div>
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_gizi[]" value="Rasa makanan hambar/dingin" {{ in_array("Rasa makanan hambar/dingin", $gzi) ? 'checked' : '' }}> Rasa hambar/dingin</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Keamanan -->
-                                            <div class="col-md-4">
-                                                <div class="card h-100 border-0 shadow-sm">
-                                                    <div class="card-header bg-white fw-bold text-primary py-2 small">6. Keamanan & Parkir</div>
-                                                    <div class="card-body small p-2">
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_keamanan[]" value="Parkir penuh/semrawut" {{ in_array("Parkir penuh/semrawut", $kmn) ? 'checked' : '' }}> Parkir penuh/semrawut</div>
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="keluhan_keamanan[]" value="Barang hilang" {{ in_array("Barang hilang", $kmn) ? 'checked' : '' }}> Barang hilang</div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            @endforeach
                                         </div>
 
                                         <div class="row g-3 mt-1">
@@ -488,7 +393,7 @@
     </div>
 </div>
 
-{{-- MODAL INPUT BARU (CHECKLIST 6 KATEGORI) --}}
+{{-- MODAL INPUT BARU (MENGGUNAKAN MASTER KATEGORI DINAMIS) --}}
 <div class="modal fade" id="modalInput" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
@@ -526,123 +431,24 @@
                         </div>
                     </div>
 
-                    {{-- AREA CHECKLIST KELUHAN --}}
+                    {{-- AREA CHECKLIST KELUHAN (DINAMIS DARI MASTER KATEGORI) --}}
                     <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan (Centang yang sesuai)</h6>
                     <div class="row g-3">
-                        
-                        <!-- SDM -->
+                        @foreach($kategoriKeluhan as $kategori)
                         <div class="col-md-4">
                             <div class="card h-100 shadow-sm border-0">
-                                <div class="card-header bg-white fw-bold text-primary py-2 small">1. SDM / Petugas</div>
+                                <div class="card-header bg-white fw-bold text-primary py-2 small">{{ $kategori->name }}</div>
                                 <div class="card-body small p-2">
+                                    @foreach($kategori->items as $item)
                                     <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_sdm[]" value="Etika & perilaku kurang ramah" id="sdm1">
-                                        <label class="form-check-label" for="sdm1">Etika & perilaku kurang ramah</label>
+                                        <input class="form-check-input" type="checkbox" name="detail_keluhan[{{ $kategori->name }}][]" value="{{ $item->name }}" id="item_{{ $item->id }}">
+                                        <label class="form-check-label" for="item_{{ $item->id }}">{{ $item->name }}</label>
                                     </div>
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_sdm[]" value="Keterlambatan kehadiran" id="sdm2">
-                                        <label class="form-check-label" for="sdm2">Keterlambatan kehadiran</label>
-                                    </div>
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_sdm[]" value="Komunikasi/penjelasan kurang" id="sdm3">
-                                        <label class="form-check-label" for="sdm3">Komunikasi/penjelasan kurang</label>
-                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
-
-                        <!-- SARPRAS -->
-                        <div class="col-md-4">
-                            <div class="card h-100 shadow-sm border-0">
-                                <div class="card-header bg-white fw-bold text-primary py-2 small">2. Sarana & Prasarana</div>
-                                <div class="card-body small p-2">
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_sarpras[]" value="Fasilitas rusak (AC, Toilet, dll)" id="srp1">
-                                        <label class="form-check-label" for="srp1">Fasilitas rusak (AC, Toilet, dll)</label>
-                                    </div>
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_sarpras[]" value="Kebersihan kurang" id="srp2">
-                                        <label class="form-check-label" for="srp2">Kebersihan kurang</label>
-                                    </div>
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_sarpras[]" value="Alat medis/umum tidak lengkap" id="srp3">
-                                        <label class="form-check-label" for="srp3">Alat medis/umum tidak lengkap</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ADMINISTRASI -->
-                        <div class="col-md-4">
-                            <div class="card h-100 shadow-sm border-0">
-                                <div class="card-header bg-white fw-bold text-primary py-2 small">3. Administrasi & Antrean</div>
-                                <div class="card-body small p-2">
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_administrasi[]" value="Antrean terlalu lama" id="adm1">
-                                        <label class="form-check-label" for="adm1">Antrean terlalu lama</label>
-                                    </div>
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_administrasi[]" value="Proses pendaftaran rumit" id="adm2">
-                                        <label class="form-check-label" for="adm2">Proses pendaftaran rumit</label>
-                                    </div>
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_administrasi[]" value="Masalah BPJS/Asuransi" id="adm3">
-                                        <label class="form-check-label" for="adm3">Masalah BPJS/Asuransi</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- FARMASI -->
-                        <div class="col-md-4">
-                            <div class="card h-100 shadow-sm border-0">
-                                <div class="card-header bg-white fw-bold text-primary py-2 small">4. Farmasi / Obat</div>
-                                <div class="card-body small p-2">
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_farmasi[]" value="Tunggu obat terlalu lama" id="frm1">
-                                        <label class="form-check-label" for="frm1">Tunggu obat terlalu lama</label>
-                                    </div>
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_farmasi[]" value="Stok obat kosong" id="frm2">
-                                        <label class="form-check-label" for="frm2">Stok obat kosong</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- GIZI -->
-                        <div class="col-md-4">
-                            <div class="card h-100 shadow-sm border-0">
-                                <div class="card-header bg-white fw-bold text-primary py-2 small">5. Gizi / Makanan</div>
-                                <div class="card-body small p-2">
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_gizi[]" value="Makanan terlambat" id="gz1">
-                                        <label class="form-check-label" for="gz1">Makanan terlambat</label>
-                                    </div>
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_gizi[]" value="Rasa makanan hambar/dingin" id="gz2">
-                                        <label class="form-check-label" for="gz2">Rasa makanan hambar/dingin</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- KEAMANAN -->
-                        <div class="col-md-4">
-                            <div class="card h-100 shadow-sm border-0">
-                                <div class="card-header bg-white fw-bold text-primary py-2 small">6. Keamanan & Parkir</div>
-                                <div class="card-body small p-2">
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_keamanan[]" value="Parkir penuh/semrawut" id="km1">
-                                        <label class="form-check-label" for="km1">Parkir penuh/semrawut</label>
-                                    </div>
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="keluhan_keamanan[]" value="Barang hilang" id="km2">
-                                        <label class="form-check-label" for="km2">Barang hilang</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
 
                     {{-- LAIN-LAIN & TUJUAN --}}

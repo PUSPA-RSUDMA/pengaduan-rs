@@ -84,6 +84,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/master/grades', [MasterController::class, 'gradeStore'])->name('master.grades.store');
         Route::put('/master/grades/{id}', [MasterController::class, 'gradeUpdate'])->name('master.grades.update'); 
         Route::delete('/master/grades/{id}', [MasterController::class, 'gradeDestroy'])->name('master.grades.destroy');
+
+        Route::resource('master/kategori-keluhan', App\Http\Controllers\KategoriKeluhanController::class);
+        Route::post('master/kategori-keluhan/items', [App\Http\Controllers\KategoriKeluhanController::class, 'storeItem'])->name('kategori-keluhan.items.store');
+        Route::delete('master/kategori-keluhan/items/{id}', [App\Http\Controllers\KategoriKeluhanController::class, 'destroyItem'])->name('kategori-keluhan.items.destroy');
     });
 
     // Export Data

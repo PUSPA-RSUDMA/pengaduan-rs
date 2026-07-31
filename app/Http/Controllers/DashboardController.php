@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
+use App\Models\KategoriKeluhan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; 
 
@@ -90,7 +91,7 @@ class DashboardController extends Controller
         $sourceValues = $sourceData->values()->toArray();
 
 
-        // === 7. FITUR BARU: 6 DASHBOARD / GRAFIK SUB-KATEGORI ===
+        // === 7. FITUR GRAFIK SUB-KATEGORI (DINAMIS BERDASARKAN MASTER DATA) ===
         $catMonth = $request->input('cat_month', ''); // Kosong = Semua Bulan
         $catYear  = $request->input('cat_year', date('Y'));
         $catSort  = $request->input('cat_sort', 'desc'); // desc = terbanyak, asc = terendah
@@ -100,78 +101,67 @@ class DashboardController extends Controller
             $catQuery->whereMonth('date', $catMonth);
         }
 
-        $complaintsCategory = $catQuery->get([
-            'keluhan_sdm', 'keluhan_sarpras', 'keluhan_administrasi', 
-            'keluhan_farmasi', 'keluhan_gizi', 'keluhan_keamanan'
-        ]);
+        // Ambil semua data detail_keluhan pada periode tersebut
+        $complaintsCategory = $catQuery->pluck('detail_keluhan');
 
-        // Inisialisasi Counter Array untuk masing-masing 6 kategori
-        $sdmCounts = [
-            'Etika & perilaku kurang ramah' => 0,
-            'Keterlambatan kehadiran' => 0,
-            'Komunikasi/penjelasan kurang' => 0,
-        ];
-        $sarprasCounts = [
-            'Fasilitas rusak (AC, Toilet, dll)' => 0,
-            'Kebersihan kurang' => 0,
-            'Alat medis/umum tidak lengkap' => 0,
-        ];
-        $adminCounts = [
-            'Antrean terlalu lama' => 0,
-            'Proses pendaftaran rumit' => 0,
-            'Masalah BPJS/Asuransi' => 0,
-        ];
-        $farmasiCounts = [
-            'Tunggu obat terlalu lama' => 0,
-            'Stok obat kosong' => 0,
-        ];
-        $giziCounts = [
-            'Makanan terlambat' => 0,
-            'Rasa makanan hambar/dingin' => 0,
-        ];
-        $keamananCounts = [
-            'Parkir penuh/semrawut' => 0,
-            'Barang hilang' => 0,
-        ];
+        // Ambil Master Kategori & Item dari Database secara dinamis
+        $masterKategori = KategoriKeluhan::with('items')->get();
+        
+        $subCategoryCounts = [];
 
-        // Looping data dan hitung frekuensinya
-        foreach ($complaintsCategory as $c) {
-            if (!empty($c->keluhan_sdm) && is_array($c->keluhan_sdm)) {
-                foreach ($c->keluhan_sdm as $item) if (isset($sdmCounts[$item])) $sdmCounts[$item]++;
-            }
-            if (!empty($c->keluhan_sarpras) && is_array($c->keluhan_sarpras)) {
-                foreach ($c->keluhan_sarpras as $item) if (isset($sarprasCounts[$item])) $sarprasCounts[$item]++;
-            }
-            if (!empty($c->keluhan_administrasi) && is_array($c->keluhan_administrasi)) {
-                foreach ($c->keluhan_administrasi as $item) if (isset($adminCounts[$item])) $adminCounts[$item]++;
-            }
-            if (!empty($c->keluhan_farmasi) && is_array($c->keluhan_farmasi)) {
-                foreach ($c->keluhan_farmasi as $item) if (isset($farmasiCounts[$item])) $farmasiCounts[$item]++;
-            }
-            if (!empty($c->keluhan_gizi) && is_array($c->keluhan_gizi)) {
-                foreach ($c->keluhan_gizi as $item) if (isset($giziCounts[$item])) $giziCounts[$item]++;
-            }
-            if (!empty($c->keluhan_keamanan) && is_array($c->keluhan_keamanan)) {
-                foreach ($c->keluhan_keamanan as $item) if (isset($keamananCounts[$item])) $keamananCounts[$item]++;
+        foreach ($masterKategori as $kat) {
+            $catName = $kat->name; // Contoh: "1. SDM / Petugas"
+            $subCategoryCounts[$catName] = [];
+
+            // Inisialisasi awal nilai item menjadi 0
+            foreach ($kat->items as $item) {
+                $subCategoryCounts[$catName][$item->name] = 0;
             }
         }
 
-        // Sorting Data berdasarkan filter 'cat_sort' (Terbanyak/Terendah)
-        $sortFunc = $catSort == 'asc' ? 'asort' : 'arsort';
-        $sortFunc($sdmCounts);
-        $sortFunc($sarprasCounts);
-        $sortFunc($adminCounts);
-        $sortFunc($farmasiCounts);
-        $sortFunc($giziCounts);
-        $sortFunc($keamananCounts);
+        // Looping data pengaduan untuk menghitung frekuensi kemunculan item di dalam JSON detail_keluhan
+        foreach ($complaintsCategory as $detailJson) {
+            if (!empty($detailJson) && is_array($detailJson)) {
+                foreach ($detailJson as $catName => $items) {
+                    if (isset($subCategoryCounts[$catName]) && is_array($items)) {
+                        foreach ($items as $itemName) {
+                            if (isset($subCategoryCounts[$catName][$itemName])) {
+                                $subCategoryCounts[$catName][$itemName]++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Sorting data masing-masing kategori berdasarkan pilihan 'cat_sort' (Terbanyak/Terendah)
+        foreach ($subCategoryCounts as $catName => &$counts) {
+            if ($catSort == 'asc') {
+                asort($counts);
+            } else {
+                arsort($counts);
+            }
+        }
+        unset($counts);
+
+        // Ekstraksi array ke variabel terpisah untuk dikirim ke view
+        // Menggunakan mapping nama kategori master Anda
+        $kategoriKeys = $masterKategori->pluck('name')->toArray();
+        
+        $sdmCounts     = $subCategoryCounts[$kategoriKeys[0] ?? '1. SDM / Petugas'] ?? [];
+        $sarprasCounts = $subCategoryCounts[$kategoriKeys[1] ?? '2. Sarana & Prasarana'] ?? [];
+        $adminCounts   = $subCategoryCounts[$kategoriKeys[2] ?? '3. Administrasi & Antrean'] ?? [];
+        $farmasiCounts = $subCategoryCounts[$kategoriKeys[3] ?? '4. Farmasi / Obat'] ?? [];
+        $giziCounts    = $subCategoryCounts[$kategoriKeys[4] ?? '5. Gizi / Makanan'] ?? [];
+        $keamananCounts= $subCategoryCounts[$kategoriKeys[5] ?? '6. Keamanan & Parkir'] ?? [];
 
         return view('dashboard', compact(
             'total', 'pending', 'process', 'done', 'critical',
             'availableYears', 'selectedYear', 'dataBulanan',
             'trendLabels', 'trendData', 'startYear', 'endYear',
             'unitLabels', 'unitValues', 'sourceLabels', 'sourceValues',
-            // Variabel 6 Kategori 
-            'catMonth', 'catYear', 'catSort',
+            // Variabel Filter & Sub-Kategori Dinamis
+            'catMonth', 'catYear', 'catSort', 'masterKategori',
             'sdmCounts', 'sarprasCounts', 'adminCounts', 'farmasiCounts', 'giziCounts', 'keamananCounts'
         ));
     }

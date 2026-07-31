@@ -22,7 +22,7 @@ class ComplaintController extends Controller
         $reporterTypes = ReporterType::all();
         $unitDestinations = UnitDestination::all();
         $grades = Grade::all();
-
+        $kategoriKeluhan = KategoriKeluhan::with('items')->get();
         $query = Complaint::query();
 
         $user = Auth::user();
@@ -62,19 +62,13 @@ class ComplaintController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi form tunggal (bukan array dinamis lagi)
         $request->validate([
             'date' => 'required|date',
             'reporter_type' => 'required',
             'source_id' => 'required',
             'unit_destination' => 'required',
             'grade' => 'required',
-            'keluhan_sdm' => 'nullable|array',
-            'keluhan_sarpras' => 'nullable|array',
-            'keluhan_administrasi' => 'nullable|array',
-            'keluhan_farmasi' => 'nullable|array',
-            'keluhan_gizi' => 'nullable|array',
-            'keluhan_keamanan' => 'nullable|array',
+            'detail_keluhan' => 'nullable|array', // Kolom JSON baru
         ]);
 
         Complaint::create([
@@ -83,12 +77,7 @@ class ComplaintController extends Controller
             'reporter_type'      => $request->reporter_type,
             'reporter_name'      => $request->reporter_name ?? Auth::user()->name,
             'source_id'          => $request->source_id,
-            'keluhan_sdm'        => $request->keluhan_sdm,
-            'keluhan_sarpras'    => $request->keluhan_sarpras,
-            'keluhan_administrasi'=> $request->keluhan_administrasi,
-            'keluhan_farmasi'    => $request->keluhan_farmasi,
-            'keluhan_gizi'       => $request->keluhan_gizi,
-            'keluhan_keamanan'   => $request->keluhan_keamanan,
+            'detail_keluhan'     => $request->detail_keluhan, // Simpan ke db
             'description'        => $request->description,
             'unit_destination'   => $request->unit_destination,
             'grade'              => $request->grade,
@@ -120,14 +109,9 @@ class ComplaintController extends Controller
             'reporter_type'      => $request->reporter_type,
             'reporter_name'      => $request->reporter_name,
             'source_id'          => $request->source_id,
-            'keluhan_sdm'        => $request->keluhan_sdm,
-            'keluhan_sarpras'    => $request->keluhan_sarpras,
-            'keluhan_administrasi'=> $request->keluhan_administrasi,
-            'keluhan_farmasi'    => $request->keluhan_farmasi,
-            'keluhan_gizi'       => $request->keluhan_gizi,
-            'keluhan_keamanan'   => $request->keluhan_keamanan,
+            'detail_keluhan'     => $request->detail_keluhan, // Simpan JSON
             'description'        => $request->description,
-            'answer'             => $request->answer, // Bisa diedit dan ditambahkan jawaban
+            'answer'             => $request->answer, 
             'unit_destination'   => $request->unit_destination,
             'grade'              => $request->grade,
             'status'             => $request->status,
