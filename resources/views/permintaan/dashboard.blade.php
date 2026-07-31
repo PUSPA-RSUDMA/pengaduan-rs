@@ -87,7 +87,7 @@
 </div>
 
 {{-- 3. GRAFIK KURVA & BAR (UNIT) BERDAMPINGAN --}}
-<div class="row g-4">
+<div class="row g-4 mb-4">
     {{-- LINE CHART - TREN BULANAN --}}
     <div class="col-lg-6 col-12">
         <div class="card border-0 shadow-sm h-100">
@@ -117,7 +117,59 @@
     </div>
 </div>
 
-{{-- 4. DAFTAR TOP NOMOR HP TERBANYAK --}}
+{{-- 4. ANALISIS DETAIL SUB-KATEGORI KELUHAN (DINAMIS DARI DATABASE) --}}
+<div class="card border-0 shadow-sm mb-4 bg-light">
+    <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 border-bottom">
+        <span class="fw-bold text-primary fs-5"><i class="bi bi-grid-1x2-fill me-2"></i> Analisis Detail Sub-Kategori Keluhan</span>
+        
+        {{-- Form Filter Sub-Kategori --}}
+        <form action="{{ route('dashboard.permintaan') }}" method="GET" class="d-flex gap-2 m-0">
+            <input type="hidden" name="year" value="{{ $selectedYear }}">
+
+            <!-- Filter Bulan -->
+            <select name="cat_month" class="form-select form-select-sm border-secondary shadow-sm" onchange="this.form.submit()">
+                <option value="">- Semua Bulan -</option>
+                @foreach(['01'=>'Januari', '02'=>'Februari', '03'=>'Maret', '04'=>'April', '05'=>'Mei', '06'=>'Juni', '07'=>'Juli', '08'=>'Agustus', '09'=>'September', '10'=>'Oktober', '11'=>'November', '12'=>'Desember'] as $num => $name)
+                    <option value="{{ $num }}" {{ $catMonth == $num ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+            </select>
+
+            <!-- Filter Tahun -->
+            <select name="cat_year" class="form-select form-select-sm border-secondary shadow-sm" onchange="this.form.submit()">
+                @foreach($availableYears as $y) 
+                    <option value="{{ $y }}" {{ $catYear == $y ? 'selected' : '' }}>{{ $y }}</option> 
+                @endforeach
+            </select>
+
+            <!-- Filter Sorting -->
+            <select name="cat_sort" class="form-select form-select-sm fw-bold border-secondary shadow-sm" onchange="this.form.submit()">
+                <option value="desc" {{ $catSort == 'desc' ? 'selected' : '' }}>⬇️ Terbanyak</option>
+                <option value="asc" {{ $catSort == 'asc' ? 'selected' : '' }}>⬆️ Terendah</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <div class="row g-4">
+            @foreach($masterKategori as $kat)
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white fw-bold text-primary py-2">
+                        <i class="bi bi-ui-checks-grid me-2"></i> {{ $kat->name }}
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 200px;">
+                            <canvas id="subChart_{{ $kat->id }}"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+{{-- 5. DAFTAR TOP NOMOR HP TERBANYAK --}}
 <div class="row mt-4">
     <div class="col-12">
         <div class="card border-0 shadow-sm">
@@ -141,7 +193,6 @@
                             @forelse($topPhones as $index => $phone)
                                 <tr>
                                     <td class="ps-4">
-                                        {{-- Tampilan Peringkat: Beri warna spesial untuk Top 3 --}}
                                         @if($index == 0)
                                             <span class="badge bg-success rounded-pill px-3 py-2 fs-6">#{{ $index + 1 }}</span>
                                         @elseif($index == 1)
@@ -188,7 +239,6 @@
         const unitLabels = {!! json_encode($unitLabels) !!};
         const unitValues = {!! json_encode($unitValues) !!};
 
-        // Fungsi Auto-Color untuk Unit Terkait
         const generateColors = (count) => {
             const colors = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#0dcaf0', '#fd7e14', '#20c997', '#6610f2', '#e83e8c'];
             return Array.from({ length: count }, (_, i) => colors[i % colors.length]);
@@ -242,7 +292,7 @@
             }
         });
 
-        // 3. LINE CHART - KURVA TREN TAHUNAN
+        // 3. LINE CHART - KURVA TREN BULANAN
         new Chart(document.getElementById('trendChart').getContext('2d'), {
             type: 'line',
             data: {
@@ -290,7 +340,7 @@
                 }]
             },
             options: {
-                indexAxis: 'y', // Mengubah menjadi horizontal agar teks panjang tidak tertabrak
+                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
@@ -309,6 +359,72 @@
                 }
             }
         });
+
+        // 5. CHART SUB-KATEGORI DINAMIS
+        function createSubChart(ctxId, dataObj, colorCode) {
+            const canvasEl = document.getElementById(ctxId);
+            if (!canvasEl) return;
+
+            let labels = Object.keys(dataObj);
+            let data = Object.values(dataObj);
+
+            new Chart(canvasEl.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colorCode,
+                        borderRadius: 4,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 30 } },
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            color: 'black',
+                            anchor: 'end', 
+                            align: 'right', 
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (val) => val > 0 ? val : '' 
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Jumlah: ' + context.parsed.x;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            beginAtZero: true, 
+                            display: false, 
+                            suggestedMax: Math.max(...data, 1) + 1 
+                        },
+                        y: { 
+                            grid: { display: false },
+                            ticks: { font: { size: 11 } } 
+                        }
+                    }
+                }
+            });
+        }
+
+        const subColors = ['#0d6efd', '#dc3545', '#fd7e14', '#198754', '#ffc107', '#6c757d', '#6f42c1', '#0dcaf0', '#20c997', '#e83e8c'];
+
+        @foreach($masterKategori as $index => $kat)
+            createSubChart(
+                'subChart_{{ $kat->id }}', 
+                {!! json_encode($subCategoryCounts[$kat->name] ?? []) !!}, 
+                subColors[{{ $index }} % subColors.length]
+            );
+        @endforeach
     });
 </script>
 @endsection

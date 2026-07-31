@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permintaan;
-use App\Models\UnitDestination; // Pastikan model ini sudah ada (mengikuti data master sebelumnya)
+use App\Models\UnitDestination;
+use App\Models\KategoriKeluhan; // Jangan lupa use Model Master Kategori
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -15,6 +16,9 @@ class PermintaanController extends Controller
     public function index(Request $request)
     {
         $unitDestinations = UnitDestination::all();
+        // Ambil master kategori keluhan beserta itemnya secara dinamis
+        $kategoriKeluhan = KategoriKeluhan::with('items')->get();
+        
         $query = Permintaan::query();
 
         // Fitur Pencarian
@@ -46,7 +50,7 @@ class PermintaanController extends Controller
 
         $permintaans = $query->paginate(10)->withQueryString();
 
-        return view('permintaan.index', compact('permintaans', 'unitDestinations'));
+        return view('permintaan.index', compact('permintaans', 'unitDestinations', 'kategoriKeluhan'));
     }
 
     public function store(Request $request)
@@ -56,6 +60,7 @@ class PermintaanController extends Controller
             'inputs.*.no_hp' => 'required|numeric',
             'inputs.*.metode_penyampaian' => 'required|in:Chat,Telfon',
             'inputs.*.jenis_permintaan' => 'required|in:Pengaduan,Informasi',
+            'inputs.*.detail_keluhan' => 'nullable|array', // Validasi array detail keluhan
             'inputs.*.uraian' => 'required|string',
             'inputs.*.unit_terkait' => 'required|string',
             'inputs.*.tgl_verifikasi' => 'nullable|date',
@@ -68,6 +73,7 @@ class PermintaanController extends Controller
                 'no_hp'              => $value['no_hp'],
                 'metode_penyampaian' => $value['metode_penyampaian'],
                 'jenis_permintaan'   => $value['jenis_permintaan'],
+                'detail_keluhan'     => $value['detail_keluhan'] ?? null, // Simpan data checklist
                 'uraian'             => $value['uraian'],
                 'unit_terkait'       => $value['unit_terkait'],
                 'tgl_verifikasi'     => $value['tgl_verifikasi'] ?? null,
@@ -86,12 +92,22 @@ class PermintaanController extends Controller
             'no_hp'              => 'required|numeric',
             'metode_penyampaian' => 'required|in:Chat,Telfon',
             'jenis_permintaan'   => 'required|in:Pengaduan,Informasi',
+            'detail_keluhan'     => 'nullable|array',
             'uraian'             => 'required|string',
             'unit_terkait'       => 'required|string',
             'tgl_verifikasi'     => 'nullable|date',
         ]);
 
-        $permintaan->update($request->all());
+        $permintaan->update([
+            'tgl_masuk'          => $request->tgl_masuk,
+            'no_hp'              => $request->no_hp,
+            'metode_penyampaian' => $request->metode_penyampaian,
+            'jenis_permintaan'   => $request->jenis_permintaan,
+            'detail_keluhan'     => $request->detail_keluhan, // Update data checklist
+            'uraian'             => $request->uraian,
+            'unit_terkait'       => $request->unit_terkait,
+            'tgl_verifikasi'     => $request->tgl_verifikasi,
+        ]);
 
         return redirect()->route('permintaan.index')->with('success', 'Data berhasil diperbarui!');
     }
@@ -104,18 +120,14 @@ class PermintaanController extends Controller
 
     public function exportPdf(Request $request)
     {
-        // Ambil data (Bisa disesuaikan jika ingin mengambil yang di-filter saja)
         $permintaans = Permintaan::orderBy('tgl_masuk', 'desc')->get();
         
         $pdf = Pdf::loadView('exports.permintaan_pdf', compact('permintaans'))
-                  ->setPaper('a4', 'landscape');
-                  
+                 ->setPaper('a4', 'landscape');
+                 
         return $pdf->download('Layanan-Pengaduan-Informasi.pdf');
     }
 
-    /**
-     * EXPORT EXCEL
-     */
     public function exportExcel(Request $request)
     {
         return Excel::download(new PermintaanExport, 'Layanan-Pengaduan-Informasi.xlsx');
