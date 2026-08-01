@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Lasehat;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Supir;
 
 class LasehatController extends Controller
 {
