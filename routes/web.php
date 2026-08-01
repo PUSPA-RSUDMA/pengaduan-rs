@@ -59,9 +59,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['verified'])->name('dashboard');
 
     // === AKSI LOGBOOK (Tambah & Hapus Wajib Login agar aman) ===
+    // === AKSI LOGBOOK (Tambah, Edit, & Hapus Wajib Login) ===
     Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
+    Route::put('/logbook/{id}', [LogbookController::class, 'update'])->name('logbook.update'); // <--- TAMBAHAN BARU
     Route::delete('/logbook/{id}', [LogbookController::class, 'destroy'])->name('logbook.destroy');
-    
     // 1. Rute Dashboard Permintaan
     Route::get('/dashboard-permintaan', [DashboardPermintaanController::class, 'index'])->name('dashboard.permintaan');
 
