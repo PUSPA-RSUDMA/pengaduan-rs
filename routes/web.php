@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\DashboardPermintaanController;
+use App\Http\Controllers\LasehatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -88,6 +89,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('master/kategori-keluhan', App\Http\Controllers\KategoriKeluhanController::class);
         Route::post('master/kategori-keluhan/items', [App\Http\Controllers\KategoriKeluhanController::class, 'storeItem'])->name('kategori-keluhan.items.store');
         Route::delete('master/kategori-keluhan/items/{id}', [App\Http\Controllers\KategoriKeluhanController::class, 'destroyItem'])->name('kategori-keluhan.items.destroy');
+
+        Route::prefix('lasehat')->group(function () {
+            Route::get('/dashboard', [LasehatController::class, 'dashboard'])->name('lasehat.dashboard');
+            Route::get('/data', [LasehatController::class, 'index'])->name('lasehat.index');
+            Route::post('/store', [LasehatController::class, 'store'])->name('lasehat.store');
+            Route::post('/update-supir/{id}', [LasehatController::class, 'updateSupir'])->name('lasehat.update_supir');
+        });
     });
 
     // Export Data

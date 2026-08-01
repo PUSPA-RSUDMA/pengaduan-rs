@@ -125,6 +125,17 @@
                     <i class="bi bi-journal-text me-2"></i> Data Permintaan
                 </a>
 
+                {{-- TAMBAHAN MENU LASEHAT (LAYANAN MOBIL SEHAT) --}}
+                @if(auth()->user()->role == 'admin')
+                    <a href="{{ route('lasehat.dashboard') }}" class="list-group-item list-group-item-action {{ request()->routeIs('lasehat.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard LaSehat
+                    </a>
+                @endif
+
+                <a href="{{ route('lasehat.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('lasehat.index') ? 'active' : '' }}">
+                    <i class="bi bi-ambulance me-2"></i> Data LaSehat
+                </a>
+
                 @if(auth()->user()->role == 'admin')
                     <div class="sidebar-label mt-2">Data Master</div>
                     
