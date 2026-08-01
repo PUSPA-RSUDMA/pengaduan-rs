@@ -138,6 +138,11 @@
                     <i class="bi bi-car-front-fill me-2"></i> Data LaSehat
                 </a>
 
+                <div class="sidebar-label mt-2">Logbook</div>
+                <a href="{{ route('logbook.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('logbook.*') ? 'active' : '' }}">
+                    <i class="bi bi-journal-text me-2"></i> Logbook Agenda
+                </a>
+
                 @if(auth()->user()->role == 'admin')
                     <div class="sidebar-label mt-2">Data Master</div>
                     

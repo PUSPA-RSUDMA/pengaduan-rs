@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
     // Menu Admin Lama (Source & Category)
     Route::resource('sources', SourceController::class);
     Route::resource('categories', CategoryController::class);
+    Route::resource('logbook', LogbookController::class);
 
     // === NEW: DATA MASTER ===
     Route::middleware(['role:admin'])->group(function () {
@@ -108,6 +109,7 @@ Route::middleware('auth')->group(function () {
 
         // Route Sync Google Sheet LaSehat
         Route::get('/lasehat/sync-spreadsheet', [LasehatController::class, 'syncGoogleSheet'])->name('lasehat.sync');
+        
     });
 
     // Export Data
