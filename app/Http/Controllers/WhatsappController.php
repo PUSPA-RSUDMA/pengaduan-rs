@@ -4,17 +4,51 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class WhatsappController extends Controller
 {
+    // Mengarahkan langsung ke link publik gateway Anda
     private $gatewayUrl = 'http://rsudma.id:9093';
 
     public function index()
     {
-        return view('whatsapp.index');
+        $statusData = ['status' => 'DISCONNECTED'];
+        $qrCodeUrl = null;
+        $errorMessage = null;
+
+        try {
+            // Cek status sesi WhatsApp
+            $response = Http::timeout(5)->get("{$this->gatewayUrl}/api/sessions/default");
+            if ($response->successful()) {
+                $statusData = $response->json();
+            }
+
+            // Ambil QR Code dari gateway publik
+            $qrResponse = Http::timeout(5)->get("{$this->gatewayUrl}/api/default/auth/qr?format=image");
+            if ($qrResponse->successful()) {
+                $qrCodeUrl = 'data:image/png;base64,' . base64_encode($qrResponse->body());
+            } else {
+                $errorMessage = "Gagal mengambil QR dari Gateway (HTTP Status: " . $qrResponse->status() . ")";
+            }
+        } catch (\Exception $e) {
+            $errorMessage = "Tidak dapat terhubung ke server gateway di {$this->gatewayUrl}. Pastikan server/service berjalan. (Detail: " . $e->getMessage() . ")";
+            Log::error($errorMessage);
+        }
+
+        return view('whatsapp.index', compact('statusData', 'qrCodeUrl', 'errorMessage'));
     }
 
-    // Fungsi uji coba kirim pesan tetap dipertahankan agar otomatis terkirim ke nomor tujuan
+    public function disconnect()
+    {
+        try {
+            Http::timeout(5)->post("{$this->gatewayUrl}/api/sessions/default/logout");
+            return back()->with('success', 'Perangkat WhatsApp berhasil diputus.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memutus perangkat: ' . $e->getMessage());
+        }
+    }
+
     public function testSend(Request $request)
     {
         $request->validate([
