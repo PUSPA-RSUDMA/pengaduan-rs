@@ -135,7 +135,7 @@
                 @endif
 
                 <a href="{{ route('lasehat.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('lasehat.index') ? 'active' : '' }}">
-                    <i class="bi bi-ambulance me-2"></i> Data LaSehat
+                    <i class="bi bi-car-front-fill me-2"></i> Data LaSehat
                 </a>
 
                 @if(auth()->user()->role == 'admin')

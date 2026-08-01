@@ -23,7 +23,32 @@
         @if(session('error'))
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
-
+        <form method="GET" action="{{ route('lasehat.index') }}" class="row g-3 mb-4 align-items-end bg-light p-3 rounded shadow-sm">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Dari Tanggal Pengantaran</label>
+                <input type="date" name="start_date" class="form-control form-control-sm" value="{{ request('start_date') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Sampai Tanggal Pengantaran</label>
+                <input type="date" name="end_date" class="form-control form-control-sm" value="{{ request('end_date') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Status Supir</label>
+                <select name="status_supir" class="form-select form-select-sm">
+                    <option value="">-- Semua Status Supir --</option>
+                    <option value="sudah" {{ request('status_supir') == 'sudah' ? 'selected' : '' }}>Sudah Ada Supir</option>
+                    <option value="belum" {{ request('status_supir') == 'belum' ? 'selected' : '' }}>Belum Ada Supir</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm fw-bold w-100">
+                    <i class="bi bi-filter"></i> Filter
+                </button>
+                <a href="{{ route('lasehat.index') }}" class="btn btn-secondary btn-sm fw-bold" title="Reset Filter">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="table-light">
@@ -75,29 +100,35 @@
                     </tr>
 
                     {{-- Modal Isi Supir (Sekarang pakai Select) --}}
-                    <div class="modal fade" id="modalSupir{{ $item->id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <form action="{{ route('lasehat.update_supir', $item->id) }}" method="POST" class="modal-content">
-                                @csrf
-                                <div class="modal-header bg-warning">
-                                    <h5 class="modal-title fw-bold">Pilih Supir Ambulance</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <label class="form-label">Nama Supir Ambulance</label>
-                                    <select name="supir_ambulance" class="form-select" required>
-                                        <option value="" disabled selected>-- Pilih Supir --</option>
-                                        @foreach($supirs as $s)
-                                            <option value="{{ $s->nama_supir }}" {{ $item->supir_ambulance == $s->nama_supir ? 'selected' : '' }}>
-                                                {{ $s->nama_supir }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Simpan Supir</button>
-                                </div>
-                            </form>
+                    {{-- Modal Isi Supir (Diperbaiki) --}}
+                    <div class="modal fade" id="modalSupir{{ $item->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <form action="{{ route('lasehat.update_supir', $item->id) }}" method="POST">
+                                    @csrf
+                                    <div class="modal-header bg-warning text-dark">
+                                        <h5 class="modal-title fw-bold">Pilih Supir Ambulance</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Nama Supir Ambulance</label>
+                                            <select name="supir_ambulance" class="form-select" required>
+                                                <option value="" disabled selected>-- Pilih Supir --</option>
+                                                @foreach($supirs as $s)
+                                                    <option value="{{ $s->nama_supir }}" {{ $item->supir_ambulance == $s->nama_supir ? 'selected' : '' }}>
+                                                        {{ $s->nama_supir }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer bg-light">
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                                        <button type="submit" class="btn btn-primary btn-sm">Simpan Supir</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     @endforeach

@@ -35,12 +35,30 @@ class LasehatController extends Controller
     }
 
     // === 2. TAMPILAN DATA & INPUT ===
-    public function index()
+    public function index(Request $request)
     {
-        $lasehats = Lasehat::orderBy('created_at', 'desc')->paginate(10);
+        $query = Lasehat::query();
+
+        // 1. Filter Berdasarkan Range Tanggal Pengantaran
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_pengantaran', [$request->start_date, $request->end_date]);
+        }
+
+        // 2. Filter Berdasarkan Status Supir (Sudah / Belum Ada)
+        if ($request->filled('status_supir')) {
+            if ($request->status_supir == 'sudah') {
+                $query->whereNotNull('supir_ambulance');
+            } elseif ($request->status_supir == 'belum') {
+                $query->whereNull('supir_ambulance');
+            }
+        }
+
+        // Ambil data dengan paginasi dan pertahankan parameter filter
+        $lasehats = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->all());
+        
         $ruangans = ['GRIU', 'Lily', 'Mawar', 'Lavender', 'Kemuning', 'NICU', 'ICU', 'Dahlia', 'Tulip', 'Anyelir', 'Flamboyan', 'Raflesia', 'PICU', 'Perinatologi'];
         
-        // Ambil data supir untuk dropdown
+        // Ambil data supir untuk dropdown modal
         $supirs = Supir::orderBy('nama_supir', 'asc')->get(); 
         
         return view('lasehat.index', compact('lasehats', 'ruangans', 'supirs'));
