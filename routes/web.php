@@ -95,6 +95,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/data', [LasehatController::class, 'index'])->name('lasehat.index');
             Route::post('/store', [LasehatController::class, 'store'])->name('lasehat.store');
             Route::post('/update-supir/{id}', [LasehatController::class, 'updateSupir'])->name('lasehat.update_supir');
+            Route::get('/sync-spreadsheet', [LasehatController::class, 'syncGoogleSheet'])->name('lasehat.sync');
+            
+            // ---> Tambahkan baris ini untuk fitur Hapus:
+            Route::delete('/destroy/{id}', [LasehatController::class, 'destroy'])->name('lasehat.destroy');
         });
 
         // Tambahkan di dalam group role:admin

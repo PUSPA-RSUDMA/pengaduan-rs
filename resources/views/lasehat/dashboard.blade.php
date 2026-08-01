@@ -1,23 +1,17 @@
 @extends('layouts.admin')
 @section('title', 'Dashboard LaSehat')
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
     <h4 class="fw-bold"><i class="bi bi-ambulance text-danger me-2"></i>Dashboard LaSehat</h4>
     
-    {{-- Filter Bulan & Tahun --}}
-    <form method="GET" action="{{ route('lasehat.dashboard') }}" class="d-flex gap-2">
-        <select name="month" class="form-select form-select-sm" onchange="this.form.submit()">
-            @for($m=1; $m<=12; $m++)
-                <option value="{{ sprintf('%02d', $m) }}" {{ $month == sprintf('%02d', $m) ? 'selected' : '' }}>
-                    Bulan {{ $m }}
-                </option>
-            @endfor
-        </select>
-        <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
-            @for($y=date('Y'); $y>=2023; $y--)
-                <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
-            @endfor
-        </select>
+    {{-- Filter Range Tanggal (Update) --}}
+    <form method="GET" action="{{ route('lasehat.dashboard') }}" class="d-flex gap-2 mt-2 mt-md-0 align-items-center">
+        <input type="date" name="start_date" class="form-control form-control-sm" value="{{ $startDate }}" required>
+        <span class="fw-bold text-muted">s/d</span>
+        <input type="date" name="end_date" class="form-control form-control-sm" value="{{ $endDate }}" required>
+        <button type="submit" class="btn btn-primary btn-sm fw-bold">
+            <i class="bi bi-search"></i> Filter
+        </button>
     </form>
 </div>
 

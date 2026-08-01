@@ -35,6 +35,7 @@
                         <th>Penanggung Jawab</th>
                         <th>Sumber</th>
                         <th>Supir Ambulance</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,6 +62,15 @@
                                     <i class="bi bi-person-plus"></i> Isi Supir
                                 </button>
                             @endif
+                        </td>
+                        <td class="text-center">
+                            <form action="{{ route('lasehat.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data pasien {{ $item->nama_pasien }}?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" title="Hapus Data">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
 

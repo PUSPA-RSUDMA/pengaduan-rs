@@ -12,27 +12,26 @@ class LasehatController extends Controller
     // === 1. TAMPILAN DASHBOARD ===
     public function dashboard(Request $request)
     {
-        $year = $request->year ?? date('Y');
-        $month = $request->month ?? date('m');
+        // Set default: Tanggal 1 bulan ini sampai tanggal terakhir bulan ini
+        $startDate = $request->start_date ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+        $endDate = $request->end_date ?? Carbon::now()->endOfMonth()->format('Y-m-d');
 
-        // Statistik Ruangan Terbanyak
+        // Statistik Ruangan Terbanyak (Menggunakan whereBetween untuk range tanggal)
         $ruanganStats = Lasehat::selectRaw('tempat_dirawat, count(*) as total')
-            ->whereYear('tanggal_pengantaran', $year)
-            ->whereMonth('tanggal_pengantaran', $month)
+            ->whereBetween('tanggal_pengantaran', [$startDate, $endDate])
             ->groupBy('tempat_dirawat')
             ->orderByDesc('total')
             ->get();
 
         // Statistik Supir Terbanyak
         $supirStats = Lasehat::selectRaw('supir_ambulance, count(*) as total')
-            ->whereYear('tanggal_pengantaran', $year)
-            ->whereMonth('tanggal_pengantaran', $month)
+            ->whereBetween('tanggal_pengantaran', [$startDate, $endDate])
             ->whereNotNull('supir_ambulance') // Hanya yang sudah diinput supirnya
             ->groupBy('supir_ambulance')
             ->orderByDesc('total')
             ->get();
 
-        return view('lasehat.dashboard', compact('ruanganStats', 'supirStats', 'year', 'month'));
+        return view('lasehat.dashboard', compact('ruanganStats', 'supirStats', 'startDate', 'endDate'));
     }
 
     // === 2. TAMPILAN DATA & INPUT ===
@@ -65,73 +64,69 @@ class LasehatController extends Controller
     }
 
     // === FITUR SYNC DARI GOOGLE SPREADSHEET ===
-    // === FITUR SYNC DARI GOOGLE SPREADSHEET ===
     public function syncGoogleSheet()
     {
-        /* 
-         PENTING: 
-         1. Publish to Web dari Google Sheet as CSV
-         2. Masukkan URL CSV tersebut di bawah ini
-        */
-        $sheetUrl = "https://docs.google.com/spreadsheets/d/1jhGvboGxJZT3xoJDZ2_fJ5lX0JCkVXTfrWABl9gANaw/edit?usp=sharing";
+        // 1. MASUKKAN URL PUBLISH CSV DI SINI
+        $sheetUrl = "MASUKKAN_URL_PUBLISH_CSV_GOOGLE_SHEET_ANDA_DISINI";
 
         try {
-            $csvData = file_get_contents($sheetUrl);
+            // Gunakan HTTP Client Laravel agar lebih stabil
+            $response = \Illuminate\Support\Facades\Http::get($sheetUrl);
+            
+            if (!$response->successful()) {
+                return back()->with('error', 'Gagal mengakses URL Google Sheet. Status: ' . $response->status());
+            }
+
+            $csvData = $response->body();
+            
+            // Cek apakah URL yang dimasukkan ternyata salah (Halaman HTML biasa, bukan CSV)
+            if (strpos(substr($csvData, 0, 100), '<html') !== false) {
+                return back()->with('error', 'Gagal! URL yang dimasukkan adalah link Web, bukan link CSV. Pastikan Anda memilih opsi "Nilai yang dipisahkan koma (.csv)" saat Publish.');
+            }
+
             $lines = explode(PHP_EOL, $csvData);
+            
+            $sukses = 0;
+            $gagal = 0;
 
             // Mulai dari baris ke-1 (melewati baris ke-0 yaitu header)
             for ($i = 1; $i < count($lines); $i++) {
-                // Abaikan jika baris kosong
                 if (trim($lines[$i]) == '') continue;
 
+                // Gunakan str_getcsv (Secara default membaca koma, cukup aman untuk CSV Google)
                 $line = str_getcsv($lines[$i]);
                 
-                // Pastikan array memiliki setidaknya 6 indeks yang valid
+                // Pastikan baris memiliki minimal 6 kolom 
                 if (count($line) >= 6) { 
-                    /* PENCOCOKAN INDEKS BERDASARKAN GAMBAR:
-                     * $line[0] = Timestamp 
-                     * $line[1] = Nama Pasien
-                     * $line[2] = Ruangan Tempat Dirawat
-                     * $line[3] = Alamat Tujuan Pengantaran
-                     * $line[4] = Penanggung Jawab Pasien
-                     * $line[5] = No.Telp Penanggung Jawab Pasien
-                     * $line[6] = Tanggal Pengantaran 
-                     * $line[7] = Ket (Status/Supir) 
-                     */
-
-                    // --- LOGIKA TANGGAL PENGANTARAN ---
                     $tglAntar = null;
-                    // Cek apakah kolom G (Tanggal Pengantaran) diisi
+                    
+                    // --- LOGIKA TANGGAL LEBIH FLEKSIBEL ---
+                    // Coba baca kolom Tanggal Pengantaran (Index 6)
                     if (isset($line[6]) && trim($line[6]) != '') {
                         try {
-                            $tglAntar = Carbon::createFromFormat('d/m/Y', trim($line[6]))->format('Y-m-d');
-                        } catch (\Exception $e) {
-                            $tglAntar = null; // Gagal parse, lanjut ke fallback
-                        }
+                            // Pakai parse biasa agar bisa membaca format apapun (DD/MM/YYYY atau MM/DD/YYYY)
+                            $tglAntar = \Carbon\Carbon::parse(str_replace('/', '-', trim($line[6])))->format('Y-m-d');
+                        } catch (\Exception $e) { }
                     }
                     
-                    // Fallback: Jika kolom G kosong, ambil tanggal dari kolom A (Timestamp)
+                    // Fallback ke Timestamp (Index 0) jika kolom 6 kosong / gagal dibaca
                     if (!$tglAntar && isset($line[0]) && trim($line[0]) != '') {
-                        // Timestamp bentuknya "22/04/2024 13:20:31" -> kita split berdasarkan spasi
                         $timestampParts = explode(' ', trim($line[0])); 
                         try {
-                            $tglAntar = Carbon::createFromFormat('d/m/Y', $timestampParts[0])->format('Y-m-d');
-                        } catch (\Exception $e) {
-                            continue; // Jika gagal ekstrak tanggal, skip baris ini
-                        }
+                            $tglAntar = \Carbon\Carbon::parse(str_replace('/', '-', trim($timestampParts[0])))->format('Y-m-d');
+                        } catch (\Exception $e) { }
                     }
 
                     // --- LOGIKA SUPIR ---
                     $supir = null;
-                    // Cek apakah kolom H (Ket) ada isinya dan bukan "gagal"
                     if (isset($line[7]) && trim($line[7]) != '') {
                         $ket = trim($line[7]);
                         if (strtolower($ket) != 'gagal') {
-                            $supir = $ket; // Asumsi ini adalah nama supir
+                            $supir = $ket; 
                         }
                     }
 
-                    // Jangan input jika pasien kosong atau tgl antar gagal didapatkan
+                    // --- SIMPAN DATA KE DATABASE ---
                     if ($tglAntar && trim($line[1]) != '') {
                         Lasehat::updateOrCreate(
                             [
@@ -139,20 +134,36 @@ class LasehatController extends Controller
                                 'tanggal_pengantaran' => $tglAntar,
                             ],
                             [
-                                'tempat_dirawat' => trim($line[2]),
-                                'alamat_tujuan' => trim($line[3]),
-                                'penanggung_jawab' => trim($line[4]),
-                                'no_telp_pj' => trim($line[5]),
-                                'supir_ambulance' => $supir, // Akan terisi otomatis jika ada nama di Kolom "Ket"
+                                'tempat_dirawat' => trim($line[2]) ?: '-',
+                                'alamat_tujuan' => trim($line[3]) ?: '-',
+                                'penanggung_jawab' => trim($line[4]) ?: '-',
+                                'no_telp_pj' => trim($line[5]) ?: '-',
+                                'supir_ambulance' => $supir,
                                 'created_by' => 'Google Form',
                             ]
                         );
+                        $sukses++; // Data berhasil
+                    } else {
+                        $gagal++; // Gagal (biasanya karena tanggal tidak bisa di-convert)
                     }
+                } else {
+                    $gagal++; // Gagal karena kolomnya kurang dari 6 (baris tidak lengkap/kosong)
                 }
             }
-            return back()->with('success', 'Sinkronisasi dengan Google Spreadsheet Berhasil!');
+            
+            // Tampilkan laporan secara spesifik
+            return back()->with('success', "Sync Selesai! $sukses data baru/diupdate berhasil masuk. $gagal baris dilewati (kosong atau format tidak sesuai).");
+            
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal Sinkronisasi: ' . $e->getMessage() . '. Pastikan URL G-Sheet benar (format CSV).');
+            return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
+    }
+
+    public function destroy($id)
+    {
+        $lasehat = Lasehat::findOrFail($id);
+        $lasehat->delete();
+
+        return back()->with('success', 'Data LaSehat berhasil dihapus!');
     }
 }
