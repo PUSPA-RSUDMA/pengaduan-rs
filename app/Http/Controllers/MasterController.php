@@ -7,6 +7,7 @@ use App\Models\Source;
 use App\Models\ReporterType;
 use App\Models\UnitDestination;
 use App\Models\Grade;
+use App\Models\Supir;
 
 class MasterController extends Controller
 {
