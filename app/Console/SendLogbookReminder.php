@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 class SendLogbookReminder extends Command
 {
     protected $signature = 'logbook:send-reminder';
-    protected $description = 'Mengirim pesan notifikasi WhatsApp H-1 untuk agenda logbook';
+    protected $description = 'Mengirim pesan notifikasi WhatsApp H-1 untuk agenda logbook via Fonnte';
 
     public function handle()
     {
@@ -20,11 +20,8 @@ class SendLogbookReminder extends Command
         $agendas = Logbook::where('tanggal_acara', $besok)->get();
 
         if ($agendas->count() > 0) {
-            // Nomor tujuan yang Anda minta
+            // Nomor tujuan (Bisa format 08... atau 628...)
             $nomorTujuan = '085336102800';
-            
-            // Ubah format nomor HP 08... menjadi 628... untuk standar WhatsApp
-            $formatNomor = '62' . substr($nomorTujuan, 1); 
 
             foreach ($agendas as $agenda) {
                 // Susun format pesan WhatsApp yang rapi
@@ -36,27 +33,31 @@ class SendLogbookReminder extends Command
                        . "Mohon segera disiapkan ya!";
 
                 try {
-                    // CONTOH Koneksi ke WhatsApp Gateway lokal (Misal menggunakan WAHA / Baileys di port 3000)
-                    // Anda juga bisa mengganti URL ini dengan API Gateway pihak ketiga gratisan jika ada.
-                    $response = Http::post('http://localhost:3000/api/sendText', [
-                        'chatId' => $formatNomor . '@c.us',
-                        'text'   => $pesan,
+                    // Mengirim pesan menggunakan API Fonnte
+                    $response = Http::withHeaders([
+                        'Authorization' => '1ZidFLrVqRJDsK1gDbCX' // Token API Fonnte Anda
+                    ])->post('https://api.fonnte.com/send', [
+                        'target'  => $nomorTujuan,
+                        'message' => $pesan,
                     ]);
 
                     if ($response->successful()) {
-                        Log::info("Notifikasi WhatsApp H-1 berhasil dikirim ke {$nomorTujuan} untuk agenda: {$agenda->judul_acara}");
+                        Log::info("Notifikasi WA H-1 berhasil dikirim ke {$nomorTujuan} untuk agenda: {$agenda->judul_acara}");
+                        $this->info("Berhasil mengirim pengingat: {$agenda->judul_acara}");
                     } else {
-                        Log::error("Gagal mengirim WhatsApp ke {$nomorTujuan}: " . $response->body());
+                        Log::error("Gagal mengirim WA Fonnte ke {$nomorTujuan}: " . $response->body());
+                        $this->error("Gagal mengirim pengingat untuk: {$agenda->judul_acara}");
                     }
 
                 } catch (\Exception $e) {
-                    Log::error("Terjadi kesalahan koneksi WhatsApp: " . $e->getMessage());
+                    Log::error("Terjadi kesalahan koneksi Fonnte: " . $e->getMessage());
+                    $this->error("Terjadi kesalahan sistem: " . $e->getMessage());
                 }
             }
             
-            $this->info('Notifikasi WhatsApp H-1 logbook berhasil diproses.');
+            $this->info('Semua notifikasi WhatsApp H-1 logbook telah selesai diproses.');
         } else {
-            $this->info('Tidak ada agenda untuk H-1 besok.');
+            $this->info('Tidak ada agenda untuk H-1 (besok).');
         }
     }
 }

@@ -2,14 +2,16 @@
 @section('title', 'Koneksi WhatsApp')
 @section('content')
 <div class="container-fluid">
-    <div class="row">
-        <!-- Kolom Status & Barcode -->
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
+    <div class="row justify-content-center">
+        <!-- Kolom Uji Coba Kirim Pesan -->
+        <div class="col-md-8 mb-4">
+            <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3 fw-bold">
-                    <i class="bi bi-whatsapp text-success me-2"></i> Status Perangkat WhatsApp
+                    <i class="bi bi-send text-primary me-2"></i> Pengaturan & Uji Coba Pesan WhatsApp
                 </div>
-                <div class="card-body text-center">
+                <div class="card-body">
+                    
+                    {{-- Notifikasi --}}
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {{ session('success') }}
@@ -23,71 +25,23 @@
                         </div>
                     @endif
 
-                    {{-- Jika ada pesan error dari koneksi gateway --}}
-                    @if(isset($errorMessage) && $errorMessage)
-                        <div class="alert alert-warning small text-start">
-                            <i class="bi bi-exclamation-triangle-fill"></i> {{ $errorMessage }}
-                        </div>
-                    @endif
-
-                    <div class="mb-3">
-                        <span class="fw-bold">Status Koneksi: </span>
-                        @if(isset($statusData['status']) && $statusData['status'] == 'WORKING')
-                            <span class="badge bg-success fs-6">Terhubung (Connected)</span>
-                        @else
-                            <span class="badge bg-danger fs-6">Belum Terhubung (Disconnected)</span>
-                        @endif
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle-fill me-1"></i> Sistem ini menggunakan API dari <strong>Fonnte.com</strong>. Pastikan perangkat Anda selalu terhubung (Connected) di dashboard website Fonnte agar pesan H-1 Logbook otomatis terkirim.
                     </div>
 
-                    {{-- Jika belum terhubung, tampilkan Barcode --}}
-                    @if(isset($statusData['status']) && $statusData['status'] != 'WORKING')
-                        <div class="p-3 bg-light border rounded d-inline-block mb-3">
-                            @if(isset($qrCodeUrl) && $qrCodeUrl)
-                                <img src="{{ $qrCodeUrl }}" alt="QR Code WhatsApp" class="img-fluid" style="max-width: 250px;">
-                            @else
-                                <p class="text-muted m-0">Barcode belum tersedia / Sedang memuat...</p>
-                            @endif
-                        </div>
-                        <p class="small text-muted">Buka aplikasi WhatsApp di HP Anda > Menu > Perangkat Tertaut > Tautkan Perangkat > Scan QR Code di atas.</p>
-                        <br>
-                        <a href="{{ route('whatsapp.index') }}" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-arrow-clockwise"></i> Refresh / Muat Ulang Barcode
-                        </a>
-                    @else
-                        <div class="alert alert-success">
-                            Perangkat Anda sudah tersambung dan siap mengirimkan pengingat logbook otomatis!
-                        </div>
-                        <form action="{{ route('whatsapp.disconnect') }}" method="POST" onsubmit="return confirm('Yakin ingin memutus perangkat WhatsApp ini?');">
-                            @csrf
-                            <button type="submit" class="btn btn-danger btn-sm fw-bold">
-                                <i class="bi bi-box-arrow-right"></i> Putuskan Perangkat (Logout Aman)
-                            </button>
-                        </form>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Kolom Uji Coba Kirim Pesan -->
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 fw-bold">
-                    <i class="bi bi-send text-primary me-2"></i> Uji Coba Kirim Pesan WA
-                </div>
-                <div class="card-body">
                     <form action="{{ route('whatsapp.test') }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label fw-bold">Nomor Tujuan WhatsApp</label>
                             <input type="text" name="nomor" class="form-control" value="085336102800" required>
-                            <div class="form-text">Contoh: 085336102800</div>
+                            <div class="form-text text-muted">Contoh: 085336102800 (Bisa menggunakan awalan 08 atau 62)</div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label fw-bold">Isi Pesan Uji Coba</label>
-                            <textarea name="pesan" class="form-control" rows="4" required>Halo, ini adalah pesan uji coba dari sistem LaSehat.</textarea>
+                            <textarea name="pesan" class="form-control" rows="5" required>Halo, ini adalah pesan uji coba dari sistem LaSehat. Jika pesan ini masuk, berarti sistem API Fonnte berjalan dengan baik.</textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-sm fw-bold w-100">
-                            <i class="bi bi-cursor-fill"></i> Kirim Pesan Tes Sekarang
+                        <button type="submit" class="btn btn-primary fw-bold w-100 py-2">
+                            <i class="bi bi-cursor-fill me-2"></i> Kirim Pesan Tes Sekarang
                         </button>
                     </form>
                 </div>
