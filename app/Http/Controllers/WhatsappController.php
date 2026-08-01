@@ -74,22 +74,19 @@ class WhatsappController extends Controller
             'pesan' => 'required',
         ]);
 
-        $formatNomor = '62' . ltrim($request->nomor, '0');
-
         try {
-            $response = Http::timeout(10)->post("{$this->gatewayUrl}/api/sendText", [
-                'session' => 'default',
-                'chatId'  => $formatNomor . '@c.us',
-                'text'    => $request->pesan,
+            $response = Http::withHeaders([
+                'Authorization' => 'TOKEN_FONNTE_ANDA_DISINI' // Masukkan token dari web Fonnte
+            ])->post('https://api.fonnte.com/send', [
+                'target' => $request->nomor,
+                'message' => $request->pesan,
             ]);
 
             if ($response->successful()) {
-                return back()->with('success', 'Pesan uji coba berhasil dikirim!');
-            } else {
-                return back()->with('error', 'Gagal mengirim pesan: ' . $response->body());
+                return back()->with('success', 'Pesan uji coba berhasil dikirim via Fonnte!');
             }
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan koneksi ke Gateway: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 }
