@@ -18,21 +18,39 @@ class WhatsappController extends Controller
         $errorMessage = null;
 
         try {
-            // Cek status sesi WhatsApp
+            // 1. Cek status sesi WhatsApp
             $response = Http::timeout(5)->get("{$this->gatewayUrl}/api/sessions/default");
+            
             if ($response->successful()) {
                 $statusData = $response->json();
+            } elseif ($response->status() == 404) {
+                // Opsional: Jika gateway mengharuskan sesi di-start (dibuat) terlebih dahulu saat 404
+                // Http::post("{$this->gatewayUrl}/api/sessions/start", ['name' => 'default']);
+                // $statusData['status'] = 'DISCONNECTED';
             }
 
-            // Ambil QR Code dari gateway publik
-            $qrResponse = Http::timeout(5)->get("{$this->gatewayUrl}/api/default/auth/qr?format=image");
-            if ($qrResponse->successful()) {
-                $qrCodeUrl = 'data:image/png;base64,' . base64_encode($qrResponse->body());
-            } else {
-                $errorMessage = "Gagal mengambil QR dari Gateway (HTTP Status: " . $qrResponse->status() . ")";
+            // 2. Ambil status saat ini
+            // Sesuaikan key 'status' ini dengan format JSON dari gateway Anda
+            $currentStatus = $statusData['status'] ?? 'DISCONNECTED';
+
+            // 3. HANYA fetch QR Code jika status belum WORKING/CONNECTED
+            if ($currentStatus !== 'WORKING') {
+                
+                // CATATAN: Pastikan endpoint ini benar. 
+                // Jika masih 404, coba ubah menjadi: /api/sessions/default/auth/qr?format=image
+                $qrEndpoint = "{$this->gatewayUrl}/api/default/auth/qr?format=image";
+                
+                $qrResponse = Http::timeout(5)->get($qrEndpoint);
+                
+                if ($qrResponse->successful()) {
+                    $qrCodeUrl = 'data:image/png;base64,' . base64_encode($qrResponse->body());
+                } else {
+                    $errorMessage = "Gagal mengambil QR dari Gateway (HTTP Status: " . $qrResponse->status() . "). Pastikan path URL API benar dan sesi sudah di-start.";
+                }
             }
+
         } catch (\Exception $e) {
-            $errorMessage = "Tidak dapat terhubung ke server gateway di {$this->gatewayUrl}. Pastikan server/service berjalan. (Detail: " . $e->getMessage() . ")";
+            $errorMessage = "Tidak dapat terhubung ke server gateway di {$this->gatewayUrl}. (Detail: " . $e->getMessage() . ")";
             Log::error($errorMessage);
         }
 
