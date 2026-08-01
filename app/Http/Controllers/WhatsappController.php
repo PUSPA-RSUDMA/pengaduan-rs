@@ -4,50 +4,51 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class WhatsappController extends Controller
 {
-    private $gatewayUrl = 'http://localhost:3000'; // Sesuaikan jika port gateway Anda berbeda
+    // Mengarahkan langsung ke link publik gateway Anda
+    private $gatewayUrl = 'http://rsudma.id:9093';
 
-    // Tampilkan halaman manajemen WhatsApp
     public function index()
     {
         $statusData = ['status' => 'DISCONNECTED'];
         $qrCodeUrl = null;
+        $errorMessage = null;
 
         try {
-            // Cek status sesi WhatsApp saat ini
-            $response = Http::get("{$this->gatewayUrl}/api/sessions/default");
+            // Cek status sesi WhatsApp
+            $response = Http::timeout(5)->get("{$this->gatewayUrl}/api/sessions/default");
             if ($response->successful()) {
-                $data = $response->json();
-                $statusData = $data;
+                $statusData = $response->json();
             }
 
-            // Ambil gambar QR code jika status belum terkoneksi
-            $qrResponse = Http::get("{$this->gatewayUrl}/api/default/auth/qr?format=image");
+            // Ambil QR Code dari gateway publik
+            $qrResponse = Http::timeout(5)->get("{$this->gatewayUrl}/api/default/auth/qr?format=image");
             if ($qrResponse->successful()) {
-                // Ubah gambar binary ke base64 agar langsung tampil di tag <img> HTML
                 $qrCodeUrl = 'data:image/png;base64,' . base64_encode($qrResponse->body());
+            } else {
+                $errorMessage = "Gagal mengambil QR dari Gateway (HTTP Status: " . $qrResponse->status() . ")";
             }
         } catch (\Exception $e) {
-            // Gateway belum aktif atau offline
+            $errorMessage = "Tidak dapat terhubung ke server gateway di {$this->gatewayUrl}. Pastikan server/service berjalan. (Detail: " . $e->getMessage() . ")";
+            Log::error($errorMessage);
         }
 
-        return view('whatsapp.index', compact('statusData', 'qrCodeUrl'));
+        return view('whatsapp.index', compact('statusData', 'qrCodeUrl', 'errorMessage'));
     }
 
-    // Tombol untuk Memutus Perangkat / Logout (Aman)
     public function disconnect()
     {
         try {
-            Http::post("{$this->gatewayUrl}/api/sessions/default/logout");
-            return back()->with('success', 'Perangkat WhatsApp berhasil diputus (Logged out).');
+            Http::timeout(5)->post("{$this->gatewayUrl}/api/sessions/default/logout");
+            return back()->with('success', 'Perangkat WhatsApp berhasil diputus.');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal memutus perangkat: ' . $e->getMessage());
         }
     }
 
-    // Tombol untuk Tes Kirim Pesan
     public function testSend(Request $request)
     {
         $request->validate([
@@ -58,7 +59,7 @@ class WhatsappController extends Controller
         $formatNomor = '62' . ltrim($request->nomor, '0');
 
         try {
-            $response = Http::post("{$this->gatewayUrl}/api/sendText", [
+            $response = Http::timeout(10)->post("{$this->gatewayUrl}/api/sendText", [
                 'session' => 'default',
                 'chatId'  => $formatNomor . '@c.us',
                 'text'    => $request->pesan,

@@ -11,10 +11,23 @@
                 </div>
                 <div class="card-body text-center">
                     @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     @endif
                     @if(session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    {{-- Jika ada pesan error dari koneksi gateway --}}
+                    @if(isset($errorMessage) && $errorMessage)
+                        <div class="alert alert-warning small text-start">
+                            <i class="bi bi-exclamation-triangle-fill"></i> {{ $errorMessage }}
+                        </div>
                     @endif
 
                     <div class="mb-3">
@@ -26,13 +39,13 @@
                         @endif
                     </div>
 
-                    {{-- Jika belum terhubung, tampilkan Barcode --/--}}
+                    {{-- Jika belum terhubung, tampilkan Barcode --}}
                     @if(isset($statusData['status']) && $statusData['status'] != 'WORKING')
                         <div class="p-3 bg-light border rounded d-inline-block mb-3">
-                            @if($qrCodeUrl)
+                            @if(isset($qrCodeUrl) && $qrCodeUrl)
                                 <img src="{{ $qrCodeUrl }}" alt="QR Code WhatsApp" class="img-fluid" style="max-width: 250px;">
                             @else
-                                <p class="text-muted m-0">Menyiapkan QR Code atau Gateway belum aktif...</p>
+                                <p class="text-muted m-0">Barcode belum tersedia / Sedang memuat...</p>
                             @endif
                         </div>
                         <p class="small text-muted">Buka aplikasi WhatsApp di HP Anda > Menu > Perangkat Tertaut > Tautkan Perangkat > Scan QR Code di atas.</p>
@@ -41,7 +54,6 @@
                             <i class="bi bi-arrow-clockwise"></i> Refresh / Muat Ulang Barcode
                         </a>
                     @else
-                        {{-- Jika sudah terhubung, tampilkan tombol putuskan/logout agar aman --}}
                         <div class="alert alert-success">
                             Perangkat Anda sudah tersambung dan siap mengirimkan pengingat logbook otomatis!
                         </div>
