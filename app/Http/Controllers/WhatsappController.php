@@ -76,7 +76,7 @@ class WhatsappController extends Controller
 
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'TOKEN_FONNTE_ANDA_DISINI' // Masukkan token dari web Fonnte
+                'Authorization' => '1ZidFLrVqRJDsK1gDbCX' // Masukkan token dari web Fonnte
             ])->post('https://api.fonnte.com/send', [
                 'target' => $request->nomor,
                 'message' => $request->pesan,
