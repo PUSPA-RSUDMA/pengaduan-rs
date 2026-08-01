@@ -15,32 +15,53 @@ use App\Http\Controllers\DashboardPermintaanController;
 use App\Http\Controllers\LasehatController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\WhatsappController;
+use Illuminate\Support\Facades\Artisan;
+
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Web Routes (AREA BEBAS LOGIN / PUBLIK)
 |--------------------------------------------------------------------------
+| Semua route yang ada di atas "middleware('auth')" bisa diakses 
+| tanpa harus login terlebih dahulu.
 */
-
-Route::resource('complaints', ComplaintController::class);
-Route::get('complaints/{id}/print', [ComplaintController::class, 'print'])->name('complaints.print');
-
-// === JALUR IMPORT EXCEL ===
-Route::post('complaints/import', [ComplaintController::class, 'import'])->name('complaints.import');
-
-// === JALUR DOWNLOAD TEMPLATE EXCEL ===
-Route::get('complaints/download-template', [ComplaintController::class, 'downloadTemplate'])->name('complaints.template');
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Jalur Dashboard
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// 1. Jalur Cronjob WA (WAJIB di luar auth agar robot cron-job.org bisa akses)
+Route::get('/cron/send-reminder/{token}', function ($token) {
+    if ($token !== 'rahasia-lasehat-123') {
+        abort(403, 'Akses Ditolak!');
+    }
+    Artisan::call('logbook:send-reminder');
+    return "Sukses mengeksekusi pengingat H-1: " . Artisan::output();
+});
 
-// GRUP WAJIB LOGIN
-Route::middleware('auth')->group(function () {
+// 2. Logbook View (Bisa dilihat siapa saja tanpa login)
+Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
+
+// 3. Area Complaints Umum
+Route::resource('complaints', ComplaintController::class);
+Route::get('complaints/{id}/print', [ComplaintController::class, 'print'])->name('complaints.print');
+Route::post('complaints/import', [ComplaintController::class, 'import'])->name('complaints.import');
+Route::get('complaints/download-template', [ComplaintController::class, 'downloadTemplate'])->name('complaints.template');
+
+
+/*
+|--------------------------------------------------------------------------
+| AREA WAJIB LOGIN (AUTH)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    
+    // Jalur Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['verified'])->name('dashboard');
+
+    // === AKSI LOGBOOK (Tambah & Hapus Wajib Login agar aman) ===
+    Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
+    Route::delete('/logbook/{id}', [LogbookController::class, 'destroy'])->name('logbook.destroy');
+    
     // 1. Rute Dashboard Permintaan
     Route::get('/dashboard-permintaan', [DashboardPermintaanController::class, 'index'])->name('dashboard.permintaan');
 
@@ -49,8 +70,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/permintaan', [PermintaanController::class, 'store'])->name('permintaan.store');
     Route::put('/permintaan/{id}', [PermintaanController::class, 'update'])->name('permintaan.update');
     Route::delete('/permintaan/{id}', [PermintaanController::class, 'destroy'])->name('permintaan.destroy');
-
-    // Rute Export Permintaan & Informasi
     Route::get('/permintaan/export/pdf', [PermintaanController::class, 'exportPdf'])->name('permintaan.export.pdf');
     Route::get('/permintaan/export/excel', [PermintaanController::class, 'exportExcel'])->name('permintaan.export.excel');
 
@@ -58,18 +77,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profil', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // === (GANTI PASSWORD) ===
     Route::put('/password-baru', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
     // Menu Admin Lama (Source & Category)
     Route::resource('sources', SourceController::class);
     Route::resource('categories', CategoryController::class);
-    Route::resource('logbook', LogbookController::class);
 
-    // === NEW: DATA MASTER ===
+    // Export Data Complaints
+    Route::get('export-excel', [ComplaintController::class, 'exportExcel'])->name('export.excel');
+    Route::get('/export-pdf', [ComplaintController::class, 'exportPdf'])->name('export.pdf');
+
+
+    // === AREA KHUSUS ADMIN (ROLE: ADMIN) ===
     Route::middleware(['role:admin'])->group(function () {
         
+        // Pengaturan & Test WA
+        Route::get('/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp.index');
+        Route::post('/whatsapp/test', [WhatsappController::class, 'testSend'])->name('whatsapp.test');
+
+        // Kelola User
+        Route::resource('users', UserController::class);
+
+        // DATA MASTER
         // UNIT PELAPOR
         Route::get('/master/reporters', [MasterController::class, 'reporterIndex'])->name('master.reporters.index');
         Route::post('/master/reporters', [MasterController::class, 'reporterStore'])->name('master.reporters.store');
@@ -88,48 +117,31 @@ Route::middleware('auth')->group(function () {
         Route::put('/master/grades/{id}', [MasterController::class, 'gradeUpdate'])->name('master.grades.update'); 
         Route::delete('/master/grades/{id}', [MasterController::class, 'gradeDestroy'])->name('master.grades.destroy');
 
+        // Kategori Keluhan
         Route::resource('master/kategori-keluhan', App\Http\Controllers\KategoriKeluhanController::class);
         Route::post('master/kategori-keluhan/items', [App\Http\Controllers\KategoriKeluhanController::class, 'storeItem'])->name('kategori-keluhan.items.store');
         Route::delete('master/kategori-keluhan/items/{id}', [App\Http\Controllers\KategoriKeluhanController::class, 'destroyItem'])->name('kategori-keluhan.items.destroy');
 
+        // Master Supir
+        Route::get('/master/supir', [MasterController::class, 'supirIndex'])->name('master.supir.index');
+        Route::post('/master/supir', [MasterController::class, 'supirStore'])->name('master.supir.store');
+        Route::delete('/master/supir/{id}', [MasterController::class, 'supirDestroy'])->name('master.supir.destroy');
+
+        // LASEHAT GROUP
         Route::prefix('lasehat')->group(function () {
             Route::get('/dashboard', [LasehatController::class, 'dashboard'])->name('lasehat.dashboard');
             Route::get('/data', [LasehatController::class, 'index'])->name('lasehat.index');
             Route::post('/store', [LasehatController::class, 'store'])->name('lasehat.store');
             Route::post('/update-supir/{id}', [LasehatController::class, 'updateSupir'])->name('lasehat.update_supir');
             Route::get('/sync-spreadsheet', [LasehatController::class, 'syncGoogleSheet'])->name('lasehat.sync');
-            
-            // ---> Tambahkan baris ini untuk fitur Hapus:
             Route::delete('/destroy/{id}', [LasehatController::class, 'destroy'])->name('lasehat.destroy');
         });
-
-        // Tambahkan di dalam group role:admin
-        Route::get('/master/supir', [MasterController::class, 'supirIndex'])->name('master.supir.index');
-        Route::post('/master/supir', [MasterController::class, 'supirStore'])->name('master.supir.store');
-        Route::delete('/master/supir/{id}', [MasterController::class, 'supirDestroy'])->name('master.supir.destroy');
-
-        // Route Sync Google Sheet LaSehat
-        Route::get('/lasehat/sync-spreadsheet', [LasehatController::class, 'syncGoogleSheet'])->name('lasehat.sync');
-
-        Route::get('/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp.index');
-        Route::post('/whatsapp/test', [WhatsappController::class, 'testSend'])->name('whatsapp.test');
-        
     });
-
-    // Export Data
-    Route::get('export-excel', [ComplaintController::class, 'exportExcel'])->name('export.excel');
-    Route::get('/export-pdf', [ComplaintController::class, 'exportPdf'])->name('export.pdf');
-
-    // Route::resource('complaints', ComplaintController::class); 
-    
-    // Kelola User (Hanya Admin)
-    Route::resource('users', UserController::class)->middleware('role:admin');
-
 });
 
 require __DIR__.'/auth.php';
 
-// ISI DATA OTOMATIS (SETUP AWAL SAJA)
+// ISI DATA OTOMATIS (SETUP AWAL SAJA) - Bebas Login
 Route::get('/install-data', function () {
     $sources = ['SMS/WA/Telepon', 'Datang Sendiri', 'Surat/Fax', 'Email', 'Medsos - Instagram', 'Medsos - TikTok', 'Medsos - Facebook'];
     foreach ($sources as $s) {
