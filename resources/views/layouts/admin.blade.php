@@ -142,6 +142,9 @@
                 <a href="{{ route('logbook.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('logbook.*') ? 'active' : '' }}">
                     <i class="bi bi-journal-text me-2"></i> Logbook Agenda
                 </a>
+                <a href="{{ route('whatsapp.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}">
+                    <i class="bi bi-whatsapp me-2"></i> Koneksi WhatsApp
+                </a>
 
                 @if(auth()->user()->role == 'admin')
                     <div class="sidebar-label mt-2">Data Master</div>

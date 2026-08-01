@@ -14,7 +14,7 @@ use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\DashboardPermintaanController;
 use App\Http\Controllers\LasehatController;
 use App\Http\Controllers\LogbookController;
-
+use App\Http\Controllers\WhatsappController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -110,6 +110,10 @@ Route::middleware('auth')->group(function () {
 
         // Route Sync Google Sheet LaSehat
         Route::get('/lasehat/sync-spreadsheet', [LasehatController::class, 'syncGoogleSheet'])->name('lasehat.sync');
+
+        Route::get('/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp.index');
+        Route::post('/whatsapp/disconnect', [WhatsappController::class, 'disconnect'])->name('whatsapp.disconnect');
+        Route::post('/whatsapp/test', [WhatsappController::class, 'testSend'])->name('whatsapp.test');
         
     });
 
