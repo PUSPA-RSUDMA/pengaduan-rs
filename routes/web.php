@@ -13,6 +13,7 @@ use App\Http\Controllers\MasterController;
 use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\DashboardPermintaanController;
 use App\Http\Controllers\LasehatController;
+use App\Http\Controllers\LogbookController;
 
 /*
 |--------------------------------------------------------------------------
