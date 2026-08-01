@@ -64,28 +64,31 @@ class LasehatController extends Controller
     }
 
     // === FITUR SYNC DARI GOOGLE SPREADSHEET ===
+    // === FITUR SYNC DARI GOOGLE SPREADSHEET ===
     public function syncGoogleSheet()
     {
-        // 1. MASUKKAN URL PUBLISH CSV DI SINI
-        $sheetUrl = "https://docs.google.com/spreadsheets/d/1jhGvboGxJZT3xoJDZ2_fJ5lX0JCkVXTfrWABl9gANaw/edit?usp=sharing";
+        // Menggunakan link spreadsheet yang Anda berikan
+        $spreadsheetId = "1jhGvboGxJZT3xoJDZ2_fJ5lX0JCkVXTfrWABl9gANaw";
+        $gid = "176229218"; // Diambil dari gid link Anda
+
+        // Link export CSV resmi Google Sheets agar langsung mendownload data mentah
+        $sheetUrl = "https://docs.google.com/spreadsheets/d/{$spreadsheetId}/export?format=csv&gid={$gid}";
 
         try {
-            // Gunakan HTTP Client Laravel agar lebih stabil
             $response = \Illuminate\Support\Facades\Http::get($sheetUrl);
             
             if (!$response->successful()) {
-                return back()->with('error', 'Gagal mengakses URL Google Sheet. Status: ' . $response->status());
+                return back()->with('error', 'Gagal mengakses Google Sheet. Status: ' . $response->status());
             }
 
             $csvData = $response->body();
             
-            // Cek apakah URL yang dimasukkan ternyata salah (Halaman HTML biasa, bukan CSV)
+            // Cek pengaman jika terdeteksi halaman HTML (artinya akses sharing belum publik)
             if (strpos(substr($csvData, 0, 100), '<html') !== false) {
-                return back()->with('error', 'Gagal! URL yang dimasukkan adalah link Web, bukan link CSV. Pastikan Anda memilih opsi "Nilai yang dipisahkan koma (.csv)" saat Publish.');
+                return back()->with('error', 'Gagal! Spreadsheet masih dibatasi. Pastikan akses umum sudah diatur menjadi "Siapa saja yang memiliki link" seperti pada gambar Anda sebelumnya.');
             }
 
             $lines = explode(PHP_EOL, $csvData);
-            
             $sukses = 0;
             $gagal = 0;
 
@@ -93,23 +96,20 @@ class LasehatController extends Controller
             for ($i = 1; $i < count($lines); $i++) {
                 if (trim($lines[$i]) == '') continue;
 
-                // Gunakan str_getcsv (Secara default membaca koma, cukup aman untuk CSV Google)
                 $line = str_getcsv($lines[$i]);
                 
-                // Pastikan baris memiliki minimal 6 kolom 
+                // Pastikan baris memiliki minimal 6 kolom
                 if (count($line) >= 6) { 
                     $tglAntar = null;
                     
-                    // --- LOGIKA TANGGAL LEBIH FLEKSIBEL ---
-                    // Coba baca kolom Tanggal Pengantaran (Index 6)
+                    // Cek Kolom G (Tanggal Pengantaran) di Index 6
                     if (isset($line[6]) && trim($line[6]) != '') {
                         try {
-                            // Pakai parse biasa agar bisa membaca format apapun (DD/MM/YYYY atau MM/DD/YYYY)
                             $tglAntar = \Carbon\Carbon::parse(str_replace('/', '-', trim($line[6])))->format('Y-m-d');
                         } catch (\Exception $e) { }
                     }
                     
-                    // Fallback ke Timestamp (Index 0) jika kolom 6 kosong / gagal dibaca
+                    // Fallback ke Timestamp di Index 0 jika kolom tanggal pengantaran kosong
                     if (!$tglAntar && isset($line[0]) && trim($line[0]) != '') {
                         $timestampParts = explode(' ', trim($line[0])); 
                         try {
@@ -117,7 +117,7 @@ class LasehatController extends Controller
                         } catch (\Exception $e) { }
                     }
 
-                    // --- LOGIKA SUPIR ---
+                    // Cek Supir di Kolom H (Ket) index 7
                     $supir = null;
                     if (isset($line[7]) && trim($line[7]) != '') {
                         $ket = trim($line[7]);
@@ -126,7 +126,7 @@ class LasehatController extends Controller
                         }
                     }
 
-                    // --- SIMPAN DATA KE DATABASE ---
+                    // Simpan atau Update ke Database
                     if ($tglAntar && trim($line[1]) != '') {
                         Lasehat::updateOrCreate(
                             [
@@ -142,17 +142,16 @@ class LasehatController extends Controller
                                 'created_by' => 'Google Form',
                             ]
                         );
-                        $sukses++; // Data berhasil
+                        $sukses++;
                     } else {
-                        $gagal++; // Gagal (biasanya karena tanggal tidak bisa di-convert)
+                        $gagal++;
                     }
                 } else {
-                    $gagal++; // Gagal karena kolomnya kurang dari 6 (baris tidak lengkap/kosong)
+                    $gagal++;
                 }
             }
             
-            // Tampilkan laporan secara spesifik
-            return back()->with('success', "Sync Selesai! $sukses data baru/diupdate berhasil masuk. $gagal baris dilewati (kosong atau format tidak sesuai).");
+            return back()->with('success', "Sync Selesai! Berhasil memasukkan/memperbarui $sukses data dari Google Sheet ($gagal baris dilewati).");
             
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
