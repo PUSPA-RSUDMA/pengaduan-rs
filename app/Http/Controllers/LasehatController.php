@@ -67,7 +67,7 @@ class LasehatController extends Controller
     public function syncGoogleSheet()
     {
         // 1. MASUKKAN URL PUBLISH CSV DI SINI
-        $sheetUrl = "MASUKKAN_URL_PUBLISH_CSV_GOOGLE_SHEET_ANDA_DISINI";
+        $sheetUrl = "https://docs.google.com/spreadsheets/d/1jhGvboGxJZT3xoJDZ2_fJ5lX0JCkVXTfrWABl9gANaw/edit?resourcekey=&gid=176229218#gid=176229218";
 
         try {
             // Gunakan HTTP Client Laravel agar lebih stabil
