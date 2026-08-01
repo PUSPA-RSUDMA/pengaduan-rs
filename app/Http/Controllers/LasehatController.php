@@ -16,22 +16,35 @@ class LasehatController extends Controller
         $startDate = $request->start_date ?? Carbon::now()->startOfMonth()->format('Y-m-d');
         $endDate = $request->end_date ?? Carbon::now()->endOfMonth()->format('Y-m-d');
 
-        // Statistik Ruangan Terbanyak (Menggunakan whereBetween untuk range tanggal)
+        // Statistik Ruangan Terbanyak
         $ruanganStats = Lasehat::selectRaw('tempat_dirawat, count(*) as total')
             ->whereBetween('tanggal_pengantaran', [$startDate, $endDate])
             ->groupBy('tempat_dirawat')
             ->orderByDesc('total')
             ->get();
 
+        // Hitung Grand Total Order Ruangan
+        $totalOrderRuangan = $ruanganStats->sum('total');
+
         // Statistik Supir Terbanyak
         $supirStats = Lasehat::selectRaw('supir_ambulance, count(*) as total')
             ->whereBetween('tanggal_pengantaran', [$startDate, $endDate])
-            ->whereNotNull('supir_ambulance') // Hanya yang sudah diinput supirnya
+            ->whereNotNull('supir_ambulance')
             ->groupBy('supir_ambulance')
             ->orderByDesc('total')
             ->get();
 
-        return view('lasehat.dashboard', compact('ruanganStats', 'supirStats', 'startDate', 'endDate'));
+        // Hitung Grand Total Jalan Supir
+        $totalJalanSupir = $supirStats->sum('total');
+
+        return view('lasehat.dashboard', compact(
+            'ruanganStats', 
+            'supirStats', 
+            'startDate', 
+            'endDate', 
+            'totalOrderRuangan', 
+            'totalJalanSupir'
+        ));
     }
 
     // === 2. TAMPILAN DATA & INPUT ===
@@ -53,8 +66,15 @@ class LasehatController extends Controller
             }
         }
 
-        // Ambil data dengan paginasi dan pertahankan parameter filter
-        $lasehats = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->all());
+        // 3. Pengurutan Berdasarkan Tanggal Pengantaran (Default: Terkini/desc)
+        $sortDate = $request->input('sort_date', 'desc');
+        if (!in_array($sortDate, ['asc', 'desc'])) {
+            $sortDate = 'desc';
+        }
+        $query->orderBy('tanggal_pengantaran', $sortDate);
+
+        // Ambil data dengan paginasi dan pertahankan parameter filter & sorting
+        $lasehats = $query->paginate(10)->appends($request->all());
         
         $ruangans = ['GRIU', 'Lily', 'Mawar', 'Lavender', 'Kemuning', 'NICU', 'ICU', 'Dahlia', 'Tulip', 'Anyelir', 'Flamboyan', 'Raflesia', 'PICU', 'Perinatologi'];
         

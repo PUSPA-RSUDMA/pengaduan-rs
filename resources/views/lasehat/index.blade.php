@@ -23,32 +23,41 @@
         @if(session('error'))
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
+        {{-- FORM FILTER & SORTING --}}
         <form method="GET" action="{{ route('lasehat.index') }}" class="row g-3 mb-4 align-items-end bg-light p-3 rounded shadow-sm">
-            <div class="col-md-3">
-                <label class="form-label small fw-bold">Dari Tanggal Pengantaran</label>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Dari Tanggal</label>
                 <input type="date" name="start_date" class="form-control form-control-sm" value="{{ request('start_date') }}">
             </div>
-            <div class="col-md-3">
-                <label class="form-label small fw-bold">Sampai Tanggal Pengantaran</label>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Sampai Tanggal</label>
                 <input type="date" name="end_date" class="form-control form-control-sm" value="{{ request('end_date') }}">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label small fw-bold">Status Supir</label>
                 <select name="status_supir" class="form-select form-select-sm">
-                    <option value="">-- Semua Status Supir --</option>
-                    <option value="sudah" {{ request('status_supir') == 'sudah' ? 'selected' : '' }}>Sudah Ada Supir</option>
-                    <option value="belum" {{ request('status_supir') == 'belum' ? 'selected' : '' }}>Belum Ada Supir</option>
+                    <option value="">-- Semua --</option>
+                    <option value="sudah" {{ request('status_supir') == 'sudah' ? 'selected' : '' }}>Sudah Ada</option>
+                    <option value="belum" {{ request('status_supir') == 'belum' ? 'selected' : '' }}>Belum Ada</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Urutkan Tanggal</label>
+                <select name="sort_date" class="form-select form-select-sm">
+                    <option value="desc" {{ request('sort_date', 'desc') == 'desc' ? 'selected' : '' }}>Terbaru (Paling Baru ke Lama)</option>
+                    <option value="asc" {{ request('sort_date') == 'asc' ? 'selected' : '' }}>Terlama (Paling Lama ke Baru)</option>
                 </select>
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-primary btn-sm fw-bold w-100">
-                    <i class="bi bi-filter"></i> Filter
+                    <i class="bi bi-filter"></i> Terapkan
                 </button>
                 <a href="{{ route('lasehat.index') }}" class="btn btn-secondary btn-sm fw-bold" title="Reset Filter">
                     <i class="bi bi-arrow-counterclockwise"></i>
                 </a>
             </div>
         </form>
+        {{-- END FORM FILTER --}}
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="table-light">

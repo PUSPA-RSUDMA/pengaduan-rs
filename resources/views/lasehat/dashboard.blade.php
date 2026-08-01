@@ -15,41 +15,85 @@
     </form>
 </div>
 
-<div class="row g-4">
-    {{-- Chart Ruangan --}}
-    <div class="col-md-6">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white fw-bold"><i class="bi bi-building"></i> Ruangan Terbanyak Menggunakan LaSehat</div>
+<div class="row">
+    {{-- Tabel Statistik Ruangan --}}
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 fw-bold">
+                <i class="bi bi-hospital text-primary me-2"></i> Statistik Ruangan Terbanyak
+            </div>
             <div class="card-body">
-                <table class="table table-striped table-hover">
-                    <thead><tr><th>Ruangan</th><th>Total Order</th></tr></thead>
-                    <tbody>
-                        @forelse($ruanganStats as $r)
-                            <tr><td>{{ $r->tempat_dirawat }}</td><td class="fw-bold text-primary">{{ $r->total }}</td></tr>
-                        @empty
-                            <tr><td colspan="2" class="text-center">Belum ada data</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ruangan</th>
+                                <th class="text-center" width="30%">Total Order</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($ruanganStats as $stat)
+                            <tr>
+                                <td class="fw-semibold">{{ $stat->tempat_dirawat }}</td>
+                                <td class="text-center"><span class="badge bg-primary">{{ $stat->total }}</span></td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="2" class="text-center text-muted py-3">Tidak ada data pada rentang tanggal ini.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                        @if($ruanganStats->isNotEmpty())
+                        <tfoot class="table-light fw-bold">
+                            <tr>
+                                <td>Total Keseluruhan Order</td>
+                                <td class="text-center text-primary">{{ $totalOrderRuangan }}</td>
+                            </tr>
+                        </tfoot>
+                        @endif
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- Chart Supir --}}
-    <div class="col-md-6">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white fw-bold"><i class="bi bi-person-badge"></i> Supir Paling Aktif Bulan Ini</div>
+    {{-- Tabel Supir Paling Aktif --}}
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 fw-bold">
+                <i class="bi bi-person-badge text-success me-2"></i> Supir Paling Aktif
+            </div>
             <div class="card-body">
-                <table class="table table-striped table-hover">
-                    <thead><tr><th>Nama Supir</th><th>Total Jalan</th></tr></thead>
-                    <tbody>
-                        @forelse($supirStats as $s)
-                            <tr><td>{{ $s->supir_ambulance }}</td><td class="fw-bold text-success">{{ $s->total }}</td></tr>
-                        @empty
-                            <tr><td colspan="2" class="text-center">Belum ada penugasan supir</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama Supir</th>
+                                <th class="text-center" width="30%">Total Jalan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($supirStats as $stat)
+                            <tr>
+                                <td class="fw-semibold">{{ $stat->supir_ambulance }}</td>
+                                <td class="text-center"><span class="badge bg-success">{{ $stat->total }}</span></td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="2" class="text-center text-muted py-3">Tidak ada data supir pada rentang tanggal ini.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                        @if($supirStats->isNotEmpty())
+                        <tfoot class="table-light fw-bold">
+                            <tr>
+                                <td>Total Keseluruhan Jalan Supir</td>
+                                <td class="text-center text-success">{{ $totalJalanSupir }}</td>
+                            </tr>
+                        </tfoot>
+                        @endif
+                    </table>
+                </div>
             </div>
         </div>
     </div>
