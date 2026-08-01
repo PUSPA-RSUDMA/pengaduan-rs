@@ -96,6 +96,14 @@ Route::middleware('auth')->group(function () {
             Route::post('/store', [LasehatController::class, 'store'])->name('lasehat.store');
             Route::post('/update-supir/{id}', [LasehatController::class, 'updateSupir'])->name('lasehat.update_supir');
         });
+
+        // Tambahkan di dalam group role:admin
+        Route::get('/master/supir', [MasterController::class, 'supirIndex'])->name('master.supir.index');
+        Route::post('/master/supir', [MasterController::class, 'supirStore'])->name('master.supir.store');
+        Route::delete('/master/supir/{id}', [MasterController::class, 'supirDestroy'])->name('master.supir.destroy');
+
+        // Route Sync Google Sheet LaSehat
+        Route::get('/lasehat/sync-spreadsheet', [LasehatController::class, 'syncGoogleSheet'])->name('lasehat.sync');
     });
 
     // Export Data

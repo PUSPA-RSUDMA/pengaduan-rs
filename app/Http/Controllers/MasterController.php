@@ -107,4 +107,23 @@ class MasterController extends Controller
         Grade::findOrFail($id)->delete();
         return back()->with('success', 'Data berhasil dihapus!');
     }
+
+    public function supirIndex()
+    {
+        $supirs = Supir::orderBy('nama_supir', 'asc')->get();
+        return view('master.supir.index', compact('supirs'));
+    }
+
+    public function supirStore(Request $request)
+    {
+        $request->validate(['nama_supir' => 'required|string|max:255']);
+        Supir::create(['nama_supir' => $request->nama_supir]);
+        return back()->with('success', 'Data Supir berhasil ditambahkan!');
+    }
+
+    public function supirDestroy($id)
+    {
+        Supir::findOrFail($id)->delete();
+        return back()->with('success', 'Data Supir berhasil dihapus!');
+    }
 }

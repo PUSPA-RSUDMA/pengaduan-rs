@@ -2,25 +2,37 @@
 @section('title', 'Data LaSehat')
 @section('content')
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="fw-bold m-0"><i class="bi bi-list-ul me-2"></i>Daftar Pengantaran Pasien (LaSehat)</h5>
+        <div class="mt-2 mt-md-0 d-flex gap-2">
+            {{-- Tombol Sync Google Sheets --}}
+            <a href="{{ route('lasehat.sync') }}" class="btn btn-success btn-sm fw-bold">
+                <i class="bi bi-google"></i> Sync Spreadsheet
+            </a>
+            {{-- Tombol Tambah Manual --}}
+            <button type="button" class="btn btn-primary btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                <i class="bi bi-plus-circle"></i> Tambah Manual
+            </button>
+        </div>
     </div>
     
     <div class="card-body">
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
+        @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
 
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="table-light">
                     <tr>
-                        <th>Tgl Order</th>
                         <th>Tgl Pengantaran</th>
                         <th>Nama Pasien</th>
                         <th>Ruangan</th>
                         <th>Alamat Tujuan</th>
-                        <th>No Telp PJ</th>
+                        <th>Penanggung Jawab</th>
                         <th>Sumber</th>
                         <th>Supir Ambulance</th>
                     </tr>
@@ -28,17 +40,16 @@
                 <tbody>
                     @foreach($lasehats as $item)
                     <tr>
-                        <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
                         <td class="fw-bold text-primary">{{ \Carbon\Carbon::parse($item->tanggal_pengantaran)->format('d/m/Y') }}</td>
                         <td>{{ $item->nama_pasien }}</td>
                         <td><span class="badge bg-secondary">{{ $item->tempat_dirawat }}</span></td>
                         <td>{{ Str::limit($item->alamat_tujuan, 30) }}</td>
-                        <td>{{ $item->no_telp_pj }}<br><small class="text-muted">{{ $item->penanggung_jawab }}</small></td>
+                        <td>{{ $item->penanggung_jawab }}<br><small class="text-muted">{{ $item->no_telp_pj }}</small></td>
                         <td>
                             @if($item->created_by == 'Google Form')
-                                <span class="badge bg-success"><i class="bi bi-google"></i> Google Form</span>
+                                <span class="badge bg-success"><i class="bi bi-google"></i> Spreadsheet</span>
                             @else
-                                <span class="badge bg-info text-dark">Manual / System</span>
+                                <span class="badge bg-info text-dark">Manual System</span>
                             @endif
                         </td>
                         <td>
@@ -53,18 +64,25 @@
                         </td>
                     </tr>
 
-                    {{-- Modal Isi Supir --}}
+                    {{-- Modal Isi Supir (Sekarang pakai Select) --}}
                     <div class="modal fade" id="modalSupir{{ $item->id }}" tabindex="-1">
                         <div class="modal-dialog">
                             <form action="{{ route('lasehat.update_supir', $item->id) }}" method="POST" class="modal-content">
                                 @csrf
                                 <div class="modal-header bg-warning">
-                                    <h5 class="modal-title fw-bold">Penugasan Supir Ambulance</h5>
+                                    <h5 class="modal-title fw-bold">Pilih Supir Ambulance</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
                                     <label class="form-label">Nama Supir Ambulance</label>
-                                    <input type="text" name="supir_ambulance" class="form-control" value="{{ $item->supir_ambulance }}" placeholder="Masukkan nama supir..." required>
+                                    <select name="supir_ambulance" class="form-select" required>
+                                        <option value="" disabled selected>-- Pilih Supir --</option>
+                                        @foreach($supirs as $s)
+                                            <option value="{{ $s->nama_supir }}" {{ $item->supir_ambulance == $s->nama_supir ? 'selected' : '' }}>
+                                                {{ $s->nama_supir }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-primary">Simpan Supir</button>
@@ -77,6 +95,65 @@
             </table>
         </div>
         {{ $lasehats->links() }}
+    </div>
+</div>
+
+{{-- Modal Tambah Manual --}}
+<div class="modal fade" id="modalTambah" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form action="{{ route('lasehat.store') }}" method="POST" class="modal-content">
+            @csrf
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">Tambah Data LaSehat (Manual)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nama Pasien</label>
+                        <input type="text" name="nama_pasien" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tempat Dirawat (Ruangan)</label>
+                        <select name="tempat_dirawat" class="form-select" required>
+                            <option value="">-- Pilih Ruangan --</option>
+                            @foreach($ruangans as $r)
+                                <option value="{{ $r }}">{{ $r }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tanggal Pengantaran</label>
+                        <input type="date" name="tanggal_pengantaran" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Supir Ambulance (Boleh Kosong)</label>
+                        <select name="supir_ambulance" class="form-select">
+                            <option value="">-- Nanti Saja / Belum Ada --</option>
+                            @foreach($supirs as $s)
+                                <option value="{{ $s->nama_supir }}">{{ $s->nama_supir }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nama Penanggung Jawab</label>
+                        <input type="text" name="penanggung_jawab" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">No. Telepon / WA PJ</label>
+                        <input type="text" name="no_telp_pj" class="form-control" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Alamat Tujuan Pengantaran</label>
+                        <textarea name="alamat_tujuan" class="form-control" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan Data</button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection

@@ -126,6 +126,8 @@
                 </a>
 
                 {{-- TAMBAHAN MENU LASEHAT (LAYANAN MOBIL SEHAT) --}}
+                
+                <div class="sidebar-label mt-2">Layanan Mobil Lasehat</div>
                 @if(auth()->user()->role == 'admin')
                     <a href="{{ route('lasehat.dashboard') }}" class="list-group-item list-group-item-action {{ request()->routeIs('lasehat.dashboard') ? 'active' : '' }}">
                         <i class="bi bi-speedometer2 me-2"></i> Dashboard LaSehat
@@ -153,6 +155,10 @@
 
                     <a href="{{ route('kategori-keluhan.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('kategori-keluhan.*') ? 'active' : '' }}">
                         <i class="bi bi-ui-checks-grid me-2"></i> Kategori & Detail Keluhan
+                    </a>
+
+                    <a href="{{ route('master.supir.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('master.supir.*') ? 'active' : '' }}">
+                        <i class="bi bi-person-bounding-box me-2"></i> Master Supir
                     </a>
                     
                     <a href="{{ route('master.grades.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('master.grades.*') ? 'active' : '' }}">
