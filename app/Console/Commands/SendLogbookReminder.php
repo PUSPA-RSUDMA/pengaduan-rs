@@ -21,11 +21,11 @@ class SendLogbookReminder extends Command
 
         if ($agendas->count() > 0) {
             // Nomor tujuan (Bisa format 08... atau 628...)
-            $nomorTujuan = '085704558256';
+            $nomorTujuan = '085336102800';
 
             foreach ($agendas as $agenda) {
                 // Susun format pesan WhatsApp yang rapi
-                $pesan = "📢 *PENGINGAT H-1 AGENDA LASEHAT*\n\n"
+                $pesan = "📢 *PENGINGAT H-1 AGENDA*\n\n"
                        . "Halo, ada agenda yang harus diurus besok:\n"
                        . "📌 *Acara:* {$agenda->judul_acara}\n"
                        . "📅 *Tanggal:* " . Carbon::parse($agenda->tanggal_acara)->format('d-m-Y') . "\n"
