@@ -216,6 +216,12 @@
             </div>
             
             <div class="list-group list-group-flush pb-4 mt-1" id="sidebarMenuList">
+                {{-- MENU DASHBOARD UTAMA (BERDIRI SENDIRI DI ATAS) --}}
+                @if(auth()->user()->role == 'admin')
+                    <a href="{{ route('utama.dashboard') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('utama.dashboard') ? 'active' : '' }} mb-2">
+                        <i class="bi bi-display-fill me-3 text-primary"></i> <span class="fw-bold">Dashboard Utama</span>
+                    </a>
+                @endif
                 
                 {{-- KELOMPOK MENU: LAYANAN PUBLIK --}}
                 <div class="sidebar-label menu-group-label">Layanan Publik</div>
@@ -231,14 +237,8 @@
                 <div class="collapse {{ request()->routeIs('dashboard', 'complaints.*') ? 'show' : '' }}" id="submenuPengaduan">
                     <div class="sub-menu-wrapper">
                         @if(auth()->user()->role == 'admin')
-                            {{-- MENU DASHBOARD UTAMA (GABUNGAN) --}}
-                            <a href="{{ route('utama.dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('utama.dashboard') ? 'active' : '' }}">
-                                <i class="bi bi-grid-1x2-fill me-2"></i> <span>Dashboard Utama</span>
-                            </a>
-
-                            {{-- MENU DASHBOARD PENGADUAN --}}
                             <a href="{{ route('dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                                <i class="bi bi-chat-left-dots-fill me-2"></i> <span>Dashboard Pengaduan</span>
+                                <i class="bi bi-grid-1x2-fill me-2"></i> <span>Dashboard Utama</span>
                             </a>
                         @endif
                         <a href="{{ route('complaints.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
