@@ -15,6 +15,7 @@ use App\Http\Controllers\DashboardPermintaanController;
 use App\Http\Controllers\LasehatController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\WhatsappController;
+use App\Http\Controllers\MainDashboardController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -55,7 +56,10 @@ Route::get('complaints/download-template', [ComplaintController::class, 'downloa
 */
 Route::middleware(['auth'])->group(function () {
     
-    // Jalur Dashboard
+    Route::get('/dashboard-utama', [MainDashboardController::class, 'index'])->middleware(['verified'])->name('utama.dashboard');
+
+    // --- UBAH NAMA ROUTE PENGADUAN (Jika diperlukan) ---
+    // (Route yang lama tetap ada, ini adalah Dashboard khusus Pengaduan)
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['verified'])->name('dashboard');
 
     // === AKSI LOGBOOK (Tambah & Hapus Wajib Login agar aman) ===
