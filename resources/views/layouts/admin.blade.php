@@ -14,7 +14,7 @@
     <style>
         body { 
             font-family: 'Poppins', sans-serif; 
-            background-color: #f4f7f6; /* Warna background lebih soft */
+            background-color: #f4f7f6; 
             overflow-x: hidden; 
         }
         
@@ -22,7 +22,6 @@
         #sidebar-wrapper {
             width: 270px;
             height: 100vh;
-            /* Gradient Background yang lebih elegan */
             background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
             color: #fff;
             position: fixed;
@@ -34,7 +33,6 @@
             box-shadow: 4px 0 10px rgba(0,0,0,0.1);
         }
 
-        /* Custom Scrollbar untuk Sidebar */
         #sidebar-wrapper::-webkit-scrollbar { width: 6px; }
         #sidebar-wrapper::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
         #sidebar-wrapper::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
@@ -50,7 +48,7 @@
             min-height: 100vh;
         }
 
-        /* === HEADER / NAVBAR MODERN === */
+        /* === HEADER / NAVBAR === */
         .main-header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -69,7 +67,6 @@
         body.toggled #sidebar-wrapper { margin-left: -270px; }
         body.toggled #page-content-wrapper { width: 100%; margin-left: 0; }
 
-        /* === RESPONSIVE (MOBILE) === */
         @media (max-width: 768px) {
             #sidebar-wrapper { margin-left: -270px; }
             #page-content-wrapper { width: 100%; margin-left: 0; }
@@ -78,47 +75,91 @@
             body.toggled .overlay { display: block; }
         }
 
-        /* === STYLING MENU ITEM === */
-        .sidebar-header { 
-            padding: 25px 20px; 
-            border-bottom: 1px solid rgba(255,255,255,0.08); 
-        }
-        .sidebar-label { 
-            padding: 20px 25px 10px; 
-            font-size: 0.7rem; 
-            text-transform: uppercase; 
-            letter-spacing: 1.5px; 
-            color: #64748b; 
-            font-weight: 700; 
-        }
+        /* === STYLING MENU & SUBMENU === */
+        .sidebar-header { padding: 20px 20px 15px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-label { padding: 18px 25px 8px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; font-weight: 700; }
         
         .list-group-item { 
             background: transparent; 
             color: #94a3b8; 
             border: none; 
-            padding: 10px 20px; 
-            margin: 4px 15px; /* Margin agar melengkung */
-            border-radius: 8px; /* Sudut melengkung */
-            transition: all 0.3s ease; 
-            font-size: 0.9rem;
+            padding: 10px 18px; 
+            margin: 3px 12px; 
+            border-radius: 8px; 
+            transition: all 0.25s ease; 
+            font-size: 0.88rem;
             display: flex;
             align-items: center;
+            cursor: pointer;
+            text-decoration: none;
         }
         
         .list-group-item i { font-size: 1.1rem; transition: 0.3s; }
 
-        /* Efek Hover & Active */
         .list-group-item:hover { 
-            background: rgba(255, 255, 255, 0.05); 
+            background: rgba(255, 255, 255, 0.06); 
             color: #f8fafc; 
-            transform: translateX(5px); /* Efek geser kanan sedikit */
         }
+        
         .list-group-item.active { 
-            background: #3b82f6; /* Biru modern */
-            color: #ffffff; 
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            background: #3b82f6 !important; 
+            color: #ffffff !important; 
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+            font-weight: 500;
         }
         .list-group-item.active i { color: #ffffff !important; }
+
+        /* Sub-menu Indentation */
+        .sub-menu-wrapper {
+            background: rgba(0, 0, 0, 0.18);
+            border-radius: 10px;
+            margin: 2px 12px;
+            padding: 4px 0;
+        }
+
+        .sub-menu-item {
+            padding: 8px 18px 8px 42px !important;
+            font-size: 0.83rem !important;
+            margin: 2px 6px !important;
+        }
+
+        /* Rotate Arrow on Collapse Open */
+        .menu-arrow {
+            transition: transform 0.3s ease;
+            font-size: 0.75rem !important;
+        }
+        .collapsed .menu-arrow {
+            transform: rotate(-90deg);
+        }
+
+        /* Input Search Box */
+        .sidebar-search {
+            padding: 12px 18px 5px;
+        }
+        .sidebar-search .input-group-text {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: none;
+            color: #64748b;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+        }
+        .sidebar-search .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: none;
+            color: #f8fafc;
+            font-size: 0.82rem;
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        .sidebar-search .form-control::placeholder { color: #64748b; }
+        .sidebar-search .form-control:focus {
+            box-shadow: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
 
         /* === ANIMASI LONCENG === */
         @keyframes ring {
@@ -134,10 +175,9 @@
             animation: ring 2s ease infinite;
             display: inline-block;
             transform-origin: top center;
-            color: #ef4444; /* Merah menyala */
+            color: #ef4444;
         }
         
-        /* Dropdown Notifikasi */
         .notif-dropdown { width: 320px; border-radius: 12px; }
         .notif-item { transition: 0.2s; border-radius: 8px; margin: 4px 8px; }
         .notif-item:hover { background-color: #f8fafc; }
@@ -145,10 +185,8 @@
 </head>
 <body>
 
-    {{-- MENGAMBIL DATA LOGBOOK UNTUK BESOK SECARA OTOMATIS --}}
     @php
         $besok = \Carbon\Carbon::tomorrow()->format('Y-m-d');
-        // Pastikan Model Logbook di-import dengan benar
         $logbookNotifs = \App\Models\Logbook::where('tanggal_acara', $besok)->get();
         $notifCount = $logbookNotifs->count();
     @endphp
@@ -160,93 +198,151 @@
         {{-- SIDEBAR --}}
         <nav id="sidebar-wrapper">
             <div class="sidebar-header d-flex align-items-center">
-                <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3 shadow" style="width: 45px; height: 45px;">
+                <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3 shadow" style="width: 42px; height: 42px;">
                     <i class="bi bi-hospital-fill text-white fs-4"></i>
                 </div>
                 <div>
-                    <div class="fw-bold fs-5 text-white tracking-wide">IPP-RSUD</div>
-                    <small class="text-white-50" style="font-size: 0.75rem;">dr. H. Moh. Anwar</small>
+                    <div class="fw-bold fs-6 text-white tracking-wide">IPP-RSUD</div>
+                    <small class="text-white-50" style="font-size: 0.72rem;">dr. H. Moh. Anwar</small>
+                </div>
+            </div>
+
+            {{-- FORM PENCARIAN MENU --}}
+            <div class="sidebar-search">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="menuSearchInput" class="form-control" placeholder="Cari menu..." autocomplete="off">
                 </div>
             </div>
             
-            <div class="list-group list-group-flush pb-4 mt-2">
-                <div class="sidebar-label">Menu Utama</div>
+            <div class="list-group list-group-flush pb-4 mt-1" id="sidebarMenuList">
+                
+                {{-- SECTION 1: DASHBOARD & PENGADUAN --}}
+                <div class="sidebar-label menu-group-label">Utama & Pengaduan</div>
                 
                 @if(auth()->user()->role == 'admin')
-                    <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-grid-1x2-fill me-3 text-primary"></i> Dashboard
+                    <a href="{{ route('dashboard') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-grid-1x2-fill me-3 text-primary"></i> <span>Dashboard Utama</span>
                     </a>
                 @endif
                 
-                <a href="{{ route('complaints.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
-                    <i class="bi bi-chat-square-text-fill me-3 text-info"></i> Data Keluhan
+                <a href="{{ route('complaints.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
+                    <i class="bi bi-chat-square-text-fill me-3 text-info"></i> <span>Data Keluhan</span>
                 </a>
 
-                <div class="sidebar-label mt-2">Layanan & Informasi</div>
+                {{-- SECTION 2: SUBMENU LAYANAN & INFORMASI --}}
+                <div class="sidebar-label menu-group-label mt-2">Layanan Publik</div>
 
+                {{-- Parent Collapsible: Permintaan & Informasi --}}
+                <a href="#submenuPermintaan" data-bs-toggle="collapse" 
+                   class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('dashboard.permintaan', 'permintaan.*') ? '' : 'collapsed' }}">
+                    <div>
+                        <i class="bi bi-file-earmark-medical-fill me-3 text-success"></i> <span>Layanan & Informasi</span>
+                    </div>
+                    <i class="bi bi-chevron-down menu-arrow"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('dashboard.permintaan', 'permintaan.*') ? 'show' : '' }}" id="submenuPermintaan">
+                    <div class="sub-menu-wrapper">
+                        @if(auth()->user()->role == 'admin')
+                            <a href="{{ route('dashboard.permintaan') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('dashboard.permintaan') ? 'active' : '' }}">
+                                <i class="bi bi-pie-chart-fill me-2"></i> <span>Dashboard Layanan</span>
+                            </a>
+                        @endif
+                        <a href="{{ route('permintaan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permintaan.index') ? 'active' : '' }}">
+                            <i class="bi bi-journal-text me-2"></i> <span>Data Permintaan</span>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Parent Collapsible: Mobil LaSehat --}}
+                <a href="#submenuLasehat" data-bs-toggle="collapse" 
+                   class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('lasehat.*') ? '' : 'collapsed' }}">
+                    <div>
+                        <i class="bi bi-car-front-fill me-3 text-danger"></i> <span>Mobil LaSehat</span>
+                    </div>
+                    <i class="bi bi-chevron-down menu-arrow"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('lasehat.*') ? 'show' : '' }}" id="submenuLasehat">
+                    <div class="sub-menu-wrapper">
+                        @if(auth()->user()->role == 'admin')
+                            <a href="{{ route('lasehat.dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('lasehat.dashboard') ? 'active' : '' }}">
+                                <i class="bi bi-speedometer2 me-2"></i> <span>Dashboard LaSehat</span>
+                            </a>
+                        @endif
+                        <a href="{{ route('lasehat.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('lasehat.index') ? 'active' : '' }}">
+                            <i class="bi bi-table me-2"></i> <span>Data Mobil LaSehat</span>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- SECTION 3: LOGBOOK & WHATSAPP --}}
+                <div class="sidebar-label menu-group-label mt-2">Agenda & Notifikasi</div>
+
+                {{-- Parent Collapsible: Agenda & WA --}}
+                <a href="#submenuLogbook" data-bs-toggle="collapse" 
+                   class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('logbook.*', 'whatsapp.*') ? '' : 'collapsed' }}">
+                    <div>
+                        <i class="bi bi-calendar-event-fill me-3 text-warning"></i> <span>Logbook & WA</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        @if($notifCount > 0)
+                            <span class="badge bg-danger rounded-pill me-2" style="font-size: 0.65rem;">{{ $notifCount }}</span>
+                        @endif
+                        <i class="bi bi-chevron-down menu-arrow"></i>
+                    </div>
+                </a>
+                <div class="collapse {{ request()->routeIs('logbook.*', 'whatsapp.*') ? 'show' : '' }}" id="submenuLogbook">
+                    <div class="sub-menu-wrapper">
+                        <a href="{{ route('logbook.index') }}" class="list-group-item sub-menu-item sidebar-nav-item d-flex justify-content-between align-items-center {{ request()->routeIs('logbook.*') ? 'active' : '' }}">
+                            <div><i class="bi bi-calendar-check me-2"></i> <span>Kalender Logbook</span></div>
+                            @if($notifCount > 0)
+                                <span class="badge bg-danger rounded-pill">{{ $notifCount }}</span>
+                            @endif
+                        </a>
+                        <a href="{{ route('whatsapp.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}">
+                            <i class="bi bi-whatsapp me-2"></i> <span>Koneksi WhatsApp</span>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- SECTION 4: DATA MASTER & SYSTEM (ADMIN ONLY) --}}
                 @if(auth()->user()->role == 'admin')
-                    <a href="{{ route('dashboard.permintaan') }}" class="list-group-item list-group-item-action {{ request()->routeIs('dashboard.permintaan') ? 'active' : '' }}">
-                        <i class="bi bi-pie-chart-fill me-3 text-warning"></i> Dashboard Layanan
-                    </a>
-                @endif
-
-                <a href="{{ route('permintaan.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('permintaan.*') ? 'active' : '' }}">
-                    <i class="bi bi-file-earmark-medical-fill me-3 text-success"></i> Data Permintaan
-                </a>
-                
-                <div class="sidebar-label mt-2">Layanan Mobil Lasehat</div>
-                
-                @if(auth()->user()->role == 'admin')
-                    <a href="{{ route('lasehat.dashboard') }}" class="list-group-item list-group-item-action {{ request()->routeIs('lasehat.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-speedometer2 me-3 text-danger"></i> Dashboard LaSehat
-                    </a>
-                @endif
-
-                <a href="{{ route('lasehat.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('lasehat.index') ? 'active' : '' }}">
-                    <i class="bi bi-car-front-fill me-3 text-danger"></i> Data LaSehat
-                </a>
-
-                <div class="sidebar-label mt-2">Manajemen Agenda</div>
-                <a href="{{ route('logbook.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('logbook.*') ? 'active' : '' }} d-flex justify-content-between align-items-center">
-                    <div><i class="bi bi-calendar-event-fill me-3 text-primary"></i> Logbook Agenda</div>
-                    @if($notifCount > 0)
-                        <span class="badge bg-danger rounded-pill">{{ $notifCount }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('whatsapp.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}">
-                    <i class="bi bi-whatsapp me-3 text-success"></i> Koneksi WhatsApp
-                </a>
-
-                @if(auth()->user()->role == 'admin')
-                    <div class="sidebar-label mt-3">Data Master</div>
+                    <div class="sidebar-label menu-group-label mt-2">Pengaturan Admin</div>
                     
-                    <a href="{{ route('master.units.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('master.units.*') ? 'active' : '' }}">
-                        <i class="bi bi-building-fill me-3 text-secondary"></i> Unit Tujuan
+                    {{-- Parent Collapsible: Data Master --}}
+                    <a href="#submenuMaster" data-bs-toggle="collapse" 
+                       class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*') ? '' : 'collapsed' }}">
+                        <div>
+                            <i class="bi bi-database-fill me-3 text-secondary"></i> <span>Data Master</span>
+                        </div>
+                        <i class="bi bi-chevron-down menu-arrow"></i>
                     </a>
-                    
-                    <a href="{{ route('sources.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('sources.*') ? 'active' : '' }}">
-                        <i class="bi bi-hdd-network-fill me-3 text-secondary"></i> Media Pengaduan
-                    </a>
+                    <div class="collapse {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*') ? 'show' : '' }}" id="submenuMaster">
+                        <div class="sub-menu-wrapper">
+                            <a href="{{ route('master.units.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.units.*') ? 'active' : '' }}">
+                                <i class="bi bi-building me-2"></i> <span>Unit Tujuan</span>
+                            </a>
+                            <a href="{{ route('sources.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('sources.*') ? 'active' : '' }}">
+                                <i class="bi bi-hdd-network me-2"></i> <span>Media Pengaduan</span>
+                            </a>
+                            <a href="{{ route('master.reporters.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.reporters.*') ? 'active' : '' }}">
+                                <i class="bi bi-person-badge me-2"></i> <span>Unit Pelapor</span>
+                            </a>
+                            <a href="{{ route('kategori-keluhan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('kategori-keluhan.*') ? 'active' : '' }}">
+                                <i class="bi bi-ui-checks-grid me-2"></i> <span>Kategori Keluhan</span>
+                            </a>
+                            <a href="{{ route('master.supir.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.supir.*') ? 'active' : '' }}">
+                                <i class="bi bi-person-vcard me-2"></i> <span>Master Supir</span>
+                            </a>
+                            <a href="{{ route('master.grades.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.grades.*') ? 'active' : '' }}">
+                                <i class="bi bi-flag me-2"></i> <span>Kegawatan</span>
+                            </a>
+                        </div>
+                    </div>
 
-                    <a href="{{ route('master.reporters.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('master.reporters.*') ? 'active' : '' }}">
-                        <i class="bi bi-person-badge-fill me-3 text-secondary"></i> Unit Pelapor
-                    </a>
-
-                    <a href="{{ route('kategori-keluhan.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('kategori-keluhan.*') ? 'active' : '' }}">
-                        <i class="bi bi-ui-checks-grid me-3 text-secondary"></i> Kategori Keluhan
-                    </a>
-
-                    <a href="{{ route('master.supir.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('master.supir.*') ? 'active' : '' }}">
-                        <i class="bi bi-person-vcard-fill me-3 text-secondary"></i> Master Supir
-                    </a>
-                    
-                    <a href="{{ route('master.grades.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('master.grades.*') ? 'active' : '' }}">
-                        <i class="bi bi-flag-fill me-3 text-secondary"></i> Kegawatan
-                    </a>
-                    
-                    <div class="sidebar-label mt-3">Sistem</div>
-                    <a href="{{ route('users.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                        <i class="bi bi-people-fill me-3 text-light"></i> Kelola User
+                    {{-- User System --}}
+                    <a href="{{ route('users.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill me-3 text-light"></i> <span>Kelola User</span>
                     </a>
                 @endif
                 
@@ -287,7 +383,6 @@
                             @if($notifCount > 0)
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow" style="font-size: 0.65rem;">
                                     {{ $notifCount }}
-                                    <span class="visually-hidden">notifikasi belum dibaca</span>
                                 </span>
                             @endif
                         </a>
@@ -314,7 +409,7 @@
                                 @empty
                                 <li class="p-4 text-center">
                                     <i class="bi bi-check2-circle text-success fs-1 mb-2 d-block"></i>
-                                    <small class="text-muted fw-medium">Yeay! Tidak ada agenda H-1 untuk besok.</small>
+                                    <small class="text-muted fw-medium">Tidak ada agenda H-1 untuk besok.</small>
                                 </li>
                                 @endforelse
                             </div>
@@ -375,9 +470,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    {{-- SCRIPT TOGGLE --}}
+    {{-- SCRIPT TOGGLE SIDEBAR & REALTIME SEARCH MENU --}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // 1. Toggle Sidebar
             var toggleBtn = document.getElementById("menu-toggle");
             var overlay = document.getElementById("overlayClick");
 
@@ -388,6 +484,65 @@
 
             if(toggleBtn) toggleBtn.addEventListener("click", toggleMenu);
             if(overlay) overlay.addEventListener("click", toggleMenu);
+
+            // 2. Realtime Search Menu
+            const searchInput = document.getElementById("menuSearchInput");
+            if (searchInput) {
+                searchInput.addEventListener("input", function() {
+                    const filter = this.value.toLowerCase().trim();
+                    const menuItems = document.querySelectorAll(".sidebar-nav-item");
+                    const menuToggles = document.querySelectorAll(".sidebar-nav-toggle");
+                    const groupLabels = document.querySelectorAll(".menu-group-label");
+
+                    if (filter === "") {
+                        // Reset Tampilan
+                        menuItems.forEach(el => el.style.display = "");
+                        menuToggles.forEach(el => el.style.display = "");
+                        groupLabels.forEach(el => el.style.display = "");
+                        return;
+                    }
+
+                    // Sembunyikan label kelompok
+                    groupLabels.forEach(el => el.style.display = "none");
+
+                    // Filter link menu
+                    menuItems.forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        if (text.includes(filter)) {
+                            item.style.display = "";
+                            
+                            // Jika berada di dalam dropdown/collapse, otomatis buka dropdown-nya
+                            const parentCollapse = item.closest(".collapse");
+                            if (parentCollapse) {
+                                parentCollapse.classList.add("show");
+                                const parentToggle = document.querySelector(`[href="#${parentCollapse.id}"]`);
+                                if (parentToggle) {
+                                    parentToggle.classList.remove("collapsed");
+                                    parentToggle.style.display = "";
+                                }
+                            }
+                        } else {
+                            item.style.display = "none";
+                        }
+                    });
+
+                    // Cek parent dropdown, jika semua anak tidak ada yang cocok, sembunyikan parent-nya
+                    menuToggles.forEach(toggle => {
+                        const targetId = toggle.getAttribute("href");
+                        if (targetId && targetId.startsWith("#")) {
+                            const collapseEl = document.querySelector(targetId);
+                            if (collapseEl) {
+                                const visibleChildren = collapseEl.querySelectorAll(".sidebar-nav-item:not([style*='display: none'])");
+                                if (visibleChildren.length === 0) {
+                                    toggle.style.display = "none";
+                                } else {
+                                    toggle.style.display = "";
+                                }
+                            }
+                        }
+                    });
+                });
+            }
         });
     </script>
 </body>
