@@ -217,27 +217,35 @@
             
             <div class="list-group list-group-flush pb-4 mt-1" id="sidebarMenuList">
                 
-                {{-- SECTION 1: DASHBOARD & PENGADUAN --}}
-                <div class="sidebar-label menu-group-label">Utama & Pengaduan</div>
-                
-                @if(auth()->user()->role == 'admin')
-                    <a href="{{ route('dashboard') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-grid-1x2-fill me-3 text-primary"></i> <span>Dashboard Utama</span>
-                    </a>
-                @endif
-                
-                <a href="{{ route('complaints.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
-                    <i class="bi bi-chat-square-text-fill me-3 text-info"></i> <span>Data Keluhan</span>
+                {{-- KELOMPOK MENU: LAYANAN PUBLIK --}}
+                <div class="sidebar-label menu-group-label">Layanan Publik</div>
+
+                {{-- Submenu 1: Pengaduan --}}
+                <a href="#submenuPengaduan" data-bs-toggle="collapse" 
+                   class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('dashboard', 'complaints.*') ? '' : 'collapsed' }}">
+                    <div>
+                        <i class="bi bi-chat-square-text-fill me-3 text-info"></i> <span>Pengaduan</span>
+                    </div>
+                    <i class="bi bi-chevron-down menu-arrow"></i>
                 </a>
+                <div class="collapse {{ request()->routeIs('dashboard', 'complaints.*') ? 'show' : '' }}" id="submenuPengaduan">
+                    <div class="sub-menu-wrapper">
+                        @if(auth()->user()->role == 'admin')
+                            <a href="{{ route('dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                                <i class="bi bi-grid-1x2-fill me-2"></i> <span>Dashboard Utama</span>
+                            </a>
+                        @endif
+                        <a href="{{ route('complaints.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
+                            <i class="bi bi-table me-2"></i> <span>Data Keluhan</span>
+                        </a>
+                    </div>
+                </div>
 
-                {{-- SECTION 2: SUBMENU LAYANAN & INFORMASI --}}
-                <div class="sidebar-label menu-group-label mt-2">Layanan Publik</div>
-
-                {{-- Parent Collapsible: Permintaan & Informasi --}}
+                {{-- Submenu 2: Layanan Informasi --}}
                 <a href="#submenuPermintaan" data-bs-toggle="collapse" 
                    class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('dashboard.permintaan', 'permintaan.*') ? '' : 'collapsed' }}">
                     <div>
-                        <i class="bi bi-file-earmark-medical-fill me-3 text-success"></i> <span>Layanan & Informasi</span>
+                        <i class="bi bi-file-earmark-medical-fill me-3 text-success"></i> <span>Layanan Informasi</span>
                     </div>
                     <i class="bi bi-chevron-down menu-arrow"></i>
                 </a>
@@ -245,7 +253,7 @@
                     <div class="sub-menu-wrapper">
                         @if(auth()->user()->role == 'admin')
                             <a href="{{ route('dashboard.permintaan') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('dashboard.permintaan') ? 'active' : '' }}">
-                                <i class="bi bi-pie-chart-fill me-2"></i> <span>Dashboard Layanan</span>
+                                <i class="bi bi-pie-chart-fill me-2"></i> <span>Dashboard Informasi</span>
                             </a>
                         @endif
                         <a href="{{ route('permintaan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permintaan.index') ? 'active' : '' }}">
@@ -254,7 +262,7 @@
                     </div>
                 </div>
 
-                {{-- Parent Collapsible: Mobil LaSehat --}}
+                {{-- Submenu 3: Mobil LaSehat --}}
                 <a href="#submenuLasehat" data-bs-toggle="collapse" 
                    class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('lasehat.*') ? '' : 'collapsed' }}">
                     <div>
@@ -275,10 +283,9 @@
                     </div>
                 </div>
 
-                {{-- SECTION 3: LOGBOOK & WHATSAPP --}}
+                {{-- KELOMPOK MENU: AGENDA & NOTIFIKASI --}}
                 <div class="sidebar-label menu-group-label mt-2">Agenda & Notifikasi</div>
 
-                {{-- Parent Collapsible: Agenda & WA --}}
                 <a href="#submenuLogbook" data-bs-toggle="collapse" 
                    class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('logbook.*', 'whatsapp.*') ? '' : 'collapsed' }}">
                     <div>
@@ -305,11 +312,10 @@
                     </div>
                 </div>
 
-                {{-- SECTION 4: DATA MASTER & SYSTEM (ADMIN ONLY) --}}
+                {{-- KELOMPOK MENU: DATA MASTER & SYSTEM --}}
                 @if(auth()->user()->role == 'admin')
                     <div class="sidebar-label menu-group-label mt-2">Pengaturan Admin</div>
                     
-                    {{-- Parent Collapsible: Data Master --}}
                     <a href="#submenuMaster" data-bs-toggle="collapse" 
                        class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*') ? '' : 'collapsed' }}">
                         <div>
@@ -340,13 +346,12 @@
                         </div>
                     </div>
 
-                    {{-- User System --}}
                     <a href="{{ route('users.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
                         <i class="bi bi-people-fill me-3 text-light"></i> <span>Kelola User</span>
                     </a>
                 @endif
                 
-                {{-- Tombol Logout Mobile --}}
+                {{-- Logout Mobile --}}
                 <div class="mt-4 px-3 d-md-none">
                      <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -363,7 +368,6 @@
             
             {{-- HEADER --}}
             <nav class="main-header">
-                {{-- KIRI: Tombol Toggle & Judul --}}
                 <div class="d-flex align-items-center">
                     <button class="btn btn-white border-0 shadow-sm me-3 rounded-circle d-flex align-items-center justify-content-center" id="menu-toggle" style="width: 40px; height: 40px;">
                         <i class="bi bi-list fs-5 text-dark"></i>
@@ -376,7 +380,7 @@
                 {{-- KANAN: Lonceng Notif & Profil --}}
                 <div class="d-flex align-items-center">
                     
-                    {{-- DROPDOWN NOTIFIKASI LOGBOOK --}}
+                    {{-- DROPDOWN NOTIFIKASI --}}
                     <div class="dropdown me-3">
                         <a href="#" class="text-dark position-relative d-flex align-items-center justify-content-center bg-light rounded-circle border" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; text-decoration: none;">
                             <i class="bi bi-bell-fill fs-5 text-secondary {{ $notifCount > 0 ? 'bell-ring' : '' }}"></i>
@@ -470,10 +474,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    {{-- SCRIPT TOGGLE SIDEBAR & REALTIME SEARCH MENU --}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // 1. Toggle Sidebar
+            // Toggle Sidebar
             var toggleBtn = document.getElementById("menu-toggle");
             var overlay = document.getElementById("overlayClick");
 
@@ -485,7 +488,7 @@
             if(toggleBtn) toggleBtn.addEventListener("click", toggleMenu);
             if(overlay) overlay.addEventListener("click", toggleMenu);
 
-            // 2. Realtime Search Menu
+            // Realtime Search Menu
             const searchInput = document.getElementById("menuSearchInput");
             if (searchInput) {
                 searchInput.addEventListener("input", function() {
@@ -495,23 +498,18 @@
                     const groupLabels = document.querySelectorAll(".menu-group-label");
 
                     if (filter === "") {
-                        // Reset Tampilan
                         menuItems.forEach(el => el.style.display = "");
                         menuToggles.forEach(el => el.style.display = "");
                         groupLabels.forEach(el => el.style.display = "");
                         return;
                     }
 
-                    // Sembunyikan label kelompok
                     groupLabels.forEach(el => el.style.display = "none");
 
-                    // Filter link menu
                     menuItems.forEach(item => {
                         const text = item.textContent.toLowerCase();
                         if (text.includes(filter)) {
                             item.style.display = "";
-                            
-                            // Jika berada di dalam dropdown/collapse, otomatis buka dropdown-nya
                             const parentCollapse = item.closest(".collapse");
                             if (parentCollapse) {
                                 parentCollapse.classList.add("show");
@@ -526,18 +524,13 @@
                         }
                     });
 
-                    // Cek parent dropdown, jika semua anak tidak ada yang cocok, sembunyikan parent-nya
                     menuToggles.forEach(toggle => {
                         const targetId = toggle.getAttribute("href");
                         if (targetId && targetId.startsWith("#")) {
                             const collapseEl = document.querySelector(targetId);
                             if (collapseEl) {
                                 const visibleChildren = collapseEl.querySelectorAll(".sidebar-nav-item:not([style*='display: none'])");
-                                if (visibleChildren.length === 0) {
-                                    toggle.style.display = "none";
-                                } else {
-                                    toggle.style.display = "";
-                                }
+                                toggle.style.display = visibleChildren.length === 0 ? "none" : "";
                             }
                         }
                     });
