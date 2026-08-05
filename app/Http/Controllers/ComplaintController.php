@@ -123,7 +123,7 @@ class ComplaintController extends Controller
             'status'             => $request->status,
         ]);
 
-        return redirect()->back()->route('complaints.index')->with('success', 'Data berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Data berhasil diperbarui!');
     }
 
     public function destroy($id)
