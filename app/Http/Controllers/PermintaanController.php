@@ -109,7 +109,7 @@ class PermintaanController extends Controller
             'tgl_verifikasi'     => $request->tgl_verifikasi,
         ]);
 
-        return redirect()->back()->route('permintaan.index')->with('success', 'Data berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Data berhasil diperbarui!');
     }
 
     public function destroy($id)
