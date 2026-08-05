@@ -105,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/whatsapp/api/chats', [WhatsappController::class, 'getChats'])->name('whatsapp.api.chats');
         Route::get('/whatsapp/api/messages', [WhatsappController::class, 'getMessages'])->name('whatsapp.api.messages');
         Route::delete('/whatsapp/api/chats', [WhatsappController::class, 'deleteChat'])->name('whatsapp.api.chats.delete');
+        Route::post('/whatsapp/api/sync', [WhatsappController::class, 'syncChats'])->name('whatsapp.api.sync');
 
         // Kelola User
         Route::resource('users', UserController::class);
