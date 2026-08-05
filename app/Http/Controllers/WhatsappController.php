@@ -98,4 +98,15 @@ class WhatsappController extends Controller
             return response()->json(['error' => 'Gagal menghapus chat.'], 500);
         }
     }
+
+    // 6. Sinkronisasi Kontak WA
+    public function syncChats()
+    {
+        try {
+            $response = Http::timeout(10)->post('http://localhost:3000/api/sync');
+            return response()->json($response->json());
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal terhubung ke engine WA.'], 500);
+        }
+    }
 }

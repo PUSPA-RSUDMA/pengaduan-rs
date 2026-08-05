@@ -10,7 +10,7 @@
     .chat-list { flex-grow: 1; overflow-y: auto; }
     .chat-item { padding: 15px; border-bottom: 1px solid #edf2f9; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
     .chat-item:hover, .chat-item.active { background: #e2e8f0; }
-    .chat-avatar { width: 45px; height: 45px; border-radius: 50%; background: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0; }
+    .chat-avatar { width: 45px; height: 45px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0; }
     .chat-main { flex-grow: 1; display: flex; flex-direction: column; background: #f1f5f9; position: relative; }
     .chat-header { padding: 15px 25px; background: #fff; border-bottom: 1px solid #edf2f9; display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); z-index: 10; }
     .chat-messages { flex-grow: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-color: #e5ddd5; background-blend-mode: multiply; opacity: 0.95; }
@@ -68,9 +68,16 @@
             <div class="chat-wrapper shadow-sm">
                 <!-- Panel Kiri (Daftar Chat) -->
                 <div class="chat-sidebar">
-                    <div class="chat-search">
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
+                    <div class="chat-search p-3 bg-white border-bottom">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-chat-text-fill text-success me-2"></i>Pesan Masuk</h6>
+                            <!-- TOMBOL SINKRONISASI INTERAKTIF -->
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm" id="btnSync" onclick="syncWhatsApp()" title="Tarik pesan & kontak terbaru dari WA">
+                                <i class="bi bi-arrow-repeat me-1" id="syncIcon"></i> Sinkronkan
+                            </button>
+                        </div>
+                        <div class="input-group mt-2">
+                            <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
                             <input type="text" class="form-control bg-light border-0" placeholder="Cari obrolan..." id="searchInput">
                         </div>
                     </div>
@@ -143,7 +150,7 @@
     </div>
 </div>
 
-{{-- SCRIPT GABUNGAN --}}
+{{-- SCRIPT GABUNGAN & DINAMIS --}}
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     
@@ -205,6 +212,22 @@ document.addEventListener("DOMContentLoaded", function() {
         return new Date(timestamp * 1000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     }
 
+    // Generator warna gradasi otomatis yang menarik berdasarkan nama kontak
+    function getAvatarGradient(name) {
+        const colors = [
+            'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+            'linear-gradient(135deg, #10b981, #047857)',
+            'linear-gradient(135deg, #f59e0b, #d97706)',
+            'linear-gradient(135deg, #ec4899, #be185d)',
+            'linear-gradient(135deg, #8b5cf6, #6d28d9)'
+        ];
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return colors[Math.abs(hash) % colors.length];
+    }
+
     function loadChats() {
         if (!isConnected) return; // Jangan load jika belum scan barcode
         fetch("{{ route('whatsapp.api.chats') }}").then(res => res.json()).then(data => {
@@ -217,7 +240,11 @@ document.addEventListener("DOMContentLoaded", function() {
     function renderChatList(chats) {
         const chatListEl = document.getElementById('chatList');
         if (chats.length === 0) {
-            chatListEl.innerHTML = '<div class="text-center p-4 text-muted small">Belum ada obrolan</div>';
+            chatListEl.innerHTML = `
+                <div class="text-center py-5 text-muted px-3">
+                    <i class="bi bi-inbox fs-1 text-secondary mb-2 d-block"></i>
+                    <small>Belum ada obrolan.<br>Klik tombol <b>Sinkronkan</b> di atas untuk menarik data dari WhatsApp.</small>
+                </div>`;
             return;
         }
         chatListEl.innerHTML = '';
@@ -225,17 +252,18 @@ document.addEventListener("DOMContentLoaded", function() {
             const initial = chat.name.charAt(0).toUpperCase();
             const isActive = currentChatId === chat.id ? 'active' : '';
             const unreadBadge = chat.unreadCount > 0 ? `<span class="badge bg-success rounded-pill ms-auto">${chat.unreadCount}</span>` : '';
+            const gradientStyle = `background: ${getAvatarGradient(chat.name)};`;
             
             chatListEl.innerHTML += `
                 <div class="chat-item ${isActive}" onclick="openChat('${chat.id}', '${chat.name.replace(/'/g, "\\'")}')">
-                    <div class="chat-avatar">${initial}</div>
+                    <div class="chat-avatar shadow-sm" style="${gradientStyle}">${initial}</div>
                     <div class="flex-grow-1 overflow-hidden">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h6 class="mb-0 fw-bold text-truncate">${chat.name}</h6>
-                            <small class="text-muted" style="font-size: 0.7rem;">${formatTime(chat.timestamp)}</small>
+                            <h6 class="mb-0 fw-bold text-truncate text-dark" style="font-size: 0.9rem;">${chat.name}</h6>
+                            <small class="text-muted" style="font-size: 0.65rem;">${formatTime(chat.timestamp)}</small>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted text-truncate d-block" style="max-width: 70%;">${chat.lastMessage}</small>
+                            <small class="text-muted text-truncate d-block" style="max-width: 70%; font-size: 0.8rem;">${chat.lastMessage}</small>
                             <div class="d-flex align-items-center gap-2">
                                 ${unreadBadge}
                                 <button class="btn btn-sm text-danger p-0" onclick="deleteChat('${chat.id}', event)" title="Hapus Chat">
@@ -249,9 +277,46 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // --- FUNGSI SINKRONISASI MANUAL (ON-DEMAND) ---
+    window.syncWhatsApp = function() {
+        const btn = document.getElementById('btnSync');
+        const icon = document.getElementById('syncIcon');
+        
+        btn.disabled = true;
+        icon.classList.add('spinner-border', 'spinner-border-sm');
+        icon.classList.remove('bi', 'bi-arrow-repeat');
+
+        fetch("{{ route('whatsapp.api.sync') }}", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Accept": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            icon.classList.remove('spinner-border', 'spinner-border-sm');
+            icon.classList.add('bi', 'bi-arrow-repeat');
+            
+            if (data.success) {
+                loadChats(); 
+                alert(data.message);
+            } else {
+                alert(data.error || "Gagal sinkronisasi");
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            icon.classList.remove('spinner-border', 'spinner-border-sm');
+            icon.classList.add('bi', 'bi-arrow-repeat');
+            console.error(err);
+        });
+    };
+
     // --- FUNGSI HAPUS CHAT ---
     window.deleteChat = function(chatId, event) {
-        event.stopPropagation(); // Mencegah obrolan terbuka saat tombol hapus diklik
+        event.stopPropagation(); 
         if (!confirm("Apakah Anda yakin ingin menghapus obrolan ini?")) return;
 
         fetch(`{{ route('whatsapp.api.chats.delete') }}?chatId=${chatId}`, {
@@ -264,7 +329,6 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // Jika chat yang sedang dibuka yang dihapus, reset panel kanan ke state awal
                 if (currentChatId === chatId) {
                     currentChatId = null;
                     document.getElementById('chatMain').innerHTML = `
@@ -275,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         </div>
                     `;
                 }
-                loadChats(); // Refresh daftar chat
+                loadChats(); 
             } else {
                 alert(data.error || "Gagal menghapus chat");
             }
@@ -290,7 +354,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const chatMain = document.getElementById('chatMain');
         chatMain.innerHTML = `
             <div class="chat-header">
-                <div class="chat-avatar" style="width: 40px; height: 40px; font-size: 1rem;">${chatName.charAt(0).toUpperCase()}</div>
+                <div class="chat-avatar shadow-sm" style="width: 40px; height: 40px; font-size: 1rem; background: ${getAvatarGradient(chatName)};">${chatName.charAt(0).toUpperCase()}</div>
                 <div>
                     <h6 class="mb-0 fw-bold">${chatName}</h6>
                     <small class="text-success"><i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i> Terhubung</small>
