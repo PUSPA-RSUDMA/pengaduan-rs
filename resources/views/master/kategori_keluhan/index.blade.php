@@ -1,6 +1,15 @@
 @extends('layouts.admin')
 @section('title', 'Master Kategori Keluhan')
 @section('content')
+<style>
+    .list-group-item:hover {
+        background-color: #f8f9fa !important; /* Warna background saat di-hover (opsional) */
+        color: #212529 !important;           /* Memaksa warna teks tetap gelap */
+    }
+    .list-group-item:hover span {
+        color: #212529 !important;           /* Memaksa elemen teks di dalamnya tetap gelap */
+    }
+</style>
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
         <h5 class="m-0 font-weight-bold text-primary">Master Kategori & Detail Keluhan</h5>
