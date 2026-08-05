@@ -11,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController; 
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\PermintaanController;
+use App\Http\Controllers\KategoriPermintaanController;
 use App\Http\Controllers\DashboardPermintaanController;
 use App\Http\Controllers\LasehatController;
 use App\Http\Controllers\LogbookController;
@@ -127,12 +128,14 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('master/kategori-keluhan', App\Http\Controllers\KategoriKeluhanController::class);
         Route::post('master/kategori-keluhan/items', [App\Http\Controllers\KategoriKeluhanController::class, 'storeItem'])->name('kategori-keluhan.items.store');
         Route::delete('master/kategori-keluhan/items/{id}', [App\Http\Controllers\KategoriKeluhanController::class, 'destroyItem'])->name('kategori-keluhan.items.destroy');
+        Route::put('kategori-keluhan/items/{id}', [App\Http\Controllers\KategoriKeluhanController::class, 'updateItem'])->name('kategori-keluhan.items.update');
 
         // Master Kategori Permintaan/Informasi
         Route::resource('kategori-permintaan', KategoriPermintaanController::class)->except(['create', 'show', 'edit']);
         Route::post('kategori-permintaan/items', [KategoriPermintaanController::class, 'storeItem'])->name('kategori-permintaan.items.store');
         Route::delete('kategori-permintaan/items/{id}', [KategoriPermintaanController::class, 'destroyItem'])->name('kategori-permintaan.items.destroy');
-        
+        Route::put('kategori-permintaan/items/{id}', [KategoriPermintaanController::class, 'updateItem'])->name('kategori-permintaan.items.update');
+
         // Master Supir
         Route::get('/master/supir', [MasterController::class, 'supirIndex'])->name('master.supir.index');
         Route::post('/master/supir', [MasterController::class, 'supirStore'])->name('master.supir.store');

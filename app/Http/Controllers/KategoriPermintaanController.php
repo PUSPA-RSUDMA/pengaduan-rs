@@ -51,4 +51,18 @@ class KategoriPermintaanController extends Controller
         ItemPermintaan::findOrFail($id)->delete();
         return redirect()->back()->with('success', 'Pilihan detail permintaan berhasil dihapus!');
     }
+
+    public function updateItem(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255'
+        ]);
+        
+        $item = ItemPermintaan::findOrFail($id);
+        $item->update([
+            'name' => $request->name
+        ]);
+        
+        return redirect()->back()->with('success', 'Pilihan detail permintaan berhasil diupdate!');
+    }
 }
