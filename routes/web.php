@@ -17,6 +17,7 @@ use App\Http\Controllers\LasehatController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\WhatsappController;
 use App\Http\Controllers\MainDashboardController;
+use App\Http\Controllers\WhatsappInboxController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -99,8 +100,10 @@ Route::middleware(['auth'])->group(function () {
         
         // Pengaturan & Test WA
         Route::get('/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp.index');
-        Route::post('/whatsapp/test', [WhatsappController::class, 'testSend'])->name('whatsapp.test');
         Route::get('/whatsapp/status', [WhatsappController::class, 'checkStatus'])->name('whatsapp.status');
+        Route::post('/whatsapp/test', [WhatsappController::class, 'testSend'])->name('whatsapp.test');
+        Route::get('/whatsapp/api/chats', [WhatsappController::class, 'getChats'])->name('whatsapp.api.chats');
+        Route::get('/whatsapp/api/messages', [WhatsappController::class, 'getMessages'])->name('whatsapp.api.messages');
 
         // Kelola User
         Route::resource('users', UserController::class);
