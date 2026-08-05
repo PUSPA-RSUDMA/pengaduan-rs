@@ -225,6 +225,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const initial = chat.name.charAt(0).toUpperCase();
             const isActive = currentChatId === chat.id ? 'active' : '';
             const unreadBadge = chat.unreadCount > 0 ? `<span class="badge bg-success rounded-pill ms-auto">${chat.unreadCount}</span>` : '';
+            
             chatListEl.innerHTML += `
                 <div class="chat-item ${isActive}" onclick="openChat('${chat.id}', '${chat.name.replace(/'/g, "\\'")}')">
                     <div class="chat-avatar">${initial}</div>
@@ -234,14 +235,53 @@ document.addEventListener("DOMContentLoaded", function() {
                             <small class="text-muted" style="font-size: 0.7rem;">${formatTime(chat.timestamp)}</small>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted text-truncate d-block" style="max-width: 80%;">${chat.lastMessage}</small>
-                            ${unreadBadge}
+                            <small class="text-muted text-truncate d-block" style="max-width: 70%;">${chat.lastMessage}</small>
+                            <div class="d-flex align-items-center gap-2">
+                                ${unreadBadge}
+                                <button class="btn btn-sm text-danger p-0" onclick="deleteChat('${chat.id}', event)" title="Hapus Chat">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
         });
     }
+
+    // --- FUNGSI HAPUS CHAT ---
+    window.deleteChat = function(chatId, event) {
+        event.stopPropagation(); // Mencegah obrolan terbuka saat tombol hapus diklik
+        if (!confirm("Apakah Anda yakin ingin menghapus obrolan ini?")) return;
+
+        fetch(`{{ route('whatsapp.api.chats.delete') }}?chatId=${chatId}`, {
+            method: "DELETE",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Accept": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Jika chat yang sedang dibuka yang dihapus, reset panel kanan ke state awal
+                if (currentChatId === chatId) {
+                    currentChatId = null;
+                    document.getElementById('chatMain').innerHTML = `
+                        <div class="empty-state">
+                            <i class="bi bi-whatsapp" style="font-size: 5rem; color: #cbd5e1;"></i>
+                            <h4 class="mt-3 text-secondary fw-bold">Live Chat RSUD</h4>
+                            <p class="text-muted">Pilih obrolan di panel kiri untuk mulai membalas.</p>
+                        </div>
+                    `;
+                }
+                loadChats(); // Refresh daftar chat
+            } else {
+                alert(data.error || "Gagal menghapus chat");
+            }
+        })
+        .catch(err => console.error("Error deleting chat:", err));
+    };
 
     window.openChat = function(chatId, chatName) {
         currentChatId = chatId;

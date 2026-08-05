@@ -85,4 +85,17 @@ class WhatsappController extends Controller
             return back()->with('error', 'Gagal terhubung ke Engine WA (Pastikan Node.js menyala): ' . $e->getMessage());
         }
     }
+
+    // 5. API Lokal: Hapus Chat
+    public function deleteChat(Request $request)
+    {
+        try {
+            $response = Http::timeout(5)->delete('http://localhost:3000/api/chats', [
+                'chatId' => $request->chatId
+            ]);
+            return response()->json($response->json());
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal menghapus chat.'], 500);
+        }
+    }
 }
