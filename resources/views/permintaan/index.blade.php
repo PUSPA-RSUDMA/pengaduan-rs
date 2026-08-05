@@ -238,19 +238,20 @@
                                         </div>
 
                                         {{-- CHECKLIST DETAIL KELUHAN DINAMIS --}}
-                                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan (Master Checklist)</h6>
-                                        <div class="row g-3 mb-3">
+                                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Permintaan (Hanya Pilih dalam 1 Kategori)</h6>
+                                        <div class="row g-3 mb-3 checklist-container">
                                             @php 
                                                 $savedDetails = is_array($item->detail_keluhan) ? $item->detail_keluhan : []; 
                                             @endphp
-                                            @foreach($kategoriKeluhan as $kategori)
+                                            @foreach($kategoriPermintaan as $kategori)
                                             <div class="col-md-4">
                                                 <div class="card h-100 border-0 shadow-sm">
                                                     <div class="card-header bg-white fw-bold text-primary py-2 small">{{ $kategori->name }}</div>
                                                     <div class="card-body small p-2">
                                                         @foreach($kategori->items as $subItem)
                                                         <div class="form-check mb-1">
-                                                            <input class="form-check-input" type="checkbox" 
+                                                            <input class="form-check-input category-check" type="checkbox" 
+                                                                data-category="{{ $kategori->name }}"
                                                                 name="detail_keluhan[{{ $kategori->name }}][]" 
                                                                 value="{{ $subItem->name }}" 
                                                                 id="edit_permintaan_{{ $item->id }}_{{ $subItem->id }}"
@@ -390,16 +391,16 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label small fw-bold text-dark"><i class="bi bi-ui-checks-grid me-1 text-primary"></i> Detail Keluhan (Pilih yang sesuai):</label>
+                                            <label class="form-label small fw-bold text-dark"><i class="bi bi-ui-checks-grid me-1 text-primary"></i> Detail Permintaan (Hanya pilih dalam 1 Kategori):</label>
                                             <div class="border rounded p-3 bg-light" style="max-height: 220px; overflow-y: auto;">
-                                                <div class="row g-3">
-                                                    @foreach($kategoriKeluhan as $kat)
+                                                <div class="row g-3 checklist-container">
+                                                    @foreach($kategoriPermintaan as $kat)
                                                         <div class="col-md-4">
                                                             <div class="border bg-white rounded p-2 h-100 shadow-sm">
                                                                 <div class="fw-bold small text-primary border-bottom pb-1 mb-1">{{ $kat->name }}</div>
                                                                 @foreach($kat->items as $sub)
                                                                     <div class="form-check small mb-1">
-                                                                        <input class="form-check-input" type="checkbox" name="inputs[0][detail_keluhan][{{ $kat->name }}][]" value="{{ $sub->name }}" id="c_0_{{ $sub->id }}">
+                                                                        <input class="form-check-input category-check" type="checkbox" data-category="{{ $kat->name }}" name="inputs[0][detail_keluhan][{{ $kat->name }}][]" value="{{ $sub->name }}" id="c_0_{{ $sub->id }}">
                                                                         <label class="form-check-label" for="c_0_{{ $sub->id }}">{{ $sub->name }}</label>
                                                                     </div>
                                                                 @endforeach
@@ -435,7 +436,7 @@
 <script>
     let rowIndex = 0; 
     const masterUnits = {!! json_encode($unitDestinations) !!};
-    const masterKategori = {!! json_encode($kategoriKeluhan) !!};
+    const masterKategori = {!! json_encode($kategoriPermintaan) !!};
 
     function addRow() {
         rowIndex++;
@@ -450,7 +451,7 @@
             kat.items.forEach(sub => {
                 itemsHtml += `
                     <div class="form-check small mb-1">
-                        <input class="form-check-input" type="checkbox" name="inputs[${rowIndex}][detail_keluhan][${kat.name}][]" value="${sub.name}" id="c_${rowIndex}_${sub.id}">
+                        <input class="form-check-input category-check" type="checkbox" data-category="${kat.name}" name="inputs[${rowIndex}][detail_keluhan][${kat.name}][]" value="${sub.name}" id="c_${rowIndex}_${sub.id}">
                         <label class="form-check-label" for="c_${rowIndex}_${sub.id}">${sub.name}</label>
                     </div>
                 `;
@@ -519,9 +520,9 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label small fw-bold text-dark"><i class="bi bi-ui-checks-grid me-1 text-primary"></i> Detail Keluhan (Pilih yang sesuai):</label>
+                                <label class="form-label small fw-bold text-dark"><i class="bi bi-ui-checks-grid me-1 text-primary"></i> Detail Permintaan (Hanya pilih dalam 1 Kategori):</label>
                                 <div class="border rounded p-3 bg-light" style="max-height: 220px; overflow-y: auto;">
-                                    <div class="row g-3">
+                                    <div class="row g-3 checklist-container">
                                         ${kategoriHtml}
                                     </div>
                                 </div>
@@ -569,6 +570,35 @@
         document.getElementById('btnSubmit').classList.add('d-none');
         document.getElementById('btnLoading').classList.remove('d-none');
     }
+
+    // --- SCRIPT KUNCI KATEGORI PERMINTAAN ---
+    document.addEventListener("DOMContentLoaded", function() {
+        function applyCategoryLock(container) {
+            let checkedBoxes = container.querySelectorAll('.category-check:checked');
+            let selectedCategory = checkedBoxes.length > 0 ? checkedBoxes[0].getAttribute('data-category') : null;
+
+            container.querySelectorAll('.category-check').forEach(box => {
+                if (selectedCategory && box.getAttribute('data-category') !== selectedCategory) {
+                    box.disabled = true;
+                } else {
+                    box.disabled = false;
+                }
+            });
+        }
+
+        // Event delegation agar berfungsi di baris yang baru ditambah
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('category-check')) {
+                let container = e.target.closest('.checklist-container');
+                if (container) applyCategoryLock(container);
+            }
+        });
+
+        // Terapkan ke modal edit / baris pertama saat halaman diload
+        document.querySelectorAll('.checklist-container').forEach(container => {
+            applyCategoryLock(container);
+        });
+    });
 </script>
 
 @endsection

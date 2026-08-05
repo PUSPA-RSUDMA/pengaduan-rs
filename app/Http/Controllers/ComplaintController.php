@@ -123,7 +123,7 @@ class ComplaintController extends Controller
             'status'             => $request->status,
         ]);
 
-        return redirect()->route('complaints.index')->with('success', 'Data berhasil diperbarui!');
+        return redirect()->back()->route('complaints.index')->with('success', 'Data berhasil diperbarui!');
     }
 
     public function destroy($id)
@@ -133,7 +133,7 @@ class ComplaintController extends Controller
         }
 
         Complaint::findOrFail($id)->delete();
-        return redirect()->route('complaints.index')->with('success', 'Data berhasil dihapus!');
+        return redirect()->back()->route('complaints.index')->with('success', 'Data berhasil dihapus!');
     }
 
     public function exportPdf()

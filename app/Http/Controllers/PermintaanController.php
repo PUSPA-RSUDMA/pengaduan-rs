@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Permintaan;
 use App\Models\UnitDestination;
-use App\Models\KategoriKeluhan; // Jangan lupa use Model Master Kategori
+use App\Models\KategoriPermintaan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -17,7 +17,7 @@ class PermintaanController extends Controller
     {
         $unitDestinations = UnitDestination::all();
         // Ambil master kategori keluhan beserta itemnya secara dinamis
-        $kategoriKeluhan = KategoriKeluhan::with('items')->get();
+        $kategoriPermintaan = KategoriPermintaan::with('items')->get();
         
         $query = Permintaan::query();
 
@@ -50,7 +50,7 @@ class PermintaanController extends Controller
 
         $permintaans = $query->paginate(10)->withQueryString();
 
-        return view('permintaan.index', compact('permintaans', 'unitDestinations', 'kategoriKeluhan'));
+        return view('permintaan.index', compact('permintaans', 'unitDestinations', 'kategoriPermintaan'));
     }
 
     public function store(Request $request)
@@ -109,13 +109,13 @@ class PermintaanController extends Controller
             'tgl_verifikasi'     => $request->tgl_verifikasi,
         ]);
 
-        return redirect()->route('permintaan.index')->with('success', 'Data berhasil diperbarui!');
+        return redirect()->back()->route('permintaan.index')->with('success', 'Data berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
         Permintaan::findOrFail($id)->delete();
-        return redirect()->route('permintaan.index')->with('success', 'Data berhasil dihapus!');
+        return redirect()->back()->route('permintaan.index')->with('success', 'Data berhasil dihapus!');
     }
 
     public function exportPdf(Request $request)

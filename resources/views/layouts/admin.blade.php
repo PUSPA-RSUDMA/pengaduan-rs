@@ -323,13 +323,13 @@
                     <div class="sidebar-label menu-group-label mt-2">Pengaturan Admin</div>
                     
                     <a href="#submenuMaster" data-bs-toggle="collapse" 
-                       class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*') ? '' : 'collapsed' }}">
+                        class="list-group-item sidebar-nav-toggle d-flex justify-content-between align-items-center {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*', 'kategori-permintaan.*') ? '' : 'collapsed' }}">
                         <div>
                             <i class="bi bi-database-fill me-3 text-secondary"></i> <span>Data Master</span>
                         </div>
                         <i class="bi bi-chevron-down menu-arrow"></i>
                     </a>
-                    <div class="collapse {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*') ? 'show' : '' }}" id="submenuMaster">
+                    <div class="collapse {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*', 'kategori-permintaan.*') ? 'show' : '' }}" id="submenuMaster">
                         <div class="sub-menu-wrapper">
                             <a href="{{ route('master.units.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.units.*') ? 'active' : '' }}">
                                 <i class="bi bi-building me-2"></i> <span>Unit Tujuan</span>
@@ -342,6 +342,9 @@
                             </a>
                             <a href="{{ route('kategori-keluhan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('kategori-keluhan.*') ? 'active' : '' }}">
                                 <i class="bi bi-ui-checks-grid me-2"></i> <span>Kategori Keluhan</span>
+                            </a>
+                            <a href="{{ route('kategori-permintaan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('kategori-permintaan.*') ? 'active' : '' }}">
+                                <i class="bi bi-card-checklist me-2"></i> <span>Kategori Permintaan</span>
                             </a>
                             <a href="{{ route('master.supir.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.supir.*') ? 'active' : '' }}">
                                 <i class="bi bi-person-vcard me-2"></i> <span>Master Supir</span>

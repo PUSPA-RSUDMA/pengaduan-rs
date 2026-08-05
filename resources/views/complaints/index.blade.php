@@ -269,8 +269,8 @@
                                             </div>
                                         </div>
 
-                                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan (Dinamic Checklist)</h6>
-                                        <div class="row g-3">
+                                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan (Hanya Bisa Pilih dalam 1 Kategori)</h6>
+                                        <div class="row g-3 checklist-container">
                                             @php 
                                                 // Ambil JSON yang tersimpan, pastikan berupa array
                                                 $savedDetails = is_array($complaint->detail_keluhan) ? $complaint->detail_keluhan : []; 
@@ -284,7 +284,8 @@
                                                     <div class="card-body small p-2">
                                                         @foreach($kategori->items as $item)
                                                         <div class="form-check mb-1">
-                                                            <input class="form-check-input" type="checkbox" 
+                                                            <input class="form-check-input category-check" type="checkbox" 
+                                                                data-category="{{ $kategori->name }}"
                                                                 name="detail_keluhan[{{ $kategori->name }}][]" 
                                                                 value="{{ $item->name }}" 
                                                                 id="edit_item_{{ $complaint->id }}_{{ $item->id }}"
@@ -432,8 +433,8 @@
                     </div>
 
                     {{-- AREA CHECKLIST KELUHAN (DINAMIS DARI MASTER KATEGORI) --}}
-                    <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan (Centang yang sesuai)</h6>
-                    <div class="row g-3">
+                    <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan (Hanya Bisa Pilih dalam 1 Kategori)</h6>
+                    <div class="row g-3 checklist-container">
                         @foreach($kategoriKeluhan as $kategori)
                         <div class="col-md-4">
                             <div class="card h-100 shadow-sm border-0">
@@ -441,7 +442,7 @@
                                 <div class="card-body small p-2">
                                     @foreach($kategori->items as $item)
                                     <div class="form-check mb-1">
-                                        <input class="form-check-input" type="checkbox" name="detail_keluhan[{{ $kategori->name }}][]" value="{{ $item->name }}" id="item_{{ $item->id }}">
+                                        <input class="form-check-input category-check" type="checkbox" data-category="{{ $kategori->name }}" name="detail_keluhan[{{ $kategori->name }}][]" value="{{ $item->name }}" id="item_{{ $item->id }}">
                                         <label class="form-check-label" for="item_{{ $item->id }}">{{ $item->name }}</label>
                                     </div>
                                     @endforeach
@@ -493,6 +494,34 @@
         document.getElementById('btnSubmit').classList.add('d-none');
         document.getElementById('btnLoading').classList.remove('d-none');
     }
+
+    // --- SCRIPT KUNCI KATEGORI COMPLAINT ---
+    document.addEventListener("DOMContentLoaded", function() {
+        function applyCategoryLock(container) {
+            let checkedBoxes = container.querySelectorAll('.category-check:checked');
+            let selectedCategory = checkedBoxes.length > 0 ? checkedBoxes[0].getAttribute('data-category') : null;
+
+            container.querySelectorAll('.category-check').forEach(box => {
+                if (selectedCategory && box.getAttribute('data-category') !== selectedCategory) {
+                    box.disabled = true;
+                } else {
+                    box.disabled = false;
+                }
+            });
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('category-check')) {
+                let container = e.target.closest('.checklist-container');
+                if (container) applyCategoryLock(container);
+            }
+        });
+
+        // Terapkan ke modal edit saat halaman diload
+        document.querySelectorAll('.checklist-container').forEach(container => {
+            applyCategoryLock(container);
+        });
+    });
 </script>
 
 @endsection

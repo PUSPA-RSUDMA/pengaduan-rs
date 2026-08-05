@@ -128,6 +128,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('master/kategori-keluhan/items', [App\Http\Controllers\KategoriKeluhanController::class, 'storeItem'])->name('kategori-keluhan.items.store');
         Route::delete('master/kategori-keluhan/items/{id}', [App\Http\Controllers\KategoriKeluhanController::class, 'destroyItem'])->name('kategori-keluhan.items.destroy');
 
+        // Master Kategori Permintaan/Informasi
+        Route::resource('kategori-permintaan', KategoriPermintaanController::class)->except(['create', 'show', 'edit']);
+        Route::post('kategori-permintaan/items', [KategoriPermintaanController::class, 'storeItem'])->name('kategori-permintaan.items.store');
+        Route::delete('kategori-permintaan/items/{id}', [KategoriPermintaanController::class, 'destroyItem'])->name('kategori-permintaan.items.destroy');
+        
         // Master Supir
         Route::get('/master/supir', [MasterController::class, 'supirIndex'])->name('master.supir.index');
         Route::post('/master/supir', [MasterController::class, 'supirStore'])->name('master.supir.store');
