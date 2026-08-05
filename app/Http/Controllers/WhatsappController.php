@@ -9,8 +9,18 @@ class WhatsappController extends Controller
 {
     public function index()
     {
-        // Langsung tampilkan view, tidak perlu cek status/barcode lagi
         return view('whatsapp.index');
+    }
+
+    // Mengambil status koneksi dan QR Code dari Node.js
+    public function checkStatus()
+    {
+        try {
+            $response = Http::timeout(3)->get('http://localhost:3000/api/status');
+            return response()->json($response->json());
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Node.js server tidak aktif.']);
+        }
     }
 
     public function testSend(Request $request)
@@ -21,21 +31,21 @@ class WhatsappController extends Controller
         ]);
 
         try {
-            $response = Http::withHeaders([
-                'Authorization' => '1ZidFLrVqRJDsK1gDbCX' // Token Fonnte Anda
-            ])->post('https://api.fonnte.com/send', [
-                'target' => $request->nomor,
+            // MENGIRIM KE API NODE.JS LOKAL DI RASPBERRY PI
+            $response = Http::post('http://localhost:3000/api/send', [
+                'number'  => $request->nomor,
                 'message' => $request->pesan,
             ]);
 
+            $result = $response->json();
+
             if ($response->successful()) {
-                return back()->with('success', 'Pesan uji coba berhasil dikirim via Fonnte!');
+                return back()->with('success', 'Pesan uji coba berhasil dikirim via WhatsApp Gateway lokal!');
             } else {
-                // Menangkap pesan error dari server Fonnte jika ada
-                return back()->with('error', 'Gagal mengirim pesan: ' . $response->body());
+                return back()->with('error', 'Gagal mengirim pesan: ' . ($result['error'] ?? 'Terjadi kesalahan'));
             }
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+            return back()->with('error', 'Gagal terhubung ke Engine WA (Pastikan Node.js menyala): ' . $e->getMessage());
         }
     }
 }

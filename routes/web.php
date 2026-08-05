@@ -99,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
         // Pengaturan & Test WA
         Route::get('/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp.index');
         Route::post('/whatsapp/test', [WhatsappController::class, 'testSend'])->name('whatsapp.test');
+        Route::get('/whatsapp/status', [WhatsappController::class, 'checkStatus'])->name('whatsapp.status');
 
         // Kelola User
         Route::resource('users', UserController::class);
