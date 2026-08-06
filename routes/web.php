@@ -18,6 +18,7 @@ use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\WhatsappController;
 use App\Http\Controllers\MainDashboardController;
 use App\Http\Controllers\WhatsappInboxController;
+use App\Http\Controllers\BpjsController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -95,6 +96,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/export-pdf', [ComplaintController::class, 'exportPdf'])->name('export.pdf');
 
 
+    Route::prefix('bpjs')->group(function () {
+        Route::get('/peserta', [BpjsController::class, 'index'])->name('bpjs.index');
+        Route::get('/peserta/cari', [BpjsController::class, 'cariPeserta'])->name('bpjs.cari');
+    });
     // === AREA KHUSUS ADMIN (ROLE: ADMIN) ===
     Route::middleware(['role:admin'])->group(function () {
         
