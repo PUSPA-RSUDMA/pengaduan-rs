@@ -133,4 +133,24 @@ class BpjsService
     {
         return $this->request("/Rujukan/RS/Peserta/{$noka}", 'GET');
     }
+
+    /**
+     * Monitoring Histori Pelayanan Peserta
+     */
+    public function monitoringHistoryPelayananPeserta($noka, $sDate, $eDate)
+    {
+        $contentType = 'application/json; charset=utf-8';
+        $completeUrl = "{$this->_url}/monitoring/HistoriPelayanan/NoKartu/{$noka}/tglMulai/{$sDate}/tglAkhir/{$eDate}";
+        return $this->__requestServiceVCLAIM($completeUrl, $contentType);
+    }
+
+    /**
+     * List Rencana Kontrol Berdasarkan Nomor Kartu, Bulan, Tahun, dan Filter
+     */
+    public function listKontrolByNoka($bulan, $tahun, $noka, $filter = 1)
+    {
+        $contentType = 'Application/x-www-form-urlencoded';
+        $completeUrl = "{$this->_url}/RencanaKontrol/ListRencanaKontrol/Bulan/{$bulan}/Tahun/{$tahun}/Nokartu/{$noka}/filter/{$filter}";
+        return $this->__requestServiceVCLAIM($completeUrl, $contentType);
+    }
 }

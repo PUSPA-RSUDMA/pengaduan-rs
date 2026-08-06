@@ -1,10 +1,10 @@
 @extends('layouts.admin')
 
-@section('title', 'Cari Peserta & Rujukan BPJS')
+@section('title', 'Cari Peserta, Rujukan, SEP & Kontrol BPJS')
 
 @section('content')
 <div class="row">
-    {{-- BAGIAN KIRI: Form Pencarian --}}
+    {{-- KIRI: Form Pencarian --}}
     <div class="col-md-4 mb-4">
         <div class="card border-0 shadow-sm rounded-4 position-sticky" style="top: 80px;">
             <div class="card-body p-4">
@@ -16,7 +16,7 @@
                         <input type="text" class="form-control bg-light" id="no_kartu" placeholder="Masukkan 13 digit No Kartu / 16 digit NIK..." required autocomplete="off" style="border-radius: 10px;">
                     </div>
                     <button type="submit" class="btn btn-primary w-100 fw-medium shadow-sm" id="btnCari" style="border-radius: 10px;">
-                        <span id="btnText">Cari Data Peserta</span>
+                        <span id="btnText">Cari Data Lengkap</span>
                         <span id="btnLoading" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
                     </button>
                 </form>
@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    {{-- BAGIAN KANAN: Hasil Pencarian --}}
+    {{-- KANAN: Hasil Data --}}
     <div class="col-md-8">
         {{-- Alert Error --}}
         <div class="alert alert-danger d-none rounded-4 shadow-sm mb-4 border-0" id="errorCard" role="alert">
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        {{-- Kartu Hasil --}}
+        {{-- Kartu Hasil Utama --}}
         <div class="card border-0 shadow-sm rounded-4 d-none" id="resultCard">
             <div class="card-body p-4 p-md-5">
                 
@@ -49,8 +49,8 @@
                     </div>
                 </div>
 
+                {{-- IDENTITAS & KEPESERTAAN --}}
                 <div class="row g-4">
-                    {{-- BLOK 1: IDENTITAS DIRI --}}
                     <div class="col-md-6">
                         <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person-vcard me-2"></i>Identitas Diri</h6>
                         <table class="table table-borderless table-sm small">
@@ -63,8 +63,6 @@
                             </tbody>
                         </table>
                     </div>
-
-                    {{-- BLOK 2: DATA KEPESERTAAN --}}
                     <div class="col-md-6">
                         <h6 class="fw-bold text-primary mb-3"><i class="bi bi-hospital me-2"></i>Data Kepesertaan</h6>
                         <table class="table table-borderless table-sm small">
@@ -79,30 +77,58 @@
                     </div>
                 </div>
 
-                {{-- BLOK 3: INFORMASI RUJUKAN AKTIF (TAMBAHAN BARU) --}}
+                {{-- RUJUKAN AKTIF --}}
                 <div class="mt-4 pt-4 border-top">
                     <h6 class="fw-bold text-primary mb-3"><i class="bi bi-file-medical-fill me-2"></i>Informasi Rujukan Aktif</h6>
-                    
                     <div class="row g-3">
-                        {{-- Rujukan PCare --}}
                         <div class="col-md-6">
-                            <div class="card bg-light border-0 h-100 rounded-3">
-                                <div class="card-body p-3 small">
-                                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-2">Dari Faskes 1 (Puskesmas/Klinik)</h6>
-                                    <div id="resRujukanPcare"></div>
-                                </div>
-                            </div>
+                            <div class="card bg-light border-0 h-100 rounded-3"><div class="card-body p-3 small"><h6 class="fw-bold text-dark border-bottom pb-2 mb-2">Dari Faskes 1 (PCare)</h6><div id="resRujukanPcare"></div></div></div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0 h-100 rounded-3"><div class="card-body p-3 small"><h6 class="fw-bold text-dark border-bottom pb-2 mb-2">Dari Faskes 2 (RS)</h6><div id="resRujukanRS"></div></div></div>
+                        </div>
+                    </div>
+                </div>
 
-                        {{-- Rujukan RS --}}
-                        <div class="col-md-6">
-                            <div class="card bg-light border-0 h-100 rounded-3">
-                                <div class="card-body p-3 small">
-                                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-2">Dari Faskes 2 (Rumah Sakit)</h6>
-                                    <div id="resRujukanRS"></div>
-                                </div>
-                            </div>
-                        </div>
+                {{-- HISTORI PELAYANAN / SEP (TAMBAHAN BARU) --}}
+                <div class="mt-4 pt-4 border-top">
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-clock-history me-2"></i>Histori Pelayanan / SEP Terakhir (90 Hari)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-sm small align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No. SEP</th>
+                                    <th>Tgl SEP</th>
+                                    <th>Poli Tujuan</th>
+                                    <th>Faskes / PPK Pelayanan</th>
+                                    <th>Jns Pelayanan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableHistoriBody">
+                                <tr><td colspan="5" class="text-center text-muted">Memuat data histori...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- SURAT RENCANA KONTROL (TAMBAHAN BARU) --}}
+                <div class="mt-4 pt-4 border-top">
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-journal-check me-2"></i>List Surat Rencana Kontrol (Bulan Ini)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-sm small align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No. Surat Kontrol</th>
+                                    <th>Jns Kontrol</th>
+                                    <th>Rencana Tanggal</th>
+                                    <th>Poli / Dokter</th>
+                                    <th>Pembuat (DPJP)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableKontrolBody">
+                                <tr><td colspan="5" class="text-center text-muted">Memuat data surat kontrol...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -123,8 +149,7 @@
         let resultCard = document.getElementById('resultCard');
         let errorCard = document.getElementById('errorCard');
 
-        // State Loading
-        btnText.innerText = 'Memeriksa BPJS...';
+        btnText.innerText = 'Mengambil Data BPJS...';
         btnLoading.classList.remove('d-none');
         btnCari.setAttribute('disabled', 'true');
         resultCard.classList.add('d-none');
@@ -132,31 +157,23 @@
 
         fetch(`{{ route('bpjs.cari') }}?no_kartu=${noKartu}`)
             .then(response => {
-                // Perbaikan: Jangan throw error langsung. Baca isi pesannya!
                 return response.json().then(data => {
                     if (!response.ok) {
-                        // Ambil pesan error asli dari Laravel (Throwable)
                         let errorMsg = (data.metaData && data.metaData.message) ? data.metaData.message : `HTTP error! status: ${response.status}`;
                         throw new Error(errorMsg);
                     }
                     return data;
-                }).catch(err => {
-                    // Jika yang diterima HTML (bukan JSON), berarti terjadi Fatal Error server
-                    if (err.name === 'SyntaxError') {
-                        throw new Error("Terjadi fatal error di sistem (Cek log Laravel).");
-                    }
-                    throw err;
                 });
             })
             .then(data => {
-                btnText.innerText = 'Cari Data Peserta';
+                btnText.innerText = 'Cari Data Lengkap';
                 btnLoading.classList.add('d-none');
                 btnCari.removeAttribute('disabled');
 
                 if (data.metaData && data.metaData.code == "200") {
                     let p = data.response.peserta;
 
-                    // Isi Identitas & Kepesertaan
+                    // 1. Identitas & Kepesertaan
                     document.getElementById('resNama').innerText = p.nama;
                     document.getElementById('resSexTglLahir').innerText = `${(p.sex === 'L') ? 'Laki-laki' : 'Perempuan'} • Lahir: ${p.tglLahir}`;
                     document.getElementById('resNoKartu').innerText = p.noKartu;
@@ -170,46 +187,67 @@
                     document.getElementById('resTmt').innerText = p.tglTMT;
                     document.getElementById('resCob').innerText = (p.cob && p.cob.nmAsuransi) ? p.cob.nmAsuransi : 'Tidak Ada';
 
-                    // Atur Status Peserta
                     let statusBadge = document.getElementById('resStatus');
                     let statusKode = (p.statusPeserta && p.statusPeserta.kode) ? p.statusPeserta.kode : 'X';
                     statusBadge.innerText = (p.statusPeserta && p.statusPeserta.keterangan) ? p.statusPeserta.keterangan : 'TIDAK DIKETAHUI';
-                    statusBadge.className = (statusKode === "0") 
-                        ? "badge bg-success bg-opacity-10 text-success border border-success" 
-                        : "badge bg-danger bg-opacity-10 text-danger border border-danger";
+                    statusBadge.className = (statusKode === "0") ? "badge bg-success bg-opacity-10 text-success border border-success" : "badge bg-danger bg-opacity-10 text-danger border border-danger";
 
-                    // ==========================================
-                    // FITUR BARU: RENDER DATA RUJUKAN PCARE
-                    // ==========================================
+                    // 2. Rujukan PCare
                     let boxPcare = document.getElementById('resRujukanPcare');
                     if (data.response.rujukan_pcare) {
                         let r = data.response.rujukan_pcare;
-                        boxPcare.innerHTML = `
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">No. Kunj</span> <span class="fw-bold text-dark">: ${r.noKunjungan || '-'}</span></div>
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Tgl</span> <span class="fw-semibold text-dark">: ${r.tglKunjungan || '-'}</span></div>
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Poli</span> <span class="fw-semibold text-danger">: ${r.poliRujukan?.nama || '-'}</span></div>
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Perujuk</span> <span class="fw-semibold text-dark">: ${r.provPerujuk?.nama || '-'}</span></div>
-                            <div class="mb-0"><span class="text-muted d-inline-block w-25">Diagnosa</span> <span class="fw-semibold text-dark">: ${r.diagnosa?.nama || '-'}</span></div>
-                        `;
+                        boxPcare.innerHTML = `<div class="mb-1">No: <b>${r.noKunjungan || '-'}</b></div><div class="mb-1">Tgl: ${r.tglKunjungan || '-'}</div><div class="mb-1">Poli: <span class="text-danger fw-semibold">${r.poliRujukan?.nama || '-'}</span></div><div class="mb-0">Faskes: ${r.provPerujuk?.nama || '-'}</div>`;
                     } else {
-                        boxPcare.innerHTML = `<div class="text-center py-2 text-muted fst-italic"><i class="bi bi-x-circle d-block mb-1 fs-5"></i>Tidak ada rujukan aktif</div>`;
+                        boxPcare.innerHTML = `<div class="text-muted fst-italic">Tidak ada rujukan aktif</div>`;
                     }
 
-                    // ==========================================
-                    // FITUR BARU: RENDER DATA RUJUKAN RS
-                    // ==========================================
+                    // 3. Rujukan RS
                     let boxRS = document.getElementById('resRujukanRS');
                     if (data.response.rujukan_rs) {
                         let r = data.response.rujukan_rs;
-                        boxRS.innerHTML = `
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">No. Kunj</span> <span class="fw-bold text-dark">: ${r.noKunjungan || '-'}</span></div>
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Tgl</span> <span class="fw-semibold text-dark">: ${r.tglKunjungan || '-'}</span></div>
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Poli</span> <span class="fw-semibold text-danger">: ${r.poliRujukan?.nama || '-'}</span></div>
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Perujuk</span> <span class="fw-semibold text-dark">: ${r.provPerujuk?.nama || '-'}</span></div>
-                            <div class="mb-0"><span class="text-muted d-inline-block w-25">Diagnosa</span> <span class="fw-semibold text-dark">: ${r.diagnosa?.nama || '-'}</span></div>
-                        `;
+                        boxRS.innerHTML = `<div class="mb-1">No: <b>${r.noKunjungan || '-'}</b></div><div class="mb-1">Tgl: ${r.tglKunjungan || '-'}</div><div class="mb-1">Poli: <span class="text-danger fw-semibold">${r.poliRujukan?.nama || '-'}</span></div><div class="mb-0">Faskes: ${r.provPerujuk?.nama || '-'}</div>`;
                     } else {
-                        boxRS.innerHTML = `<div class="text-center py-2 text-muted fst-italic"><i class="bi bi-x-circle d-block mb-1 fs-5"></i>Tidak ada rujukan aktif</div>`;
+                        boxRS.innerHTML = `<div class="text-muted fst-italic">Tidak ada rujukan aktif</div>`;
+                    }
+
+                    // 4. Tabel Histori Pelayanan (SEP)
+                    let historiBody = document.getElementById('tableHistoriBody');
+                    historiBody.innerHTML = '';
+                    if (data.response.histori_pelayanan && data.response.histori_pelayanan.length > 0) {
+                        data.response.histori_pelayanan.forEach(h => {
+                            let jnsPelayanan = (h.jnsPelayanan == '1') ? 'Rawat Inap' : 'Rawat Jalan';
+                            historiBody.innerHTML += `
+                                <tr>
+                                    <td><span class="fw-bold text-primary">${h.noSep || '-'}</span></td>
+                                    <td>${h.tglSep || '-'}</td>
+                                    <td>${h.poli || '-'}</td>
+                                    <td>${h.ppkPelayanan || '-'}</td>
+                                    <td><span class="badge bg-secondary">${jnsPelayanan}</span></td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        historiBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted fst-italic">Tidak ada histori kunjungan dalam 90 hari terakhir.</td></tr>`;
+                    }
+
+                    // 5. Tabel Surat Rencana Kontrol
+                    let kontrolBody = document.getElementById('tableKontrolBody');
+                    kontrolBody.innerHTML = '';
+                    if (data.response.list_kontrol && data.response.list_kontrol.length > 0) {
+                        data.response.list_kontrol.forEach(k => {
+                            let jnsKontrol = (k.jnsKontrol == '1') ? 'SPRI' : 'Rencana Kontrol';
+                            kontrolBody.innerHTML += `
+                                <tr>
+                                    <td><span class="fw-bold text-success">${k.noSuratKontrol || '-'}</span></td>
+                                    <td><span class="badge bg-info text-dark">${jnsKontrol}</span></td>
+                                    <td>${k.tglRencanaKontrol || '-'}</td>
+                                    <td>${k.namaPoliTujuan || '-'}</td>
+                                    <td>${k.namaDokter || '-'}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        kontrolBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted fst-italic">Tidak ada surat kontrol terdaftar pada bulan ini.</td></tr>`;
                     }
 
                     resultCard.classList.remove('d-none');
@@ -220,14 +258,12 @@
                 }
             })
             .catch(error => {
-                btnText.innerText = 'Cari Data Peserta';
+                btnText.innerText = 'Cari Data Lengkap';
                 btnLoading.classList.add('d-none');
                 btnCari.removeAttribute('disabled');
                 
-                // Pesan Error Asli Akan Muncul Di Sini
                 document.getElementById('errorMessage').innerHTML = `<strong>Server Error!</strong><br><small class="text-dark">${error.message}</small>`;
                 errorCard.classList.remove('d-none');
-                console.error("Fetch Error:", error);
             });
     });
 </script>
