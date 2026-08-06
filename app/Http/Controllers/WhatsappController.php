@@ -100,13 +100,20 @@ class WhatsappController extends Controller
     }
 
     // 6. Sinkronisasi Kontak WA
+    // 6. Sinkronisasi Kontak WA (Safe Mode)
     public function syncChats()
     {
         try {
-            $response = Http::timeout(10)->post('http://localhost:3000/api/sync');
-            return response()->json($response->json());
+            $response = Http::timeout(15)->post('http://localhost:3000/api/sync');
+            $result = $response->json();
+
+            if ($response->successful()) {
+                return response()->json($result);
+            } else {
+                return response()->json(['success' => false, 'error' => $result['error'] ?? 'Gagal menyinkronkan kontak dari WhatsApp.'], 400);
+            }
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Gagal terhubung ke engine WA.'], 500);
+            return response()->json(['success' => false, 'error' => 'Gagal terhubung ke engine WA: ' . $e->getMessage()], 500);
         }
     }
 }
