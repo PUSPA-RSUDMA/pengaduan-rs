@@ -1,4 +1,4 @@
-@extends('admin') {{-- Sesuaikan dengan nama layout utama Anda jika berbeda --}}
+@extends('layouts.admin')
 
 @section('title', 'Cari Peserta BPJS')
 
