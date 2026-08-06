@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Cari Peserta BPJS')
+@section('title', 'Cari Peserta & Rujukan BPJS')
 
 @section('content')
 <div class="row">
@@ -55,26 +55,11 @@
                         <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person-vcard me-2"></i>Identitas Diri</h6>
                         <table class="table table-borderless table-sm small">
                             <tbody>
-                                <tr>
-                                    <td class="text-muted w-50">No. Kartu BPJS</td>
-                                    <td class="fw-semibold text-dark" id="resNoKartu">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">NIK KTP</td>
-                                    <td class="fw-semibold text-dark" id="resNik">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">No. Rekam Medis</td>
-                                    <td class="fw-semibold text-dark" id="resNoMr">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Nomor Telepon</td>
-                                    <td class="fw-semibold text-dark" id="resNoTelp">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Usia Saat Ini</td>
-                                    <td class="fw-semibold text-dark" id="resUmur">-</td>
-                                </tr>
+                                <tr><td class="text-muted w-50">No. Kartu BPJS</td><td class="fw-semibold text-dark" id="resNoKartu">-</td></tr>
+                                <tr><td class="text-muted">NIK KTP</td><td class="fw-semibold text-dark" id="resNik">-</td></tr>
+                                <tr><td class="text-muted">No. Rekam Medis</td><td class="fw-semibold text-dark" id="resNoMr">-</td></tr>
+                                <tr><td class="text-muted">Nomor Telepon</td><td class="fw-semibold text-dark" id="resNoTelp">-</td></tr>
+                                <tr><td class="text-muted">Usia Saat Ini</td><td class="fw-semibold text-dark" id="resUmur">-</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -84,43 +69,38 @@
                         <h6 class="fw-bold text-primary mb-3"><i class="bi bi-hospital me-2"></i>Data Kepesertaan</h6>
                         <table class="table table-borderless table-sm small">
                             <tbody>
-                                <tr>
-                                    <td class="text-muted w-50">Jenis Peserta</td>
-                                    <td class="fw-semibold text-dark" id="resJenisPeserta">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Hak Kelas</td>
-                                    <td class="fw-semibold text-dark" id="resKelas">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Faskes Tingkat 1</td>
-                                    <td class="fw-semibold text-dark" id="resFaskes">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">TMT (Aktif Sejak)</td>
-                                    <td class="fw-semibold text-dark" id="resTmt">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Asuransi Lain (COB)</td>
-                                    <td class="fw-semibold text-dark" id="resCob">-</td>
-                                </tr>
+                                <tr><td class="text-muted w-50">Jenis Peserta</td><td class="fw-semibold text-dark" id="resJenisPeserta">-</td></tr>
+                                <tr><td class="text-muted">Hak Kelas</td><td class="fw-semibold text-dark" id="resKelas">-</td></tr>
+                                <tr><td class="text-muted">Faskes Tingkat 1</td><td class="fw-semibold text-dark" id="resFaskes">-</td></tr>
+                                <tr><td class="text-muted">TMT (Aktif Sejak)</td><td class="fw-semibold text-dark" id="resTmt">-</td></tr>
+                                <tr><td class="text-muted">Asuransi Lain (COB)</td><td class="fw-semibold text-dark" id="resCob">-</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                {{-- BLOK 3: INFORMASI TAMBAHAN --}}
-                <div class="mt-4 pt-3 border-top">
-                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-info-square me-2"></i>Informasi Tambahan</h6>
-                    <div class="bg-light p-3 rounded-3 small">
-                        <div class="row">
-                            <div class="col-md-6 mb-2 mb-md-0">
-                                <span class="text-muted d-block mb-1">Status Dinsos / SKTM</span>
-                                <span class="fw-semibold" id="resDinsos">-</span>
+                {{-- BLOK 3: INFORMASI RUJUKAN AKTIF (TAMBAHAN BARU) --}}
+                <div class="mt-4 pt-4 border-top">
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-file-medical-fill me-2"></i>Informasi Rujukan Aktif</h6>
+                    
+                    <div class="row g-3">
+                        {{-- Rujukan PCare --}}
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0 h-100 rounded-3">
+                                <div class="card-body p-3 small">
+                                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-2">Dari Faskes 1 (Puskesmas/Klinik)</h6>
+                                    <div id="resRujukanPcare"></div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <span class="text-muted d-block mb-1">Program PRB / Prolanis</span>
-                                <span class="fw-semibold text-danger" id="resProlanis">-</span>
+                        </div>
+
+                        {{-- Rujukan RS --}}
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0 h-100 rounded-3">
+                                <div class="card-body p-3 small">
+                                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-2">Dari Faskes 2 (Rumah Sakit)</h6>
+                                    <div id="resRujukanRS"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -144,75 +124,85 @@
         let errorCard = document.getElementById('errorCard');
 
         // State Loading
-        btnText.innerText = 'Mencari...';
+        btnText.innerText = 'Memeriksa BPJS...';
         btnLoading.classList.remove('d-none');
         btnCari.setAttribute('disabled', 'true');
         resultCard.classList.add('d-none');
         errorCard.classList.add('d-none');
 
-        // Panggil endpoint API Lokal kita
+        // Panggil endpoint
         fetch(`{{ route('bpjs.cari') }}?no_kartu=${noKartu}`)
             .then(response => {
-                // Tangkap jika terjadi error 500 dari server sebelum di-parse ke JSON
                 if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
                 return response.json();
             })
             .then(data => {
-                // Kembalikan tombol
                 btnText.innerText = 'Cari Data Peserta';
                 btnLoading.classList.add('d-none');
                 btnCari.removeAttribute('disabled');
 
-                // Sukses
                 if (data.metaData && data.metaData.code == "200") {
                     let p = data.response.peserta;
 
-                    // Header Info
+                    // Isi Identitas & Kepesertaan
                     document.getElementById('resNama').innerText = p.nama;
-                    let gender = (p.sex === 'L') ? 'Laki-laki' : 'Perempuan';
-                    document.getElementById('resSexTglLahir').innerText = `${gender} • Lahir: ${p.tglLahir}`;
-                    
-                    // Identitas
+                    document.getElementById('resSexTglLahir').innerText = `${(p.sex === 'L') ? 'Laki-laki' : 'Perempuan'} • Lahir: ${p.tglLahir}`;
                     document.getElementById('resNoKartu').innerText = p.noKartu;
                     document.getElementById('resNik').innerText = p.nik;
                     document.getElementById('resNoMr').innerText = (p.mr && p.mr.noMR) ? p.mr.noMR : '-';
                     document.getElementById('resNoTelp').innerText = (p.mr && p.mr.noTelepon) ? p.mr.noTelepon : '-';
                     document.getElementById('resUmur').innerText = (p.umur && p.umur.umurSekarang) ? p.umur.umurSekarang : '-';
-
-                    // Kepesertaan
                     document.getElementById('resJenisPeserta').innerText = (p.jenisPeserta && p.jenisPeserta.keterangan) ? p.jenisPeserta.keterangan : '-';
                     document.getElementById('resKelas').innerText = (p.hakKelas && p.hakKelas.keterangan) ? p.hakKelas.keterangan : '-';
                     document.getElementById('resFaskes').innerText = (p.provUmum && p.provUmum.nmProvider) ? `${p.provUmum.kdProvider} - ${p.provUmum.nmProvider}` : '-';
                     document.getElementById('resTmt').innerText = p.tglTMT;
-                    
-                    // Asuransi Tambahan
                     document.getElementById('resCob').innerText = (p.cob && p.cob.nmAsuransi) ? p.cob.nmAsuransi : 'Tidak Ada';
 
-                    // Info Tambahan (Dinsos / Prolanis)
-                    let infoSKTM = (p.informasi && p.informasi.noSKTM) ? p.informasi.noSKTM : 'Tidak Ada';
-                    document.getElementById('resDinsos').innerText = infoSKTM;
-                    
-                    let infoProlanis = (p.informasi && p.informasi.prolanisPRB) ? p.informasi.prolanisPRB : 'Tidak Ada Riwayat';
-                    document.getElementById('resProlanis').innerText = infoProlanis;
-
-                    // Mengatur warna badge Status
+                    // Atur Status Peserta
                     let statusBadge = document.getElementById('resStatus');
-                    let statusNama = (p.statusPeserta && p.statusPeserta.keterangan) ? p.statusPeserta.keterangan : 'TIDAK DIKETAHUI';
                     let statusKode = (p.statusPeserta && p.statusPeserta.kode) ? p.statusPeserta.kode : 'X';
-                    
-                    statusBadge.innerText = statusNama;
-                    
-                    // BPJS: 0 biasanya Aktif, sisanya Non Aktif (meninggal, tunggakan, dll)
-                    if (statusKode === "0") { 
-                        statusBadge.className = "badge bg-success bg-opacity-10 text-success border border-success";
+                    statusBadge.innerText = (p.statusPeserta && p.statusPeserta.keterangan) ? p.statusPeserta.keterangan : 'TIDAK DIKETAHUI';
+                    statusBadge.className = (statusKode === "0") 
+                        ? "badge bg-success bg-opacity-10 text-success border border-success" 
+                        : "badge bg-danger bg-opacity-10 text-danger border border-danger";
+
+                    // ==========================================
+                    // FITUR BARU: RENDER DATA RUJUKAN PCARE
+                    // ==========================================
+                    let boxPcare = document.getElementById('resRujukanPcare');
+                    if (data.response.rujukan_pcare) {
+                        let r = data.response.rujukan_pcare;
+                        boxPcare.innerHTML = `
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">No. Kunj</span> <span class="fw-bold text-dark">: ${r.noKunjungan}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Tgl</span> <span class="fw-semibold text-dark">: ${r.tglKunjungan}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Poli</span> <span class="fw-semibold text-danger">: ${r.poliRujukan?.nama || '-'}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Perujuk</span> <span class="fw-semibold text-dark">: ${r.provPerujuk?.nama || '-'}</span></div>
+                            <div class="mb-0"><span class="text-muted d-inline-block w-25">Diagnosa</span> <span class="fw-semibold text-dark">: ${r.diagnosa?.nama || '-'}</span></div>
+                        `;
                     } else {
-                        statusBadge.className = "badge bg-danger bg-opacity-10 text-danger border border-danger";
+                        boxPcare.innerHTML = `<div class="text-center py-2 text-muted fst-italic"><i class="bi bi-x-circle d-block mb-1 fs-5"></i>Tidak ada rujukan aktif</div>`;
+                    }
+
+                    // ==========================================
+                    // FITUR BARU: RENDER DATA RUJUKAN RS
+                    // ==========================================
+                    let boxRS = document.getElementById('resRujukanRS');
+                    if (data.response.rujukan_rs) {
+                        let r = data.response.rujukan_rs;
+                        boxRS.innerHTML = `
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">No. Kunj</span> <span class="fw-bold text-dark">: ${r.noKunjungan}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Tgl</span> <span class="fw-semibold text-dark">: ${r.tglKunjungan}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Poli</span> <span class="fw-semibold text-danger">: ${r.poliRujukan?.nama || '-'}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Perujuk</span> <span class="fw-semibold text-dark">: ${r.provPerujuk?.nama || '-'}</span></div>
+                            <div class="mb-0"><span class="text-muted d-inline-block w-25">Diagnosa</span> <span class="fw-semibold text-dark">: ${r.diagnosa?.nama || '-'}</span></div>
+                        `;
+                    } else {
+                        boxRS.innerHTML = `<div class="text-center py-2 text-muted fst-italic"><i class="bi bi-x-circle d-block mb-1 fs-5"></i>Tidak ada rujukan aktif</div>`;
                     }
 
                     resultCard.classList.remove('d-none');
                 } else {
-                    // Tampilkan Error dari BPJS (Misal: Kartu tidak ditemukan)
-                    let msg = (data.metaData && data.metaData.message) ? data.metaData.message : 'Terjadi kesalahan tidak dikenal.';
+                    let msg = (data.metaData && data.metaData.message) ? data.metaData.message : 'Terjadi kesalahan.';
                     document.getElementById('errorMessage').innerHTML = `<strong>Pencarian Gagal!</strong><br>${msg}`;
                     errorCard.classList.remove('d-none');
                 }
@@ -222,7 +212,7 @@
                 btnLoading.classList.add('d-none');
                 btnCari.removeAttribute('disabled');
                 
-                document.getElementById('errorMessage').innerHTML = `<strong>Server Error!</strong><br>Terjadi gangguan koneksi atau internal server. <br><small class="text-dark">${error.message}</small>`;
+                document.getElementById('errorMessage').innerHTML = `<strong>Server Error!</strong><br>Terjadi gangguan koneksi. <br><small class="text-dark">${error.message}</small>`;
                 errorCard.classList.remove('d-none');
                 console.error("Fetch Error:", error);
             });

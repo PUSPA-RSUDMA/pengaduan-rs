@@ -114,11 +114,6 @@ class BpjsService
     // DAFTAR ENDPOINT (Bisa Anda tambahkan sesuai kebutuhan dari Python)
     // =========================================================================
 
-    public function refPoli($namaPoli)
-    {
-        return $this->request("/referensi/poli/{$namaPoli}", 'GET');
-    }
-
     public function searchPesertaByNik($nik, $tglSep)
     {
         return $this->request("/Peserta/nik/{$nik}/tglSEP/{$tglSep}", 'GET');
@@ -129,18 +124,13 @@ class BpjsService
         return $this->request("/Peserta/nokartu/{$noka}/tglSEP/{$tglSep}", 'GET');
     }
 
-    public function getSep($noSep)
+    public function searchRujukanByNokaPcare($noka)
     {
-        return $this->request("/SEP/{$noSep}", 'GET');
+        return $this->request("/Rujukan/Peserta/{$noka}", 'GET');
     }
 
-    public function createSep($data)
+    public function searchRujukanByNokaRS($noka)
     {
-        return $this->request("/SEP/1.5/insert", 'POST', ['request' => ['t_sep' => $data]]);
-    }
-
-    public function createRujukanRS($data)
-    {
-        return $this->request("/Rujukan/2.0/insert", 'POST', $data);
+        return $this->request("/Rujukan/RS/Peserta/{$noka}", 'GET');
     }
 }

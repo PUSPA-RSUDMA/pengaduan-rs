@@ -21,14 +21,10 @@ class BpjsController extends Controller
 
     public function cariPeserta(Request $request)
     {
-        // 1. Ambil input dan paksakan menjadi string agar terhindar dari TypeError
         $input = (string) $request->input('no_kartu');
-        
-        // 2. Bersihkan karakter spasi/simbol, hanya sisakan angka
         $keyword = preg_replace('/[^0-9]/', '', $input); 
         $tglSep = date('Y-m-d'); 
 
-        // 3. Validasi kosong
         if (empty($keyword)) {
             return response()->json([
                 'metaData' => [
@@ -39,17 +35,30 @@ class BpjsController extends Controller
         }
 
         try {
-            // 4. AUTO-DETECT: 16 Digit = NIK, selain itu = No Kartu BPJS
+            // 1. CEK DATA PESERTA UTAMA
             if (strlen($keyword) === 16) {
                 $result = $this->bpjs->searchPesertaByNik($keyword, $tglSep);
             } else {
                 $result = $this->bpjs->searchPesertaByKartu($keyword, $tglSep);
             }
 
+            // 2. JIKA PESERTA DITEMUKAN, OTOMATIS CARI RUJUKAN
+            if (isset($result['metaData']['code']) && $result['metaData']['code'] == '200') {
+                $noKartuBpjs = $result['response']['peserta']['noKartu'];
+                
+                // Panggil API Rujukan PCare & RS sekaligus
+                $rujukanPcare = $this->bpjs->searchRujukanByNokaPcare($noKartuBpjs);
+                $rujukanRS    = $this->bpjs->searchRujukanByNokaRS($noKartuBpjs);
+
+                // Sisipkan data rujukan ke dalam JSON yang akan dikirim ke layar (Tampilan)
+                $result['response']['rujukan_pcare'] = ($rujukanPcare['metaData']['code'] == '200') ? $rujukanPcare['response']['rujukan'] : null;
+                
+                $result['response']['rujukan_rs'] = ($rujukanRS['metaData']['code'] == '200') ? $rujukanRS['response']['rujukan'] : null;
+            }
+
             return response()->json($result);
 
         } catch (\Exception $e) {
-            // Menangkap error jika Service gagal dipanggil
             return response()->json([
                 'metaData' => [
                     'code' => 500,
