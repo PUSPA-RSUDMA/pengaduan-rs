@@ -27,33 +27,34 @@ class BpjsController extends Controller
 
         if (empty($keyword)) {
             return response()->json([
-                'metaData' => [
-                    'code' => 400, 
-                    'message' => 'Nomor Kartu / NIK tidak boleh kosong'
-                ]
+                'metaData' => ['code' => 400, 'message' => 'Nomor Kartu / NIK tidak boleh kosong']
             ], 400);
         }
 
         try {
-            // 1. CEK DATA PESERTA UTAMA
+            // 1. CEK DATA PESERTA
             if (strlen($keyword) === 16) {
                 $result = $this->bpjs->searchPesertaByNik($keyword, $tglSep);
             } else {
                 $result = $this->bpjs->searchPesertaByKartu($keyword, $tglSep);
             }
 
-            // 2. JIKA PESERTA DITEMUKAN, OTOMATIS CARI RUJUKAN
+            // 2. JIKA PESERTA DITEMUKAN, CARI RUJUKAN
             if (isset($result['metaData']['code']) && $result['metaData']['code'] == '200') {
                 $noKartuBpjs = $result['response']['peserta']['noKartu'];
                 
-                // Panggil API Rujukan PCare & RS sekaligus
+                // Ambil data rujukan
                 $rujukanPcare = $this->bpjs->searchRujukanByNokaPcare($noKartuBpjs);
                 $rujukanRS    = $this->bpjs->searchRujukanByNokaRS($noKartuBpjs);
 
-                // Sisipkan data rujukan ke dalam JSON yang akan dikirim ke layar (Tampilan)
-                $result['response']['rujukan_pcare'] = ($rujukanPcare['metaData']['code'] == '200') ? $rujukanPcare['response']['rujukan'] : null;
+                // PENGECEKAN AMAN (Mencegah Error 500)
+                $result['response']['rujukan_pcare'] = (isset($rujukanPcare['metaData']['code']) && $rujukanPcare['metaData']['code'] == '200' && isset($rujukanPcare['response']['rujukan'])) 
+                    ? $rujukanPcare['response']['rujukan'] 
+                    : null;
                 
-                $result['response']['rujukan_rs'] = ($rujukanRS['metaData']['code'] == '200') ? $rujukanRS['response']['rujukan'] : null;
+                $result['response']['rujukan_rs'] = (isset($rujukanRS['metaData']['code']) && $rujukanRS['metaData']['code'] == '200' && isset($rujukanRS['response']['rujukan'])) 
+                    ? $rujukanRS['response']['rujukan'] 
+                    : null;
             }
 
             return response()->json($result);
