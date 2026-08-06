@@ -20,29 +20,27 @@ class BpjsController extends Controller
         return view('bpjs.cek-peserta');
     }
 
-    // 2. Fungsi untuk memproses pencarian berdasarkan No Kartu
-    // 2. Fungsi untuk memproses pencarian berdasarkan No Kartu ATAU NIK
     public function cariPeserta(Request $request)
     {
-        // Ambil input dan bersihkan dari spasi atau karakter selain angka
-        $keyword = preg_replace('/[^0-9]/', '', $request->input('no_kartu')); 
-        $tglSep = date('Y-m-d'); // Tanggal hari ini
+        // PERBAIKAN PHP 8.4: Tambahkan (string) agar terhindar dari TypeError
+        $input = (string) $request->input('no_kartu');
+        $keyword = preg_replace('/[^0-9]/', '', $input); 
+        
+        $tglSep = date('Y-m-d'); 
 
         if (empty($keyword)) {
             return response()->json([
                 'metaData' => [
                     'code' => 400, 
-                    'message' => 'Nomor Kartu / NIK tidak boleh kosong'
+                    'message' => 'Nomor Kartu / NIK tidak valid'
                 ]
             ], 400);
         }
 
-        // AUTO-DETECT LOGIC (Sangat simpel untuk pengguna)
+        // Cek Panjang Karakter
         if (strlen($keyword) === 16) {
-            // Jika 16 Digit -> Arahkan ke endpoint pencarian NIK
             $result = $this->bpjs->searchPesertaByNik($keyword, $tglSep);
         } else {
-            // Selain 16 Digit (biasanya 13 digit) -> Arahkan ke endpoint pencarian No Kartu
             $result = $this->bpjs->searchPesertaByKartu($keyword, $tglSep);
         }
 
