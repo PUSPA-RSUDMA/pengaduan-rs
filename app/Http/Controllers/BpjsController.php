@@ -39,7 +39,7 @@ class BpjsController extends Controller
                 $result = $this->bpjs->searchPesertaByKartu($keyword, $tglSep);
             }
 
-            // 2. JIKA PESERTA DITEMUKAN, TARIK DATA PENDUKUNG (Rujukan, Histori SEP, Surat Kontrol)
+            // 2. JIKA PESERTA DITEMUKAN, TARIK DATA PENDUKUNG
             if (isset($result['metaData']['code']) && $result['metaData']['code'] == '200') {
                 $peserta = $result['response']['peserta'] ?? null;
                 
@@ -53,19 +53,32 @@ class BpjsController extends Controller
                     $result['response']['rujukan_pcare'] = (isset($rujukanPcare['metaData']['code']) && $rujukanPcare['metaData']['code'] == '200') ? ($rujukanPcare['response']['rujukan'] ?? null) : null;
                     $result['response']['rujukan_rs']    = (isset($rujukanRS['metaData']['code']) && $rujukanRS['metaData']['code'] == '200') ? ($rujukanRS['response']['rujukan'] ?? null) : null;
 
-                    // B. Histori Pelayanan / SEP (Rentang 90 hari ke belakang sampai hari ini)
+                    // B. Histori Pelayanan / SEP (90 hari ke belakang)
                     $sDate = date('Y-m-d', strtotime('-90 days'));
                     $eDate = date('Y-m-d');
                     $histori = $this->bpjs->monitoringHistoryPelayananPeserta($noKartuBpjs, $sDate, $eDate);
                     
                     $result['response']['histori_pelayanan'] = (isset($histori['metaData']['code']) && $histori['metaData']['code'] == '200') ? ($histori['response']['histori'] ?? []) : [];
 
-                    // C. List Surat Kontrol (Bulan & Tahun aktif saat ini, filter 2 untuk semua jenis poli atau 1 sesuai kebutuhan)
-                    $bulan = date('m');
-                    $tahun = date('Y');
-                    $kontrol = $this->bpjs->listKontrolByNoka($bulan, $tahun, $noKartuBpjs, '2');
+                    // C. LIST SURAT KONTROL (2 Bulan Lalu, Bulan Ini, 2 Bulan Kedepan)
+                    $allKontrol = [];
+                    for ($i = -2; $i <= 2; $i++) {
+                        $targetDate = now()->addMonths($i);
+                        $bulan = $targetDate->format('m');
+                        $tahun = $targetDate->format('Y');
 
-                    $result['response']['list_kontrol'] = (isset($kontrol['metaData']['code']) && $kontrol['metaData']['code'] == '200') ? ($kontrol['response']['list'] ?? []) : [];
+                        $kontrol = $this->bpjs->listKontrolByNoka($bulan, $tahun, $noKartuBpjs, '2');
+                        if (isset($kontrol['metaData']['code']) && $kontrol['metaData']['code'] == '200' && !empty($kontrol['response']['list'])) {
+                            $allKontrol = array_merge($allKontrol, $kontrol['response']['list']);
+                        }
+                    }
+
+                    // Hapus duplikat berdasarkan nomor surat kontrol, lalu urutkan berdasarkan tanggal rencana
+                    $result['response']['list_kontrol'] = collect($allKontrol)
+                        ->unique('noSuratKontrol')
+                        ->sortBy('tglRencanaKontrol')
+                        ->values()
+                        ->all();
                 }
             }
 

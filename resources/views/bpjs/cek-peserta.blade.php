@@ -113,7 +113,7 @@
 
                 {{-- SURAT RENCANA KONTROL (TAMBAHAN BARU) --}}
                 <div class="mt-4 pt-4 border-top">
-                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-journal-check me-2"></i>List Surat Rencana Kontrol (Bulan Ini)</h6>
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-journal-check me-2"></i>List Surat Rencana Kontrol (-2 Bulan s.d +2 Bulan)</h6>
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped table-sm small align-middle">
                             <thead class="table-dark">
@@ -247,7 +247,7 @@
                             `;
                         });
                     } else {
-                        kontrolBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted fst-italic">Tidak ada surat kontrol terdaftar pada bulan ini.</td></tr>`;
+                        kontrolBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted fst-italic">Tidak ada surat kontrol terdaftar dalam rentang 5 bulan terakhir & kedepan.</td></tr>`;
                     }
 
                     resultCard.classList.remove('d-none');
