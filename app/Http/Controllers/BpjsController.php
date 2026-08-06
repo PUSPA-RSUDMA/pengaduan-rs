@@ -32,7 +32,7 @@ class BpjsController extends Controller
         }
 
         try {
-            // 1. CEK DATA PESERTA
+            // 1. CARI PESERTA
             if (strlen($keyword) === 16) {
                 $result = $this->bpjs->searchPesertaByNik($keyword, $tglSep);
             } else {
@@ -41,29 +41,39 @@ class BpjsController extends Controller
 
             // 2. JIKA PESERTA DITEMUKAN, CARI RUJUKAN
             if (isset($result['metaData']['code']) && $result['metaData']['code'] == '200') {
-                $noKartuBpjs = $result['response']['peserta']['noKartu'];
                 
-                // Ambil data rujukan
-                $rujukanPcare = $this->bpjs->searchRujukanByNokaPcare($noKartuBpjs);
-                $rujukanRS    = $this->bpjs->searchRujukanByNokaRS($noKartuBpjs);
+                // Gunakan null coalescing (??) agar PHP 8 tidak crash jika BPJS merespon aneh
+                $peserta = $result['response']['peserta'] ?? null;
+                
+                if ($peserta && isset($peserta['noKartu'])) {
+                    $noKartuBpjs = $peserta['noKartu'];
+                    
+                    // Ambil Rujukan
+                    $rujukanPcare = $this->bpjs->searchRujukanByNokaPcare($noKartuBpjs);
+                    $rujukanRS    = $this->bpjs->searchRujukanByNokaRS($noKartuBpjs);
 
-                // PENGECEKAN AMAN (Mencegah Error 500)
-                $result['response']['rujukan_pcare'] = (isset($rujukanPcare['metaData']['code']) && $rujukanPcare['metaData']['code'] == '200' && isset($rujukanPcare['response']['rujukan'])) 
-                    ? $rujukanPcare['response']['rujukan'] 
-                    : null;
-                
-                $result['response']['rujukan_rs'] = (isset($rujukanRS['metaData']['code']) && $rujukanRS['metaData']['code'] == '200' && isset($rujukanRS['response']['rujukan'])) 
-                    ? $rujukanRS['response']['rujukan'] 
-                    : null;
+                    // Pengecekan aman data Rujukan PCare
+                    $result['response']['rujukan_pcare'] = 
+                        (isset($rujukanPcare['metaData']['code']) && $rujukanPcare['metaData']['code'] == '200') 
+                        ? ($rujukanPcare['response']['rujukan'] ?? null) 
+                        : null;
+                    
+                    // Pengecekan aman data Rujukan RS
+                    $result['response']['rujukan_rs'] = 
+                        (isset($rujukanRS['metaData']['code']) && $rujukanRS['metaData']['code'] == '200') 
+                        ? ($rujukanRS['response']['rujukan'] ?? null) 
+                        : null;
+                }
             }
 
             return response()->json($result);
 
-        } catch (\Exception $e) {
+        // Menggunakan \Throwable untuk menangkap SEMUA jenis error (termasuk Fatal & TypeError di PHP 8)
+        } catch (\Throwable $e) { 
             return response()->json([
                 'metaData' => [
                     'code' => 500,
-                    'message' => 'Error Internal: ' . $e->getMessage()
+                    'message' => 'Error Backend: ' . $e->getMessage() . ' (Baris: ' . $e->getLine() . ')'
                 ]
             ], 500);
         }
