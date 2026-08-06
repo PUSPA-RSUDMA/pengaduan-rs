@@ -130,11 +130,23 @@
         resultCard.classList.add('d-none');
         errorCard.classList.add('d-none');
 
-        // Panggil endpoint
         fetch(`{{ route('bpjs.cari') }}?no_kartu=${noKartu}`)
             .then(response => {
-                if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
-                return response.json();
+                // Perbaikan: Jangan throw error langsung. Baca isi pesannya!
+                return response.json().then(data => {
+                    if (!response.ok) {
+                        // Ambil pesan error asli dari Laravel (Throwable)
+                        let errorMsg = (data.metaData && data.metaData.message) ? data.metaData.message : `HTTP error! status: ${response.status}`;
+                        throw new Error(errorMsg);
+                    }
+                    return data;
+                }).catch(err => {
+                    // Jika yang diterima HTML (bukan JSON), berarti terjadi Fatal Error server
+                    if (err.name === 'SyntaxError') {
+                        throw new Error("Terjadi fatal error di sistem (Cek log Laravel).");
+                    }
+                    throw err;
+                });
             })
             .then(data => {
                 btnText.innerText = 'Cari Data Peserta';
@@ -173,8 +185,8 @@
                     if (data.response.rujukan_pcare) {
                         let r = data.response.rujukan_pcare;
                         boxPcare.innerHTML = `
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">No. Kunj</span> <span class="fw-bold text-dark">: ${r.noKunjungan}</span></div>
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Tgl</span> <span class="fw-semibold text-dark">: ${r.tglKunjungan}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">No. Kunj</span> <span class="fw-bold text-dark">: ${r.noKunjungan || '-'}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Tgl</span> <span class="fw-semibold text-dark">: ${r.tglKunjungan || '-'}</span></div>
                             <div class="mb-1"><span class="text-muted d-inline-block w-25">Poli</span> <span class="fw-semibold text-danger">: ${r.poliRujukan?.nama || '-'}</span></div>
                             <div class="mb-1"><span class="text-muted d-inline-block w-25">Perujuk</span> <span class="fw-semibold text-dark">: ${r.provPerujuk?.nama || '-'}</span></div>
                             <div class="mb-0"><span class="text-muted d-inline-block w-25">Diagnosa</span> <span class="fw-semibold text-dark">: ${r.diagnosa?.nama || '-'}</span></div>
@@ -190,8 +202,8 @@
                     if (data.response.rujukan_rs) {
                         let r = data.response.rujukan_rs;
                         boxRS.innerHTML = `
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">No. Kunj</span> <span class="fw-bold text-dark">: ${r.noKunjungan}</span></div>
-                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Tgl</span> <span class="fw-semibold text-dark">: ${r.tglKunjungan}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">No. Kunj</span> <span class="fw-bold text-dark">: ${r.noKunjungan || '-'}</span></div>
+                            <div class="mb-1"><span class="text-muted d-inline-block w-25">Tgl</span> <span class="fw-semibold text-dark">: ${r.tglKunjungan || '-'}</span></div>
                             <div class="mb-1"><span class="text-muted d-inline-block w-25">Poli</span> <span class="fw-semibold text-danger">: ${r.poliRujukan?.nama || '-'}</span></div>
                             <div class="mb-1"><span class="text-muted d-inline-block w-25">Perujuk</span> <span class="fw-semibold text-dark">: ${r.provPerujuk?.nama || '-'}</span></div>
                             <div class="mb-0"><span class="text-muted d-inline-block w-25">Diagnosa</span> <span class="fw-semibold text-dark">: ${r.diagnosa?.nama || '-'}</span></div>
@@ -212,7 +224,8 @@
                 btnLoading.classList.add('d-none');
                 btnCari.removeAttribute('disabled');
                 
-                document.getElementById('errorMessage').innerHTML = `<strong>Server Error!</strong><br>Terjadi gangguan koneksi. <br><small class="text-dark">${error.message}</small>`;
+                // Pesan Error Asli Akan Muncul Di Sini
+                document.getElementById('errorMessage').innerHTML = `<strong>Server Error!</strong><br><small class="text-dark">${error.message}</small>`;
                 errorCard.classList.remove('d-none');
                 console.error("Fetch Error:", error);
             });
