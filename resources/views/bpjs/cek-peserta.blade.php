@@ -131,8 +131,10 @@
                 btnLoading.classList.add('d-none');
                 btnCari.removeAttribute('disabled');
                 
-                document.getElementById('errorMessage').innerHTML = `<strong>Terjadi Kesalahan Sistem!</strong><br>Pastikan koneksi jaringan stabil atau cek log sistem.`;
+                // Ini akan memunculkan pesan error aslinya di layar
+                document.getElementById('errorMessage').innerHTML = `<strong>Terjadi Kesalahan Sistem!</strong><br>Error: ${error.message} <br><br><i>Cek Console Browser (F12) atau laravel.log untuk detailnya.</i>`;
                 errorCard.classList.remove('d-none');
+                console.error(error);
             });
     });
 </script>
