@@ -114,21 +114,33 @@ class BpjsService
     // DAFTAR ENDPOINT (Bisa Anda tambahkan sesuai kebutuhan dari Python)
     // =========================================================================
 
+    /**
+     * Cari Peserta Berdasarkan NIK KTP
+     */
     public function searchPesertaByNik($nik, $tglSep)
     {
         return $this->request("/Peserta/nik/{$nik}/tglSEP/{$tglSep}", 'GET');
     }
 
+    /**
+     * Cari Peserta Berdasarkan Nomor Kartu BPJS
+     */
     public function searchPesertaByKartu($noka, $tglSep)
     {
         return $this->request("/Peserta/nokartu/{$noka}/tglSEP/{$tglSep}", 'GET');
     }
 
+    /**
+     * Cari Rujukan Aktif dari Faskes 1 (PCare)
+     */
     public function searchRujukanByNokaPcare($noka)
     {
         return $this->request("/Rujukan/Peserta/{$noka}", 'GET');
     }
 
+    /**
+     * Cari Rujukan Aktif dari Rumah Sakit (RS)
+     */
     public function searchRujukanByNokaRS($noka)
     {
         return $this->request("/Rujukan/RS/Peserta/{$noka}", 'GET');
@@ -139,18 +151,14 @@ class BpjsService
      */
     public function monitoringHistoryPelayananPeserta($noka, $sDate, $eDate)
     {
-        $contentType = 'application/json; charset=utf-8';
-        $completeUrl = "{$this->_url}/monitoring/HistoriPelayanan/NoKartu/{$noka}/tglMulai/{$sDate}/tglAkhir/{$eDate}";
-        return $this->__requestServiceVCLAIM($completeUrl, $contentType);
+        return $this->request("/monitoring/HistoriPelayanan/NoKartu/{$noka}/tglMulai/{$sDate}/tglAkhir/{$eDate}", 'GET');
     }
 
     /**
-     * List Rencana Kontrol Berdasarkan Nomor Kartu, Bulan, Tahun, dan Filter
+     * List Rencana Kontrol Berdasarkan Nomor Kartu
      */
     public function listKontrolByNoka($bulan, $tahun, $noka, $filter = 1)
     {
-        $contentType = 'Application/x-www-form-urlencoded';
-        $completeUrl = "{$this->_url}/RencanaKontrol/ListRencanaKontrol/Bulan/{$bulan}/Tahun/{$tahun}/Nokartu/{$noka}/filter/{$filter}";
-        return $this->__requestServiceVCLAIM($completeUrl, $contentType);
+        return $this->request("/RencanaKontrol/ListRencanaKontrol/Bulan/{$bulan}/Tahun/{$tahun}/Nokartu/{$noka}/filter/{$filter}", 'GET');
     }
 }
