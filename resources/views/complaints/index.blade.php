@@ -125,7 +125,7 @@
                             
                             @if($isHex)
                                 <span class="badge rounded-circle border border-white p-2 shadow-sm" 
-                                      style="background-color: {{ $complaint->grade }}; width: 15px; height: 15px; display: inline-block;" title="{{ $complaint->grade }}"> </span>
+                                    style="background-color: {{ $complaint->grade }}; width: 15px; height: 15px; display: inline-block;" title="{{ $complaint->grade }}"> </span>
                             @else
                                 <span class="badge rounded-circle {{ $colorClass }} border border-white p-2" title="{{ $complaint->grade }}"> </span>
                             @endif
@@ -178,13 +178,13 @@
 
                     {{-- MODAL LIHAT DETAIL KELUHAN (DINAMIS DARI DATABASE) --}}
                     <div class="modal fade" id="modalDetail{{ $complaint->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                             <div class="modal-content border-0 shadow-lg">
                                 <div class="modal-header bg-info text-white py-2">
                                     <h6 class="modal-title fw-bold"><i class="bi bi-card-text me-2"></i>Rincian Pengaduan Lengkap</h6>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                 </div>
-                                <div class="modal-body p-4 bg-light">
+                                <div class="modal-body p-4 bg-light" style="max-height: 70vh; overflow-y: auto;">
                                     
                                     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">Item yang Dikeluhkan:</h6>
                                     <div class="row g-3">
@@ -241,7 +241,7 @@
                                 </div>
                                 <form action="{{ route('complaints.update', $complaint->id) }}" method="POST">
                                     @csrf @method('PUT')
-                                    <div class="modal-body p-4 bg-light">
+                                    <div class="modal-body p-4 bg-light" style="max-height: 70vh; overflow-y: auto;">
                                         <div class="row g-3 mb-4">
                                             <div class="col-md-3">
                                                 <label class="small fw-bold text-muted">Tanggal</label>
@@ -272,7 +272,6 @@
                                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Detail Keluhan (Dinamic Checklist)</h6>
                                         <div class="row g-3">
                                             @php 
-                                                // Ambil JSON yang tersimpan, pastikan berupa array
                                                 $savedDetails = is_array($complaint->detail_keluhan) ? $complaint->detail_keluhan : []; 
                                             @endphp
                                             
@@ -404,7 +403,7 @@
             
             <form action="{{ route('complaints.store') }}" method="POST" id="formSimpan" onsubmit="showLoading()">
                 @csrf
-                <div class="modal-body p-4 bg-light">
+                <div class="modal-body p-4 bg-light" style="max-height: 70vh; overflow-y: auto;">
                     {{-- INFO IDENTITAS --}}
                     <div class="row g-3 mb-4">
                         <div class="col-md-3">
