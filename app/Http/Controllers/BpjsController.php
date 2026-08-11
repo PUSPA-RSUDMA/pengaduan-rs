@@ -119,8 +119,8 @@ class BpjsController extends Controller
             // 1. Ambil data asli surat kontrol
             $detail = $this->bpjs->getDetailKontrol($noSuratKontrol);
             
-            // Simpan log untuk dicek jika masih gagal
-            Log::info("Detail Surat Kontrol ({$noSuratKontrol}):", $detail);
+            // PERBAIKAN: Cast ke (array) atau bungkus dalam array agar tidak error jika $detail null
+            Log::info("Detail Surat Kontrol ({$noSuratKontrol}):", (array) $detail);
 
             if (!isset($detail['response']) || empty($detail['response'])) {
                 return response()->json([
@@ -145,12 +145,14 @@ class BpjsController extends Controller
                 ]
             ];
 
+            // $payload sudah pasti array, jadi ini aman
             Log::info("Payload yang dikirim ke BPJS:", $payload);
 
             // 3. Kirim Update ke BPJS
             $result = $this->bpjs->updateSuratKontrolV2($payload);
             
-            Log::info("Respon dari BPJS:", $result);
+            // PERBAIKAN: Cast ke (array) agar tidak error jika $result null
+            Log::info("Respon dari BPJS:", (array) $result);
 
             return response()->json($result);
 
