@@ -19,7 +19,6 @@ use App\Http\Controllers\WhatsappController;
 use App\Http\Controllers\MainDashboardController;
 use App\Http\Controllers\WhatsappInboxController;
 use App\Http\Controllers\BpjsController;
-use App\Http\Controllers\BackupController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -96,7 +95,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('export-excel', [ComplaintController::class, 'exportExcel'])->name('export.excel');
     Route::get('/export-pdf', [ComplaintController::class, 'exportPdf'])->name('export.pdf');
 
-    Route::post('/backup-gdrive', [BackupController::class, 'backupAndUpload'])->name('backup.gdrive')->middleware('auth');
 
     Route::prefix('bpjs')->group(function () {
         Route::get('/peserta', [BpjsController::class, 'index'])->name('bpjs.index');
