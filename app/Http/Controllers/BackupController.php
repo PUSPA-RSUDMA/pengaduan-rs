@@ -13,7 +13,7 @@ class BackupController extends Controller
 {
     try {
         // Panggil perintah artisan yang baru dibuat
-        \Illuminate\Support\Facades\Artisan::call('backup:send-wa');
+        Artisan::call('backup:run', ['--only-db' => true]);
 
         return back()->with('success', 'Backup database berhasil diproses dan dikirim ke WhatsApp!');
 
