@@ -305,11 +305,7 @@
                     </div>
                 </a>
 
-                <div class="sidebar-label menu-group-label mt-2">Integrasi BPJS</div>
-
-                <a href="{{ route('bpjs.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('bpjs.*') ? 'active' : '' }}">
-                    <i class="bi bi-credit-card-2-front-fill me-3 text-info"></i> <span>Cari Kepesertaan</span>
-                </a>
+                
                 <div class="collapse {{ request()->routeIs('logbook.*', 'whatsapp.*') ? 'show' : '' }}" id="submenuLogbook">
                     <div class="sub-menu-wrapper">
                         <a href="{{ route('logbook.index') }}" class="list-group-item sub-menu-item sidebar-nav-item d-flex justify-content-between align-items-center {{ request()->routeIs('logbook.*') ? 'active' : '' }}">
@@ -323,6 +319,12 @@
                         </a>
                     </div>
                 </div>
+
+                <div class="sidebar-label menu-group-label mt-2">Integrasi BPJS</div>
+                
+                <a href="{{ route('bpjs.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('bpjs.*') ? 'active' : '' }}">
+                    <i class="bi bi-credit-card-2-front-fill me-3 text-info"></i> <span>Cari Kepesertaan</span>
+                </a>
 
                 {{-- KELOMPOK MENU: DATA MASTER & SYSTEM --}}
                 @if(auth()->user()->role == 'admin')
