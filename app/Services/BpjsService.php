@@ -155,4 +155,10 @@ class BpjsService
         $prefix = $isRs ? "/Rujukan/RS" : "/Rujukan";
         return $this->request("{$prefix}/{$noRujukan}", 'GET');
     }
+
+    // Tambahkan ini di BpjsService.php
+    public function getDetailKontrol($noSuratKontrol)
+    {
+        return $this->request("/RencanaKontrol/noSuratKontrol/{$noSuratKontrol}", 'GET');
+    }
 }

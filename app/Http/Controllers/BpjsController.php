@@ -107,4 +107,38 @@ class BpjsController extends Controller
             ], 500);
         }
     }
+
+    public function updateKontrolDate(Request $request)
+    {
+        $noSuratKontrol = $request->input('noSuratKontrol');
+        $newDate = $request->input('tglRencanaKontrol');
+        $user = auth()->user()->name; // Atau ganti sesuai kebutuhan
+
+        // 1. Ambil data asli terlebih dahulu
+        $detail = $this->bpjs->getDetailKontrol($noSuratKontrol);
+
+        if (!isset($detail['response'])) {
+            return response()->json(['metaData' => ['code' => 500, 'message' => 'Data tidak ditemukan']], 500);
+        }
+
+        $dataLama = $detail['response'];
+
+        // 2. Susun payload sesuai aturan V2 Update
+        $payload = [
+            "request" => [
+                "noSuratKontrol" => $noSuratKontrol,
+                "noSEP"          => $dataLama['noSepAsalKontrol'],
+                "kodeDokter"     => $dataLama['kodeDokter'],
+                "poliKontrol"    => $dataLama['poliTujuan'],
+                "tglRencanaKontrol" => $newDate,
+                "user"           => $user,
+                "formPRB"        => [] // Kosongkan atau isi sesuai kebutuhan PRB
+            ]
+        ];
+
+        // 3. Kirim Update
+        $result = $this->bpjs->updateSuratKontrolV2($payload);
+
+        return response()->json($result);
+    }
 }

@@ -271,5 +271,42 @@
                 errorCard.classList.remove('d-none');
             });
     });
+
+    // Di dalam loop data surat kontrol Anda
+    kontrolBody.innerHTML += `
+        <tr>
+            <td>${k.noSuratKontrol}</td>
+            <td>...</td>
+            <td>
+                <button class="btn btn-sm btn-warning" onclick="promptUpdateDate('${k.noSuratKontrol}', '${k.tglRencanaKontrol}')">
+                    Edit Tanggal
+                </button>
+            </td>
+        </tr>
+    `;
+
+    // Fungsi JavaScript
+    function promptUpdateDate(noSuratKontrol, tglLama) {
+        let newDate = prompt("Masukkan tanggal baru (YYYY-MM-DD):", tglLama);
+        if (newDate) {
+            fetch(`{{ route('bpjs.updateKontrol') }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ noSuratKontrol: noSuratKontrol, tglRencanaKontrol: newDate })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.metaData.code == '200') {
+                    alert('Berhasil update tanggal!');
+                    location.reload(); // Refresh data
+                } else {
+                    alert('Gagal: ' + data.metaData.message);
+                }
+            });
+        }
+    }
 </script>
 @endsection

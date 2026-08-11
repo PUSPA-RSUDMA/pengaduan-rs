@@ -100,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/peserta', [BpjsController::class, 'index'])->name('bpjs.index');
         Route::get('/peserta/cari', [BpjsController::class, 'cariPeserta'])->name('bpjs.cari');
     });
+    Route::post('/bpjs/update-kontrol', [BpjsController::class, 'updateKontrolDate'])->name('bpjs.updateKontrol');
     // === AREA KHUSUS ADMIN (ROLE: ADMIN) ===
     Route::middleware(['role:admin'])->group(function () {
         
