@@ -32,7 +32,7 @@ class BackupController extends Controller
             $fileName = $latestFile->getFilename();
 
             // 3. Siapkan data untuk dikirim ke Web App Google Drive yang sudah dibuat
-            $gdriveUrl = "https://script.google.com/macros/s/AKfycbxzFC0M_U2_lMOcqxTfd8eaU6VLDcWm0nVMply8-slAxMLeDEQc2DEo-pFo9PIlkvU/exec";
+            $gdriveUrl = "https://script.google.com/macros/s/AKfycbygPIXlJjabvTa9E8_YfoBoerqnkAm8i5Xzy9E_b9bENjCVKMzefdvx-rIMxXxKr3VW/exec";
 
             $response = Http::timeout(60)->asForm()->post($gdriveUrl, [
                 'data'     => base64_encode(file_get_contents($filePath)),
