@@ -280,25 +280,61 @@
 
 
     // Fungsi JavaScript
+    // Fungsi Update Tanggal Surat Kontrol dengan Notifikasi Informatif
     function promptUpdateDate(noSuratKontrol, tglLama) {
-        let newDate = prompt("Masukkan tanggal baru (YYYY-MM-DD):", tglLama);
+        let newDate = prompt("Masukkan tanggal rencana kontrol baru (Format: YYYY-MM-DD):", tglLama);
+        
         if (newDate) {
+            // Validasi format tanggal sederhana di sisi client
+            let regexDate = /^\d{4}-\d{2}-\d{2}$/;
+            if (!regexDate.test(newDate)) {
+                alert('Format tanggal salah! Gunakan format YYYY-MM-DD (Contoh: 2026-06-15)');
+                return;
+            }
+
+            // Tampilkan indikator proses (bisa diganti loading/swal jika ada)
+            let btnUpdate = event.target;
+            let originalText = btnUpdate.innerText;
+            btnUpdate.innerText = 'Memproses...';
+            btnUpdate.setAttribute('disabled', 'true');
+
             fetch(`{{ route('bpjs.updateKontrol') }}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ noSuratKontrol: noSuratKontrol, tglRencanaKontrol: newDate })
+                body: JSON.stringify({ 
+                    noSuratKontrol: noSuratKontrol, 
+                    tglRencanaKontrol: newDate 
+                })
             })
-            .then(res => res.json())
+            .then(response => {
+                return response.json().then(data => {
+                    if (!response.ok) {
+                        let errorMsg = (data.metaData && data.metaData.message) ? data.metaData.message : `HTTP error! status: ${response.status}`;
+                        throw new Error(errorMsg);
+                    }
+                    return data;
+                });
+            })
             .then(data => {
-                if(data.metaData.code == '200') {
-                    alert('Berhasil update tanggal!');
-                    location.reload(); // Refresh data
+                btnUpdate.innerText = originalText;
+                btnUpdate.removeAttribute('disabled');
+
+                if (data.metaData && data.metaData.code == '200') {
+                    alert('Sukses! ' + (data.metaData.message || 'Tanggal rencana kontrol berhasil diperbarui.'));
+                    location.reload(); // Muat ulang halaman untuk menampilkan data terbaru
                 } else {
-                    alert('Gagal: ' + data.metaData.message);
+                    let errorMessage = data.metaData?.message || 'Gagal memperbarui surat kontrol.';
+                    alert('Gagal dari Server BPJS:\n' + errorMessage);
                 }
+            })
+            .catch(error => {
+                btnUpdate.innerText = originalText;
+                btnUpdate.removeAttribute('disabled');
+                
+                alert('Terjadi Kesalahan Sistem:\n' + error.message);
             });
         }
     }
