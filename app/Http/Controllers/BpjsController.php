@@ -114,7 +114,7 @@ class BpjsController extends Controller
             $newDate = $request->input('tglRencanaKontrol');
             
             // Aturan khusus: user di-set "ipp"
-            $user = 'ipp';
+            $user = 'ipprs';
 
             // 1. Ambil data asli surat kontrol
             $detail = $this->bpjs->getDetailKontrol($noSuratKontrol);
