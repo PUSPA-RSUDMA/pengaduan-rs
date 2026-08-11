@@ -321,7 +321,7 @@
                 </div>
 
                 <div class="sidebar-label menu-group-label mt-2">Integrasi BPJS</div>
-                
+
                 <a href="{{ route('bpjs.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('bpjs.*') ? 'active' : '' }}">
                     <i class="bi bi-credit-card-2-front-fill me-3 text-info"></i> <span>Cari Kepesertaan</span>
                 </a>
@@ -367,6 +367,21 @@
                         <i class="bi bi-people-fill me-3 text-light"></i> <span>Kelola User</span>
                     </a>
                 @endif
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1"><i class="bi bi-cloud-arrow-up-fill text-success me-2"></i>Backup Database ke Google Drive</h6>
+                            <p class="text-muted small mb-0">Klik tombol di samping untuk membackup database rumah sakit dan langsung mengunggahnya ke Google Drive.</p>
+                        </div>
+                        <form action="{{ route('backup.gdrive') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-success fw-bold px-4 shadow-sm">
+                                <i class="bi bi-hdd-stack-fill me-2"></i> Backup & Upload Sekarang
+                            </button>
+                        </form>
+                    </div>
+                </div>
                 
                 {{-- Logout Mobile --}}
                 <div class="mt-4 px-3 d-md-none">
