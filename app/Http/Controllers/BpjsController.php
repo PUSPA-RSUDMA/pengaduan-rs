@@ -139,9 +139,11 @@ class BpjsController extends Controller
             $payload = [
                 "request" => [
                     "noSuratKontrol"    => $noSuratKontrol,
-                    "noSEP"             => $dataLama['noSepAsalKontrol'] ?? $dataLama['noSep'] ?? '',
+                    // PERBAIKAN: Ambil noSep dari dalam struktur array ['sep']
+                    "noSEP"             => $dataLama['sep']['noSep'] ?? $dataLama['noSepAsalKontrol'] ?? '',
                     "kodeDokter"        => $dataLama['kodeDokter'] ?? '',
-                    "poliKontrol"       => $dataLama['kdPoliTujuan'] ?? $dataLama['poliTujuan'] ?? '',
+                    // PERBAIKAN: Gunakan poliTujuan sesuai log respon BPJS
+                    "poliKontrol"       => $dataLama['poliTujuan'] ?? '',
                     "tglRencanaKontrol" => $newDate,
                     "user"              => $user
                 ]
