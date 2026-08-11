@@ -56,19 +56,25 @@ class BpjsService
     private function request($endpoint, $method = 'GET', $data = [])
     {
         $headers = $this->generateHeader();
+        
+        // Aturan Khusus BPJS: Header Content-Type harus x-www-form-urlencoded untuk metode Insert/Update
+        if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
+            $headers['Content-Type'] = 'Application/x-www-form-urlencoded';
+        }
+
         $url = $this->baseUrl . ltrim($endpoint, '/');
 
         try {
             if ($method === 'GET') {
                 $response = Http::withHeaders($headers)->timeout(30)->get($url);
-            } elseif ($method === 'POST') {
-                $response = Http::withHeaders($headers)->timeout(30)->post($url, $data);
-            } elseif ($method === 'PUT') {
-                $response = Http::withHeaders($headers)->timeout(30)->put($url, $data);
-            } elseif ($method === 'DELETE') {
-                $response = Http::withHeaders($headers)->timeout(30)->delete($url, $data);
+            } else {
+                // Aturan Khusus BPJS: Body harus berupa JSON String murni
+                $response = Http::withHeaders($headers)
+                    ->withBody(json_encode($data), 'Application/x-www-form-urlencoded')
+                    ->send($method, $url);
             }
 
+            // Catat RAW Body untuk Debugging 
             Log::info("RAW Body dari BPJS [{$method} {$url}]", [
                 'status_code' => $response->status(),
                 'body_mentah' => $response->body()
@@ -76,6 +82,7 @@ class BpjsService
 
             $result = $response->json();
 
+            // Jika hasil bukan JSON (misal HTML 404/500 dari IIS Server)
             if ($result === null) {
                 return [
                     'metaData' => [
@@ -143,37 +150,24 @@ class BpjsService
         return $this->request("/RencanaKontrol/ListRencanaKontrol/Bulan/{$bulan}/Tahun/{$tahun}/Nokartu/{$noka}/filter/{$filter}", 'GET');
     }
 
-    // Tambahan Baru: List Rencana Kontrol Berdasarkan Bulan (Tanpa Noka)
     public function listKontrolBulanan($bulan, $tahun)
     {
         return $this->request("/RencanaKontrol/ListRencanaKontrol/Bulan/{$bulan}/Tahun/{$tahun}", 'GET');
     }
 
-    // Tambahan Baru: Update Surat Kontrol V2 (Mengabaikan formPRB)
-    public function updateSuratKontrolV2($data)
-    {
-        if (isset($data['request']['formPRB'])) {
-            unset($data['request']['formPRB']);
-        }
-        return $this->request("/RencanaKontrol/v2/Update", 'PUT', $data);
-    }
-
-    // Tambahan Baru: Pencarian Detail SEP (Memunculkan noRujukan, poli, peserta, dll)
     public function searchDetailSep($noSep)
     {
         return $this->request("/SEP/{$noSep}", 'GET');
     }
-
-    // Tambahan Baru: Pencarian Rujukan Berdasarkan Nomor Rujukan PCare/RS untuk melacak rujukan ke SEP apa saja
-    public function searchRujukanByNoRujukan($noRujukan, $isRs = false)
-    {
-        $prefix = $isRs ? "/Rujukan/RS" : "/Rujukan";
-        return $this->request("{$prefix}/{$noRujukan}", 'GET');
-    }
-
-    // Tambahkan ini di BpjsService.php
+    
     public function getDetailKontrol($noSuratKontrol)
     {
         return $this->request("/RencanaKontrol/noSuratKontrol/{$noSuratKontrol}", 'GET');
+    }
+
+    public function updateSuratKontrolV2($data)
+    {
+        // Path asli API BPJS untuk update Surat Kontrol
+        return $this->request("/RencanaKontrol/Update", 'PUT', $data);
     }
 }

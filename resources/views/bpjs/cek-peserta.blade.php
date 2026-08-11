@@ -125,11 +125,11 @@
                                     <th>Poli Tujuan</th>
                                     <th>Dokter</th>
                                     <th>Rencana Tanggal</th>
-                                    <th>#</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="tableKontrolBody">
-                                <tr><td colspan="6" class="text-center text-muted">Memuat data surat kontrol...</td></tr>
+                                <tr><td colspan="7" class="text-center text-muted">Memuat data surat kontrol...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -213,7 +213,7 @@
                         boxRS.innerHTML = `<div class="text-muted fst-italic">Tidak ada rujukan aktif</div>`;
                     }
 
-                    // 4. Tabel Histori Pelayanan (SEP & No Rujukan)
+                    // 4. Tabel Histori Pelayanan
                     let historiBody = document.getElementById('tableHistoriBody');
                     historiBody.innerHTML = '';
                     if (data.response.histori_pelayanan && data.response.histori_pelayanan.length > 0) {
@@ -235,7 +235,7 @@
                         historiBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted fst-italic">Tidak ada histori kunjungan dalam 90 hari terakhir.</td></tr>`;
                     }
 
-                    /// 5. Tabel Surat Rencana Kontrol (Dengan Validasi terbitSEP)
+                    // 5. Tabel Surat Rencana Kontrol (Dengan Validasi terbitSEP)
                     let kontrolBody = document.getElementById('tableKontrolBody');
                     kontrolBody.innerHTML = '';
                     if (data.response.list_kontrol && data.response.list_kontrol.length > 0) {
@@ -243,18 +243,17 @@
                             let jnsPelayananText = k.jnsPelayanan || '-';
                             let terbitSepStatus = k.terbitSEP ? k.terbitSEP.trim() : 'Belum';
                             
-                            // Logika Tombol Edit Berdasarkan terbitSEP
                             let actionButton = '';
                             if (terbitSepStatus.toLowerCase() === 'belum') {
                                 actionButton = `
                                     <button class="btn btn-sm btn-warning fw-semibold shadow-sm" onclick="promptUpdateDate('${k.noSuratKontrol}', '${k.tglRencanaKontrol}')">
-                                        <i class="bi bi-pencil-square me-1"></i> Edit Tanggal
+                                        <i class="bi bi-pencil-square"></i> Edit
                                     </button>
                                 `;
                             } else {
                                 actionButton = `
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2 py-1">
-                                        SEP Sudah Terbit (Terkunci)
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2 py-1" title="Surat ini sudah terbit SEP">
+                                        Terkunci
                                     </span>
                                 `;
                             }
@@ -292,24 +291,20 @@
             });
     });
 
-
-    // Fungsi JavaScript
-    // Fungsi Update Tanggal Surat Kontrol dengan Notifikasi Informatif
+    // Fungsi Update Tanggal Surat Kontrol
     function promptUpdateDate(noSuratKontrol, tglLama) {
         let newDate = prompt("Masukkan tanggal rencana kontrol baru (Format: YYYY-MM-DD):", tglLama);
         
         if (newDate) {
-            // Validasi format tanggal sederhana di sisi client
             let regexDate = /^\d{4}-\d{2}-\d{2}$/;
             if (!regexDate.test(newDate)) {
                 alert('Format tanggal salah! Gunakan format YYYY-MM-DD (Contoh: 2026-06-15)');
                 return;
             }
 
-            // Tampilkan indikator proses (bisa diganti loading/swal jika ada)
-            let btnUpdate = event.target;
-            let originalText = btnUpdate.innerText;
-            btnUpdate.innerText = 'Memproses...';
+            let btnUpdate = event.target.closest('button');
+            let originalHTML = btnUpdate.innerHTML;
+            btnUpdate.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
             btnUpdate.setAttribute('disabled', 'true');
 
             fetch(`{{ route('bpjs.updateKontrol') }}`, {
@@ -333,19 +328,19 @@
                 });
             })
             .then(data => {
-                btnUpdate.innerText = originalText;
+                btnUpdate.innerHTML = originalHTML;
                 btnUpdate.removeAttribute('disabled');
 
                 if (data.metaData && data.metaData.code == '200') {
                     alert('Sukses! ' + (data.metaData.message || 'Tanggal rencana kontrol berhasil diperbarui.'));
-                    location.reload(); // Muat ulang halaman untuk menampilkan data terbaru
+                    document.getElementById('btnCari').click(); // Auto-refresh data peserta
                 } else {
                     let errorMessage = data.metaData?.message || 'Gagal memperbarui surat kontrol.';
                     alert('Gagal dari Server BPJS:\n' + errorMessage);
                 }
             })
             .catch(error => {
-                btnUpdate.innerText = originalText;
+                btnUpdate.innerHTML = originalHTML;
                 btnUpdate.removeAttribute('disabled');
                 
                 alert('Terjadi Kesalahan Sistem:\n' + error.message);

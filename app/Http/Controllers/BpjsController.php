@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Services\BpjsService;
+use Illuminate\Support\Facades\Log; // FACADE WAJIB ADA
 
 class BpjsController extends Controller
 {
@@ -33,7 +33,7 @@ class BpjsController extends Controller
         }
 
         try {
-            // 1. CARI PESERTA (NIK atau No Kartu)
+            // 1. CARI PESERTA
             if (strlen($keyword) === 16) {
                 $result = $this->bpjs->searchPesertaByNik($keyword, $tglSep);
             } else {
@@ -61,7 +61,6 @@ class BpjsController extends Controller
                     
                     $historiList = (isset($histori['metaData']['code']) && $histori['metaData']['code'] == '200') ? ($histori['response']['histori'] ?? []) : [];
                     
-                    // Tambahkan detail SEP & noRujukan untuk setiap histori kunjungan agar informatif
                     foreach ($historiList as &$h) {
                         if (!empty($h['noSep'])) {
                             $detailSep = $this->bpjs->searchDetailSep($h['noSep']);
@@ -75,7 +74,7 @@ class BpjsController extends Controller
 
                     $result['response']['histori_pelayanan'] = $historiList;
 
-                    // C. LIST SURAT KONTROL (2 Bulan Lalu, Bulan Ini, 2 Bulan Kedepan)
+                    // C. LIST SURAT KONTROL (-2 Bulan s.d +2 Bulan)
                     $allKontrol = [];
                     for ($i = -2; $i <= 2; $i++) {
                         $targetDate = now()->addMonths($i);
@@ -88,7 +87,6 @@ class BpjsController extends Controller
                         }
                     }
 
-                    // Hapus duplikat berdasarkan nomor surat kontrol, lalu urutkan berdasarkan tanggal rencana
                     $result['response']['list_kontrol'] = collect($allKontrol)
                         ->unique('noSuratKontrol')
                         ->sortBy('tglRencanaKontrol')
@@ -115,13 +113,11 @@ class BpjsController extends Controller
             $noSuratKontrol = $request->input('noSuratKontrol');
             $newDate = $request->input('tglRencanaKontrol');
             
-            // Sesuai permintaan: user di-set "ipp"
+            // Aturan khusus: user di-set "ipp"
             $user = 'ipp';
 
             // 1. Ambil data asli surat kontrol
             $detail = $this->bpjs->getDetailKontrol($noSuratKontrol);
-            
-            // PERBAIKAN: Bungkus $detail dalam array agar tidak error jika BPJS mengembalikan null
             Log::info("Detail Surat Kontrol ({$noSuratKontrol}):", ['data' => $detail]);
 
             if (!isset($detail['response']) || empty($detail['response'])) {
@@ -135,27 +131,23 @@ class BpjsController extends Controller
 
             $dataLama = $detail['response'];
 
-            // 2. Susun payload sesuai format V2 Update (formPRB diabaikan)
+            // 2. Susun payload sesuai format V2 Update
             $payload = [
                 "request" => [
                     "noSuratKontrol"    => $noSuratKontrol,
-                    // PERBAIKAN: Ambil noSep dari dalam struktur array ['sep']
                     "noSEP"             => $dataLama['sep']['noSep'] ?? $dataLama['noSepAsalKontrol'] ?? '',
                     "kodeDokter"        => $dataLama['kodeDokter'] ?? '',
-                    // PERBAIKAN: Gunakan poliTujuan sesuai log respon BPJS
                     "poliKontrol"       => $dataLama['poliTujuan'] ?? '',
                     "tglRencanaKontrol" => $newDate,
                     "user"              => $user
                 ]
             ];
 
-            // PERBAIKAN LOG
             Log::info("Payload Update ke BPJS:", ['data' => $payload]);
 
-            // 3. Kirim Update ke BPJS menggunakan method V2 Update
+            // 3. Kirim Update ke BPJS 
             $result = $this->bpjs->updateSuratKontrolV2($payload);
             
-            // PERBAIKAN LOG
             Log::info("Respon dari BPJS:", ['data' => $result]);
 
             return response()->json($result);
