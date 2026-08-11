@@ -121,7 +121,8 @@ class BpjsController extends Controller
             // 1. Ambil data asli surat kontrol
             $detail = $this->bpjs->getDetailKontrol($noSuratKontrol);
             
-            Log::info("Detail Surat Kontrol ({$noSuratKontrol}):", $detail);
+            // PERBAIKAN: Bungkus $detail dalam array agar tidak error jika BPJS mengembalikan null
+            Log::info("Detail Surat Kontrol ({$noSuratKontrol}):", ['data' => $detail]);
 
             if (!isset($detail['response']) || empty($detail['response'])) {
                 return response()->json([
@@ -134,7 +135,7 @@ class BpjsController extends Controller
 
             $dataLama = $detail['response'];
 
-            // 2. Susun payload sesuai format V2 Update (formPRB diabaikan/dikosongkan)
+            // 2. Susun payload sesuai format V2 Update (formPRB diabaikan)
             $payload = [
                 "request" => [
                     "noSuratKontrol"    => $noSuratKontrol,
@@ -143,16 +144,17 @@ class BpjsController extends Controller
                     "poliKontrol"       => $dataLama['kdPoliTujuan'] ?? $dataLama['poliTujuan'] ?? '',
                     "tglRencanaKontrol" => $newDate,
                     "user"              => $user
-                    // formPRB sengaja tidak disertakan/diabaikan
                 ]
             ];
 
-            Log::info("Payload Update ke BPJS:", $payload);
+            // PERBAIKAN LOG
+            Log::info("Payload Update ke BPJS:", ['data' => $payload]);
 
             // 3. Kirim Update ke BPJS menggunakan method V2 Update
             $result = $this->bpjs->updateSuratKontrolV2($payload);
             
-            Log::info("Respon dari BPJS:", $result);
+            // PERBAIKAN LOG
+            Log::info("Respon dari BPJS:", ['data' => $result]);
 
             return response()->json($result);
 
