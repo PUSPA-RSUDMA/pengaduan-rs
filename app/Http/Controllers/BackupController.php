@@ -11,35 +11,34 @@ class BackupController extends Controller
     public function backupAndUpload()
     {
         try {
-            // 1. Jalankan backup secara paksa lewat OS (mengatasi error command not found)
+            // 1. Jalankan perintah backup lewat OS
             $output = shell_exec('cd /var/www/pengaduan-rs && php artisan backup:run --only-db 2>&1');
 
-            // 2. Cari file .zip yang baru saja dibuat oleh sistem
-            $backupPath = storage_path('app/Laravel');
+            // 2. Cari SEMUA file .zip yang ada di dalam folder storage/app/ (tidak peduli nama foldernya apa)
+            $allFiles = File::allFiles(storage_path('app'));
             
-            if (!File::exists($backupPath)) {
-                return back()->with('error', 'Folder backup belum terbentuk di server.');
+            // Saring hanya file yang berekstensi .zip
+            $zipFiles = array_filter($allFiles, function ($file) {
+                return $file->getExtension() === 'zip';
+            });
+
+            // Jika tidak ada file zip sama sekali, tampilkan isi $output agar kita tahu error dari terminal
+            if (empty($zipFiles)) {
+                return back()->with('error', 'Gagal membuat backup! Log Terminal: ' . $output);
             }
 
-            $files = File::files($backupPath);
-            
-            if (empty($files)) {
-                return back()->with('error', 'File backup gagal dibuat. Log terminal: ' . $output);
-            }
-
-            // Urutkan file untuk mengambil yang paling baru dibuat
-            usort($files, function ($a, $b) {
+            // Urutkan file zip untuk mengambil yang PALING BARU dibuat
+            usort($zipFiles, function ($a, $b) {
                 return $b->getMTime() - $a->getMTime();
             });
             
-            $latestFile = $files[0];
+            $latestFile = $zipFiles[0];
             $filePath = $latestFile->getRealPath();
             $fileName = $latestFile->getFilename();
 
             // 3. Upload file zip tersebut langsung ke Google Drive
-            $gdriveUrl = "https://script.google.com/macros/s/AKfycbxzFC0M_U2_lMOcqxTfd8eaU6VLDcWm0nVMply8-slAxMLeDEQc2DEo-pFo9PIlkvU/exec";
+            $gdriveUrl = "https://script.google.com/macros/s/AKfycbygPIXlJjabvTa9E8_YfoBoerqnkAm8i5Xzy9E_b9bENjCVKMzefdvx-rIMxXxKr3VW/exec";
 
-            // Waktu timeout dinaikkan ke 120 detik agar proses upload file besar tidak terputus
             $response = Http::timeout(120)->asForm()->post($gdriveUrl, [
                 'data'     => base64_encode(file_get_contents($filePath)),
                 'mimetype' => 'application/zip',
@@ -51,8 +50,7 @@ class BackupController extends Controller
             // 4. Validasi hasil upload
             if (isset($result['status']) && $result['status'] == 'success') {
                 
-                // (OPSIONAL) Hapus tanda miring ganda (//) di bawah ini jika Anda ingin 
-                // file zip di server LANGSUNG DIHAPUS setelah berhasil masuk ke Google Drive
+                // (OPSIONAL) Hapus tanda // di bawah ini jika ingin file di server dihapus setelah masuk GDrive
                 // File::delete($filePath);
 
                 return back()->with('success', 'Berhasil! Backup selesai dan sudah tersimpan di Google Drive.');
