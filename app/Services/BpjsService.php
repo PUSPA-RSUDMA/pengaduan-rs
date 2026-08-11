@@ -21,9 +21,6 @@ class BpjsService
         $this->userKey = config('bpjs.vclaim.user_key');
     }
 
-    /**
-     * Generate Headers & Signature BPJS
-     */
     private function generateHeader()
     {
         date_default_timezone_set('UTC');
@@ -40,9 +37,6 @@ class BpjsService
         ];
     }
 
-    /**
-     * Decrypt Response BPJS
-     */
     private function decryptResponse($encryptedResponse, $timestamp)
     {
         $key = $this->consId . $this->secretKey . $timestamp;
@@ -51,19 +45,14 @@ class BpjsService
         $key_hash = substr($hash, 0, 32);
         $iv = substr($hash, 0, 16);
 
-        // AES Decrypt
         $decrypted = openssl_decrypt(base64_decode($encryptedResponse), 'AES-256-CBC', $key_hash, OPENSSL_RAW_DATA, $iv);
         
-        // LZString Decompress
         $lz = new LZString();
         $decompressed = $lz->decompressFromEncodedURIComponent($decrypted);
         
         return json_decode($decompressed, true);
     }
 
-    /**
-     * Core Request Method (Pengganti __requestServiceVCLAIM di Python)
-     */
     private function request($endpoint, $method = 'GET', $data = [])
     {
         $headers = $this->generateHeader();
@@ -82,17 +71,12 @@ class BpjsService
 
             $result = $response->json();
 
-            // Handle metadata consistency
             if (isset($result['metadata'])) {
                 $result['metaData'] = $result['metadata'];
                 unset($result['metadata']);
             }
 
-            // TODO: Tambahkan logic Insert Log ke Database di sini (seperti VclaimLogs::create di Python)
-            // Contoh: VclaimLog::create(['endpoint' => $endpoint, 'response_code' => $result['metaData']['code']]);
-
             if (isset($result['metaData']['code']) && $result['metaData']['code'] == '200' && isset($result['response']) && $result['response'] !== null) {
-                // Lakukan Dekripsi
                 $result['response'] = $this->decryptResponse($result['response'], $headers['X-timestamp']);
             }
 
@@ -110,55 +94,65 @@ class BpjsService
         }
     }
 
-    // =========================================================================
-    // DAFTAR ENDPOINT (Bisa Anda tambahkan sesuai kebutuhan dari Python)
-    // =========================================================================
+    // ==========================================
+    // ENDPOINT VCLAIM BPJS
+    // ==========================================
 
-    /**
-     * Cari Peserta Berdasarkan NIK KTP
-     */
     public function searchPesertaByNik($nik, $tglSep)
     {
         return $this->request("/Peserta/nik/{$nik}/tglSEP/{$tglSep}", 'GET');
     }
 
-    /**
-     * Cari Peserta Berdasarkan Nomor Kartu BPJS
-     */
     public function searchPesertaByKartu($noka, $tglSep)
     {
         return $this->request("/Peserta/nokartu/{$noka}/tglSEP/{$tglSep}", 'GET');
     }
 
-    /**
-     * Cari Rujukan Aktif dari Faskes 1 (PCare)
-     */
     public function searchRujukanByNokaPcare($noka)
     {
         return $this->request("/Rujukan/Peserta/{$noka}", 'GET');
     }
 
-    /**
-     * Cari Rujukan Aktif dari Rumah Sakit (RS)
-     */
     public function searchRujukanByNokaRS($noka)
     {
         return $this->request("/Rujukan/RS/Peserta/{$noka}", 'GET');
     }
 
-    /**
-     * Monitoring Histori Pelayanan Peserta
-     */
     public function monitoringHistoryPelayananPeserta($noka, $sDate, $eDate)
     {
         return $this->request("/monitoring/HistoriPelayanan/NoKartu/{$noka}/tglMulai/{$sDate}/tglAkhir/{$eDate}", 'GET');
     }
 
-    /**
-     * List Rencana Kontrol Berdasarkan Nomor Kartu
-     */
     public function listKontrolByNoka($bulan, $tahun, $noka, $filter = 1)
     {
         return $this->request("/RencanaKontrol/ListRencanaKontrol/Bulan/{$bulan}/Tahun/{$tahun}/Nokartu/{$noka}/filter/{$filter}", 'GET');
+    }
+
+    // Tambahan Baru: List Rencana Kontrol Berdasarkan Bulan (Tanpa Noka)
+    public function listKontrolBulanan($bulan, $tahun)
+    {
+        return $this->request("/RencanaKontrol/ListRencanaKontrol/Bulan/{$bulan}/Tahun/{$tahun}", 'GET');
+    }
+
+    // Tambahan Baru: Update Surat Kontrol V2 (Mengabaikan formPRB)
+    public function updateSuratKontrolV2($data)
+    {
+        if (isset($data['request']['formPRB'])) {
+            unset($data['request']['formPRB']);
+        }
+        return $this->request("/RencanaKontrol/v2/Update", 'PUT', $data);
+    }
+
+    // Tambahan Baru: Pencarian Detail SEP (Memunculkan noRujukan, poli, peserta, dll)
+    public function searchDetailSep($noSep)
+    {
+        return $this->request("/SEP/{$noSep}", 'GET');
+    }
+
+    // Tambahan Baru: Pencarian Rujukan Berdasarkan Nomor Rujukan PCare/RS untuk melacak rujukan ke SEP apa saja
+    public function searchRujukanByNoRujukan($noRujukan, $isRs = false)
+    {
+        $prefix = $isRs ? "/Rujukan/RS" : "/Rujukan";
+        return $this->request("{$prefix}/{$noRujukan}", 'GET');
     }
 }

@@ -58,7 +58,21 @@ class BpjsController extends Controller
                     $eDate = date('Y-m-d');
                     $histori = $this->bpjs->monitoringHistoryPelayananPeserta($noKartuBpjs, $sDate, $eDate);
                     
-                    $result['response']['histori_pelayanan'] = (isset($histori['metaData']['code']) && $histori['metaData']['code'] == '200') ? ($histori['response']['histori'] ?? []) : [];
+                    $historiList = (isset($histori['metaData']['code']) && $histori['metaData']['code'] == '200') ? ($histori['response']['histori'] ?? []) : [];
+                    
+                    // Tambahkan detail SEP & noRujukan untuk setiap histori kunjungan agar informatif
+                    foreach ($historiList as &$h) {
+                        if (!empty($h['noSep'])) {
+                            $detailSep = $this->bpjs->searchDetailSep($h['noSep']);
+                            if (isset($detailSep['metaData']['code']) && $detailSep['metaData']['code'] == '200') {
+                                $h['noRujukan'] = $detailSep['response']['noRujukan'] ?? null;
+                                $h['detail_sep'] = $detailSep['response'] ?? null;
+                            }
+                        }
+                    }
+                    unset($h);
+
+                    $result['response']['histori_pelayanan'] = $historiList;
 
                     // C. LIST SURAT KONTROL (2 Bulan Lalu, Bulan Ini, 2 Bulan Kedepan)
                     $allKontrol = [];

@@ -90,14 +90,15 @@
                     </div>
                 </div>
 
-                {{-- HISTORI PELAYANAN / SEP (TAMBAHAN BARU) --}}
+                {{-- HISTORI PELAYANAN / SEP & NO RUJUKAN --}}
                 <div class="mt-4 pt-4 border-top">
-                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-clock-history me-2"></i>Histori Pelayanan / SEP Terakhir (90 Hari)</h6>
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-clock-history me-2"></i>Histori Pelayanan / SEP Terakhir & No. Rujukan (90 Hari)</h6>
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped table-sm small align-middle">
                             <thead class="table-dark">
                                 <tr>
                                     <th>No. SEP</th>
+                                    <th>No. Rujukan</th>
                                     <th>Tgl SEP</th>
                                     <th>Poli Tujuan</th>
                                     <th>Faskes / PPK Pelayanan</th>
@@ -105,28 +106,29 @@
                                 </tr>
                             </thead>
                             <tbody id="tableHistoriBody">
-                                <tr><td colspan="5" class="text-center text-muted">Memuat data histori...</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted">Memuat data histori...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                {{-- SURAT RENCANA KONTROL (TAMBAHAN BARU) --}}
+                {{-- SURAT RENCANA KONTROL --}}
                 <div class="mt-4 pt-4 border-top">
-                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-journal-check me-2"></i>List Surat Rencana Kontrol (-2 Bulan s.d +2 Bulan)</h6>
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-journal-check me-2"></i>List Surat Rencana Kontrol & Detail Lengkap (-2 Bulan s.d +2 Bulan)</h6>
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped table-sm small align-middle">
                             <thead class="table-dark">
                                 <tr>
                                     <th>No. Surat Kontrol</th>
-                                    <th>Jns Kontrol</th>
+                                    <th>Jns Layanan</th>
+                                    <th>No. SEP Asal</th>
+                                    <th>Poli Tujuan</th>
+                                    <th>Dokter</th>
                                     <th>Rencana Tanggal</th>
-                                    <th>Poli / Dokter</th>
-                                    <th>Pembuat (DPJP)</th>
                                 </tr>
                             </thead>
                             <tbody id="tableKontrolBody">
-                                <tr><td colspan="5" class="text-center text-muted">Memuat data surat kontrol...</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted">Memuat data surat kontrol...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -210,15 +212,17 @@
                         boxRS.innerHTML = `<div class="text-muted fst-italic">Tidak ada rujukan aktif</div>`;
                     }
 
-                    // 4. Tabel Histori Pelayanan (SEP)
+                    // 4. Tabel Histori Pelayanan (SEP & No Rujukan)
                     let historiBody = document.getElementById('tableHistoriBody');
                     historiBody.innerHTML = '';
                     if (data.response.histori_pelayanan && data.response.histori_pelayanan.length > 0) {
                         data.response.histori_pelayanan.forEach(h => {
                             let jnsPelayanan = (h.jnsPelayanan == '1') ? 'Rawat Inap' : 'Rawat Jalan';
+                            let noRujukan = h.noRujukan ? `<span class="text-success fw-bold">${h.noRujukan}</span>` : '<span class="text-muted">-</span>';
                             historiBody.innerHTML += `
                                 <tr>
                                     <td><span class="fw-bold text-primary">${h.noSep || '-'}</span></td>
+                                    <td>${noRujukan}</td>
                                     <td>${h.tglSep || '-'}</td>
                                     <td>${h.poli || '-'}</td>
                                     <td>${h.ppkPelayanan || '-'}</td>
@@ -227,27 +231,28 @@
                             `;
                         });
                     } else {
-                        historiBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted fst-italic">Tidak ada histori kunjungan dalam 90 hari terakhir.</td></tr>`;
+                        historiBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted fst-italic">Tidak ada histori kunjungan dalam 90 hari terakhir.</td></tr>`;
                     }
 
-                    // 5. Tabel Surat Rencana Kontrol
+                    // 5. Tabel Surat Rencana Kontrol (Informasi Lengkap)
                     let kontrolBody = document.getElementById('tableKontrolBody');
                     kontrolBody.innerHTML = '';
                     if (data.response.list_kontrol && data.response.list_kontrol.length > 0) {
                         data.response.list_kontrol.forEach(k => {
-                            let jnsKontrol = (k.jnsKontrol == '1') ? 'SPRI' : 'Rencana Kontrol';
+                            let jnsPelayananText = k.jnsPelayanan || '-';
                             kontrolBody.innerHTML += `
                                 <tr>
                                     <td><span class="fw-bold text-success">${k.noSuratKontrol || '-'}</span></td>
-                                    <td><span class="badge bg-info text-dark">${jnsKontrol}</span></td>
-                                    <td>${k.tglRencanaKontrol || '-'}</td>
+                                    <td><span class="badge bg-info text-dark">${jnsPelayananText}</span></td>
+                                    <td><code>${k.noSepAsalKontrol || '-'}</code></td>
                                     <td>${k.namaPoliTujuan || '-'}</td>
                                     <td>${k.namaDokter || '-'}</td>
+                                    <td>${k.tglRencanaKontrol || '-'}</td>
                                 </tr>
                             `;
                         });
                     } else {
-                        kontrolBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted fst-italic">Tidak ada surat kontrol terdaftar dalam rentang 5 bulan terakhir & kedepan.</td></tr>`;
+                        kontrolBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted fst-italic">Tidak ada surat kontrol terdaftar dalam rentang 5 bulan terakhir & kedepan.</td></tr>`;
                     }
 
                     resultCard.classList.remove('d-none');
