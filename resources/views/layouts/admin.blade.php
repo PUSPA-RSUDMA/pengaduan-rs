@@ -368,16 +368,27 @@
                     </a>
                 @endif
 
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1"><i class="bi bi-cloud-arrow-up-fill text-success me-2"></i>Backup Database ke Google Drive</h6>
-                            <p class="text-muted small mb-0">Klik tombol di samping untuk membackup database rumah sakit dan langsung mengunggahnya ke Google Drive.</p>
+                {{-- TOMBOL BACKUP GDRIVE YANG RAPI & BERINDIKATOR --}}
+                <div class="px-3 mb-4">
+                    <div class="card border-0 shadow-sm bg-gradient text-dark p-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 12px;">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; flex-shrink: 0;">
+                                <i class="bi bi-cloud-arrow-up-fill"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-white" style="font-size: 0.82rem;">Backup GDrive</h6>
+                                <small class="text-white-50" style="font-size: 0.68rem;">Simpan database aman</small>
+                            </div>
                         </div>
-                        <form action="{{ route('backup.gdrive') }}" method="POST">
+                        
+                        <form action="{{ route('backup.gdrive') }}" method="POST" id="backupForm" onsubmit="showBackupLoading()">
                             @csrf
-                            <button type="submit" class="btn btn-success fw-bold px-4 shadow-sm">
-                                <i class="bi bi-hdd-stack-fill me-2"></i> Backup & Upload Sekarang
+                            <button type="submit" class="btn btn-success btn-sm w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center" id="btnBackupSubmit" style="font-size: 0.78rem; border-radius: 8px;">
+                                <i class="bi bi-hdd-stack-fill me-1"></i> Upload Sekarang
+                            </button>
+                            
+                            <button type="button" class="btn btn-success btn-sm w-100 fw-bold shadow-sm d-none align-items-center justify-content-center" id="btnBackupLoading" disabled style="font-size: 0.78rem; border-radius: 8px;">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Sedang Mengirim...
                             </button>
                         </form>
                     </div>
@@ -505,8 +516,33 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function showBackupLoading() {
+            document.getElementById('btnBackupSubmit').classList.add('d-none');
+            document.getElementById('btnBackupLoading').classList.remove('d-none');
+        }
+
+        // Menampilkan Notifikasi Sukses / Gagal dari Controller menggunakan SweetAlert (atau Alert biasa jika ingin simpel)
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                timer: 4000,
+                showConfirmButton: false
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: "{{ session('error') }}",
+                confirmButtonColor: '#3085d6'
+            });
+        @endif
+        
         document.addEventListener("DOMContentLoaded", function() {
             // Toggle Sidebar
             var toggleBtn = document.getElementById("menu-toggle");
