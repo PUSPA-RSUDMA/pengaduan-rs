@@ -125,6 +125,7 @@
                                     <th>Poli Tujuan</th>
                                     <th>Dokter</th>
                                     <th>Rencana Tanggal</th>
+                                    <th>#</th>
                                 </tr>
                             </thead>
                             <tbody id="tableKontrolBody">
@@ -234,7 +235,7 @@
                         historiBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted fst-italic">Tidak ada histori kunjungan dalam 90 hari terakhir.</td></tr>`;
                     }
 
-                    // 5. Tabel Surat Rencana Kontrol (Dilengkapi Tombol Edit Tanggal)
+                    // 5. Tabel Surat Rencana Kontrol (Informasi Lengkap)
                     let kontrolBody = document.getElementById('tableKontrolBody');
                     kontrolBody.innerHTML = '';
                     if (data.response.list_kontrol && data.response.list_kontrol.length > 0) {
@@ -247,13 +248,11 @@
                                     <td><code>${k.noSepAsalKontrol || '-'}</code></td>
                                     <td>${k.namaPoliTujuan || '-'}</td>
                                     <td>${k.namaDokter || '-'}</td>
+                                    <td>${k.tglRencanaKontrol || '-'}</td>
                                     <td>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span>${k.tglRencanaKontrol || '-'}</span>
-                                            <button class="btn btn-sm btn-outline-warning py-0 px-2 ms-2" onclick="promptUpdateDate('${k.noSuratKontrol}', '${k.tglRencanaKontrol}')" title="Ubah Tanggal Rencana Kontrol">
-                                                <i class="bi bi-pencil-square"></i> Edit
-                                            </button>
-                                        </div>
+                                        <button class="btn btn-sm btn-warning" onclick="promptUpdateDate('${k.noSuratKontrol}', '${k.tglRencanaKontrol}')">
+                                            Edit Tanggal
+                                        </button>
                                     </td>
                                 </tr>
                             `;
@@ -275,46 +274,31 @@
                 btnCari.removeAttribute('disabled');
                 
                 document.getElementById('errorMessage').innerHTML = `<strong>Server Error!</strong><br><small class="text-dark">${error.message}</small>`;
-                errorCard.classList.add('d-none');
+                errorCard.classList.remove('d-none');
             });
     });
 
-    // Fungsi Global untuk Mengupdate Tanggal Surat Kontrol via AJAX
-    function promptUpdateDate(noSuratKontrol, tglLama) {
-        let newDate = prompt("Masukkan tanggal rencana kontrol baru (Format: YYYY-MM-DD):", tglLama);
-        
-        if (newDate) {
-            // Validasi format sederhana menggunakan regex (YYYY-MM-DD)
-            let regexDate = /^\d{4}-\d{2}-\d{2}$/;
-            if (!regexDate.test(newDate)) {
-                alert('Format tanggal salah! Gunakan format YYYY-MM-DD (Contoh: 2026-06-15)');
-                return;
-            }
 
-            // Kirim request ke backend Controller
+    // Fungsi JavaScript
+    function promptUpdateDate(noSuratKontrol, tglLama) {
+        let newDate = prompt("Masukkan tanggal baru (YYYY-MM-DD):", tglLama);
+        if (newDate) {
             fetch(`{{ route('bpjs.updateKontrol') }}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ 
-                    noSuratKontrol: noSuratKontrol, 
-                    tglRencanaKontrol: newDate 
-                })
+                body: JSON.stringify({ noSuratKontrol: noSuratKontrol, tglRencanaKontrol: newDate })
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                if(data.metaData && data.metaData.code == '200') {
-                    alert('Berhasil memperbarui tanggal rencana kontrol ke BPJS!');
-                    location.reload(); // Refresh halaman untuk memuat data terbaru
+                if(data.metaData.code == '200') {
+                    alert('Berhasil update tanggal!');
+                    location.reload(); // Refresh data
                 } else {
-                    let errMsg = (data.metaData && data.metaData.message) ? data.metaData.message : 'Gagal terhubung ke server BPJS.';
-                    alert('Gagal Update: ' + errMsg);
+                    alert('Gagal: ' + data.metaData.message);
                 }
-            })
-            .catch(err => {
-                alert('Terjadi kesalahan jaringan: ' + err.message);
             });
         }
     }
