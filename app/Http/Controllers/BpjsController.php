@@ -114,13 +114,14 @@ class BpjsController extends Controller
         try {
             $noSuratKontrol = $request->input('noSuratKontrol');
             $newDate = $request->input('tglRencanaKontrol');
-            $user = auth()->user()->name ?? 'Administrator';
+            
+            // Sesuai permintaan: user di-set "ipp"
+            $user = 'ipp';
 
             // 1. Ambil data asli surat kontrol
             $detail = $this->bpjs->getDetailKontrol($noSuratKontrol);
             
-            // PERBAIKAN: Cast ke (array) atau bungkus dalam array agar tidak error jika $detail null
-            Log::info("Detail Surat Kontrol ({$noSuratKontrol}):", (array) $detail);
+            Log::info("Detail Surat Kontrol ({$noSuratKontrol}):", $detail);
 
             if (!isset($detail['response']) || empty($detail['response'])) {
                 return response()->json([
@@ -133,7 +134,7 @@ class BpjsController extends Controller
 
             $dataLama = $detail['response'];
 
-            // 2. Susun payload dengan pengaman key (antisipasi perbedaan nama key dari BPJS)
+            // 2. Susun payload sesuai format V2 Update (formPRB diabaikan/dikosongkan)
             $payload = [
                 "request" => [
                     "noSuratKontrol"    => $noSuratKontrol,
@@ -142,17 +143,16 @@ class BpjsController extends Controller
                     "poliKontrol"       => $dataLama['kdPoliTujuan'] ?? $dataLama['poliTujuan'] ?? '',
                     "tglRencanaKontrol" => $newDate,
                     "user"              => $user
+                    // formPRB sengaja tidak disertakan/diabaikan
                 ]
             ];
 
-            // $payload sudah pasti array, jadi ini aman
-            Log::info("Payload yang dikirim ke BPJS:", $payload);
+            Log::info("Payload Update ke BPJS:", $payload);
 
-            // 3. Kirim Update ke BPJS
+            // 3. Kirim Update ke BPJS menggunakan method V2 Update
             $result = $this->bpjs->updateSuratKontrolV2($payload);
             
-            // PERBAIKAN: Cast ke (array) agar tidak error jika $result null
-            Log::info("Respon dari BPJS:", (array) $result);
+            Log::info("Respon dari BPJS:", $result);
 
             return response()->json($result);
 

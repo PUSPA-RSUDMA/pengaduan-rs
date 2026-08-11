@@ -235,12 +235,30 @@
                         historiBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted fst-italic">Tidak ada histori kunjungan dalam 90 hari terakhir.</td></tr>`;
                     }
 
-                    // 5. Tabel Surat Rencana Kontrol (Informasi Lengkap)
+                    /// 5. Tabel Surat Rencana Kontrol (Dengan Validasi terbitSEP)
                     let kontrolBody = document.getElementById('tableKontrolBody');
                     kontrolBody.innerHTML = '';
                     if (data.response.list_kontrol && data.response.list_kontrol.length > 0) {
                         data.response.list_kontrol.forEach(k => {
                             let jnsPelayananText = k.jnsPelayanan || '-';
+                            let terbitSepStatus = k.terbitSEP ? k.terbitSEP.trim() : 'Belum';
+                            
+                            // Logika Tombol Edit Berdasarkan terbitSEP
+                            let actionButton = '';
+                            if (terbitSepStatus.toLowerCase() === 'belum') {
+                                actionButton = `
+                                    <button class="btn btn-sm btn-warning fw-semibold shadow-sm" onclick="promptUpdateDate('${k.noSuratKontrol}', '${k.tglRencanaKontrol}')">
+                                        <i class="bi bi-pencil-square me-1"></i> Edit Tanggal
+                                    </button>
+                                `;
+                            } else {
+                                actionButton = `
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2 py-1">
+                                        SEP Sudah Terbit (Terkunci)
+                                    </span>
+                                `;
+                            }
+
                             kontrolBody.innerHTML += `
                                 <tr>
                                     <td><span class="fw-bold text-success">${k.noSuratKontrol || '-'}</span></td>
@@ -249,16 +267,12 @@
                                     <td>${k.namaPoliTujuan || '-'}</td>
                                     <td>${k.namaDokter || '-'}</td>
                                     <td>${k.tglRencanaKontrol || '-'}</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning" onclick="promptUpdateDate('${k.noSuratKontrol}', '${k.tglRencanaKontrol}')">
-                                            Edit Tanggal
-                                        </button>
-                                    </td>
+                                    <td class="text-center">${actionButton}</td>
                                 </tr>
                             `;
                         });
                     } else {
-                        kontrolBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted fst-italic">Tidak ada surat kontrol terdaftar dalam rentang 5 bulan terakhir & kedepan.</td></tr>`;
+                        kontrolBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted fst-italic">Tidak ada surat kontrol terdaftar dalam rentang 5 bulan terakhir & kedepan.</td></tr>`;
                     }
 
                     resultCard.classList.remove('d-none');
