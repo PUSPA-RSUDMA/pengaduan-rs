@@ -69,7 +69,22 @@ class BpjsService
                 $response = Http::withHeaders($headers)->timeout(30)->delete($url, $data);
             }
 
+            Log::info("RAW Body dari BPJS [{$method} {$url}]", [
+                'status_code' => $response->status(),
+                'body_mentah' => $response->body()
+            ]);
+
             $result = $response->json();
+
+            if ($result === null) {
+                return [
+                    'metaData' => [
+                        'code' => $response->status(),
+                        'message' => 'Respon BPJS BUKAN Json. Cek log RAW Body!'
+                    ],
+                    'response' => null
+                ];
+            }
 
             if (isset($result['metadata'])) {
                 $result['metaData'] = $result['metadata'];
