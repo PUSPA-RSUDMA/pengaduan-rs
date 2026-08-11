@@ -13,7 +13,13 @@ class BackupController extends Controller
 {
     try {
         // Panggil perintah artisan yang baru dibuat
-        Artisan::call('backup:run', ['--only-db' => true]);
+        // Eksekusi langsung ke sistem operasi Raspberry Pi
+        $output = shell_exec('cd /var/www/pengaduan-rs && php artisan backup:run --only-db 2>&1');
+
+        // Opsional: Jika Anda ingin melihat log error di terminal jika gagal
+        if (strpos($output, 'Backup completed!') === false) {
+            throw new \Exception("Gagal membuat backup: " . $output);
+        }
 
         return back()->with('success', 'Backup database berhasil diproses dan dikirim ke WhatsApp!');
 
