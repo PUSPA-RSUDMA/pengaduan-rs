@@ -110,35 +110,50 @@ class BpjsController extends Controller
 
     public function updateKontrolDate(Request $request)
     {
-        $noSuratKontrol = $request->input('noSuratKontrol');
-        $newDate = $request->input('tglRencanaKontrol');
-        $user = auth()->user()->name; // Atau ganti sesuai kebutuhan
+        try {
+            $noSuratKontrol = $request->input('noSuratKontrol');
+            $newDate = $request->input('tglRencanaKontrol');
+            $user = auth()->user()->name ?? 'System';
 
-        // 1. Ambil data asli terlebih dahulu
-        $detail = $this->bpjs->getDetailKontrol($noSuratKontrol);
+            // 1. Ambil data asli terlebih dahulu
+            $detail = $this->bpjs->getDetailKontrol($noSuratKontrol);
 
-        if (!isset($detail['response'])) {
-            return response()->json(['metaData' => ['code' => 500, 'message' => 'Data tidak ditemukan']], 500);
+            if (!isset($detail['response']) || empty($detail['response'])) {
+                return response()->json([
+                    'metaData' => [
+                        'code' => 404, 
+                        'message' => 'Detail surat kontrol tidak ditemukan di server BPJS'
+                    ]
+                ], 404);
+            }
+
+            $dataLama = $detail['response'];
+
+            // 2. Susun payload sesuai aturan V2 Update
+            $payload = [
+                "request" => [
+                    "noSuratKontrol" => $noSuratKontrol,
+                    "noSEP"          => $dataLama['noSepAsalKontrol'] ?? '',
+                    "kodeDokter"     => $dataLama['kodeDokter'] ?? '',
+                    "poliKontrol"    => $dataLama['poliTujuan'] ?? '',
+                    "tglRencanaKontrol" => $newDate,
+                    "user"           => $user
+                ]
+            ];
+
+            // 3. Kirim Update ke BPJS
+            $result = $this->bpjs->updateSuratKontrolV2($payload);
+
+            return response()->json($result);
+
+        } catch (\Throwable $e) {
+            // INI PENTING: Memastikan error backend apapun dikembalikan dalam bentuk JSON, bukan HTML!
+            return response()->json([
+                'metaData' => [
+                    'code' => 500,
+                    'message' => 'Error Backend: ' . $e->getMessage() . ' (Baris: ' . $e->getLine() . ')'
+                ]
+            ], 500);
         }
-
-        $dataLama = $detail['response'];
-
-        // 2. Susun payload sesuai aturan V2 Update
-        $payload = [
-            "request" => [
-                "noSuratKontrol" => $noSuratKontrol,
-                "noSEP"          => $dataLama['noSepAsalKontrol'],
-                "kodeDokter"     => $dataLama['kodeDokter'],
-                "poliKontrol"    => $dataLama['poliTujuan'],
-                "tglRencanaKontrol" => $newDate,
-                "user"           => $user,
-                "formPRB"        => [] // Kosongkan atau isi sesuai kebutuhan PRB
-            ]
-        ];
-
-        // 3. Kirim Update
-        $result = $this->bpjs->updateSuratKontrolV2($payload);
-
-        return response()->json($result);
     }
 }
