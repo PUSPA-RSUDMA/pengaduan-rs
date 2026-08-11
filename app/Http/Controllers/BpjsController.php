@@ -113,41 +113,47 @@ class BpjsController extends Controller
         try {
             $noSuratKontrol = $request->input('noSuratKontrol');
             $newDate = $request->input('tglRencanaKontrol');
-            $user = auth()->user()->name ?? 'System';
+            $user = auth()->user()->name ?? 'Administrator';
 
-            // 1. Ambil data asli terlebih dahulu
+            // 1. Ambil data asli surat kontrol
             $detail = $this->bpjs->getDetailKontrol($noSuratKontrol);
+            
+            // Simpan log untuk dicek jika masih gagal
+            Log::info("Detail Surat Kontrol ({$noSuratKontrol}):", $detail);
 
             if (!isset($detail['response']) || empty($detail['response'])) {
                 return response()->json([
                     'metaData' => [
-                        'code' => 404, 
-                        'message' => 'Detail surat kontrol tidak ditemukan di server BPJS'
+                        'code' => 404,
+                        'message' => 'Detail surat kontrol tidak ditemukan di server BPJS.'
                     ]
                 ], 404);
             }
 
             $dataLama = $detail['response'];
 
-            // 2. Susun payload sesuai aturan V2 Update
+            // 2. Susun payload dengan pengaman key (antisipasi perbedaan nama key dari BPJS)
             $payload = [
                 "request" => [
-                    "noSuratKontrol" => $noSuratKontrol,
-                    "noSEP"          => $dataLama['noSepAsalKontrol'] ?? '',
-                    "kodeDokter"     => $dataLama['kodeDokter'] ?? '',
-                    "poliKontrol"    => $dataLama['poliTujuan'] ?? '',
+                    "noSuratKontrol"    => $noSuratKontrol,
+                    "noSEP"             => $dataLama['noSepAsalKontrol'] ?? $dataLama['noSep'] ?? '',
+                    "kodeDokter"        => $dataLama['kodeDokter'] ?? '',
+                    "poliKontrol"       => $dataLama['kdPoliTujuan'] ?? $dataLama['poliTujuan'] ?? '',
                     "tglRencanaKontrol" => $newDate,
-                    "user"           => $user
+                    "user"              => $user
                 ]
             ];
 
+            Log::info("Payload yang dikirim ke BPJS:", $payload);
+
             // 3. Kirim Update ke BPJS
             $result = $this->bpjs->updateSuratKontrolV2($payload);
+            
+            Log::info("Respon dari BPJS:", $result);
 
             return response()->json($result);
 
         } catch (\Throwable $e) {
-            // INI PENTING: Memastikan error backend apapun dikembalikan dalam bentuk JSON, bukan HTML!
             return response()->json([
                 'metaData' => [
                     'code' => 500,
