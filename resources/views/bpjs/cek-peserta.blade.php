@@ -213,16 +213,20 @@
                         boxRS.innerHTML = `<div class="text-muted fst-italic">Tidak ada rujukan aktif</div>`;
                     }
 
-                    // 4. Tabel Histori Pelayanan
+                    // 4. Tabel Histori Pelayanan (Ditambah efek Hover)
                     let historiBody = document.getElementById('tableHistoriBody');
                     historiBody.innerHTML = '';
                     if (data.response.histori_pelayanan && data.response.histori_pelayanan.length > 0) {
                         data.response.histori_pelayanan.forEach(h => {
                             let jnsPelayanan = (h.jnsPelayanan == '1') ? 'Rawat Inap' : 'Rawat Jalan';
                             let noRujukan = h.noRujukan ? `<span class="text-success fw-bold">${h.noRujukan}</span>` : '<span class="text-muted">-</span>';
+                            
+                            // [HIGHLIGHT] Class 'sep-match' dan 'data-sep'
+                            let noSepDisplay = h.noSep ? `<span class="fw-bold text-primary sep-match sep-${h.noSep}" data-sep="${h.noSep}" style="cursor: pointer; transition: 0.3s; padding: 2px 6px; border-radius: 4px;">${h.noSep}</span>` : '-';
+
                             historiBody.innerHTML += `
                                 <tr>
-                                    <td><span class="fw-bold text-primary">${h.noSep || '-'}</span></td>
+                                    <td>${noSepDisplay}</td>
                                     <td>${noRujukan}</td>
                                     <td>${h.tglSep || '-'}</td>
                                     <td>${h.poli || '-'}</td>
@@ -235,7 +239,7 @@
                         historiBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted fst-italic">Tidak ada histori kunjungan dalam 90 hari terakhir.</td></tr>`;
                     }
 
-                    // 5. Tabel Surat Rencana Kontrol (Dengan Validasi terbitSEP)
+                    // 5. Tabel Surat Rencana Kontrol (Dengan Validasi terbitSEP dan efek Hover)
                     let kontrolBody = document.getElementById('tableKontrolBody');
                     kontrolBody.innerHTML = '';
                     if (data.response.list_kontrol && data.response.list_kontrol.length > 0) {
@@ -258,11 +262,14 @@
                                 `;
                             }
 
+                            // [HIGHLIGHT] Class 'sep-match' dan 'data-sep' pada No SEP Asal
+                            let noSepAsalDisplay = k.noSepAsalKontrol ? `<code class="sep-match sep-${k.noSepAsalKontrol}" data-sep="${k.noSepAsalKontrol}" style="cursor: pointer; transition: 0.3s; padding: 2px 6px; border-radius: 4px;">${k.noSepAsalKontrol}</code>` : '-';
+
                             kontrolBody.innerHTML += `
                                 <tr>
                                     <td><span class="fw-bold text-success">${k.noSuratKontrol || '-'}</span></td>
                                     <td><span class="badge bg-info text-dark">${jnsPelayananText}</span></td>
-                                    <td><code>${k.noSepAsalKontrol || '-'}</code></td>
+                                    <td>${noSepAsalDisplay}</td>
                                     <td>${k.namaPoliTujuan || '-'}</td>
                                     <td>${k.namaDokter || '-'}</td>
                                     <td>${k.tglRencanaKontrol || '-'}</td>
@@ -275,6 +282,33 @@
                     }
 
                     resultCard.classList.remove('d-none');
+
+                    // ----------------------------------------------------------------
+                    // LOGIKA JAVASCRIPT UNTUK HOVER HIGHLIGHT KESAMAAN NO SEP
+                    // ----------------------------------------------------------------
+                    document.querySelectorAll('.sep-match').forEach(item => {
+                        // Saat Mouse Masuk (Hover)
+                        item.addEventListener('mouseenter', function() {
+                            let sepValue = this.getAttribute('data-sep');
+                            document.querySelectorAll(`.sep-${sepValue}`).forEach(el => {
+                                el.classList.add('bg-warning', 'text-dark', 'shadow-sm'); // Tambah warna kuning
+                                el.classList.remove('text-primary'); // Hilangkan warna biru sementara
+                            });
+                        });
+
+                        // Saat Mouse Keluar
+                        item.addEventListener('mouseleave', function() {
+                            let sepValue = this.getAttribute('data-sep');
+                            document.querySelectorAll(`.sep-${sepValue}`).forEach(el => {
+                                el.classList.remove('bg-warning', 'text-dark', 'shadow-sm');
+                                if(el.tagName === 'SPAN') {
+                                    el.classList.add('text-primary'); // Kembalikan warna biru
+                                }
+                            });
+                        });
+                    });
+                    // ----------------------------------------------------------------
+
                 } else {
                     let msg = (data.metaData && data.metaData.message) ? data.metaData.message : 'Terjadi kesalahan.';
                     document.getElementById('errorMessage').innerHTML = `<strong>Pencarian Gagal!</strong><br>${msg}`;
