@@ -195,39 +195,43 @@
                     statusBadge.innerText = (p.statusPeserta && p.statusPeserta.keterangan) ? p.statusPeserta.keterangan : 'TIDAK DIKETAHUI';
                     statusBadge.className = (statusKode === "0") ? "badge bg-success bg-opacity-10 text-success border border-success" : "badge bg-danger bg-opacity-10 text-danger border border-danger";
 
-                    // 2. Rujukan PCare
+                    // 2. Rujukan PCare (Dengan Hover Rujukan)
                     let boxPcare = document.getElementById('resRujukanPcare');
                     if (data.response.rujukan_pcare) {
                         let r = data.response.rujukan_pcare;
-                        boxPcare.innerHTML = `<div class="mb-1">No: <b>${r.noKunjungan || '-'}</b></div><div class="mb-1">Tgl: ${r.tglKunjungan || '-'}</div><div class="mb-1">Poli: <span class="text-danger fw-semibold">${r.poliRujukan?.nama || '-'}</span></div><div class="mb-0">Faskes: ${r.provPerujuk?.nama || '-'}</div>`;
+                        let noRujukanPcare = r.noKunjungan ? `<b class="text-success rujukan-match rujukan-${r.noKunjungan}" data-rujukan="${r.noKunjungan}" style="cursor: pointer; transition: 0.3s; padding: 2px 6px; border-radius: 4px;">${r.noKunjungan}</b>` : '<b>-</b>';
+                        boxPcare.innerHTML = `<div class="mb-1">No: ${noRujukanPcare}</div><div class="mb-1">Tgl: ${r.tglKunjungan || '-'}</div><div class="mb-1">Poli: <span class="text-danger fw-semibold">${r.poliRujukan?.nama || '-'}</span></div><div class="mb-0">Faskes: ${r.provPerujuk?.nama || '-'}</div>`;
                     } else {
                         boxPcare.innerHTML = `<div class="text-muted fst-italic">Tidak ada rujukan aktif</div>`;
                     }
 
-                    // 3. Rujukan RS
+                    // 3. Rujukan RS (Dengan Hover Rujukan)
                     let boxRS = document.getElementById('resRujukanRS');
                     if (data.response.rujukan_rs) {
                         let r = data.response.rujukan_rs;
-                        boxRS.innerHTML = `<div class="mb-1">No: <b>${r.noKunjungan || '-'}</b></div><div class="mb-1">Tgl: ${r.tglKunjungan || '-'}</div><div class="mb-1">Poli: <span class="text-danger fw-semibold">${r.poliRujukan?.nama || '-'}</span></div><div class="mb-0">Faskes: ${r.provPerujuk?.nama || '-'}</div>`;
+                        let noRujukanRS = r.noKunjungan ? `<b class="text-success rujukan-match rujukan-${r.noKunjungan}" data-rujukan="${r.noKunjungan}" style="cursor: pointer; transition: 0.3s; padding: 2px 6px; border-radius: 4px;">${r.noKunjungan}</b>` : '<b>-</b>';
+                        boxRS.innerHTML = `<div class="mb-1">No: ${noRujukanRS}</div><div class="mb-1">Tgl: ${r.tglKunjungan || '-'}</div><div class="mb-1">Poli: <span class="text-danger fw-semibold">${r.poliRujukan?.nama || '-'}</span></div><div class="mb-0">Faskes: ${r.provPerujuk?.nama || '-'}</div>`;
                     } else {
                         boxRS.innerHTML = `<div class="text-muted fst-italic">Tidak ada rujukan aktif</div>`;
                     }
 
-                    // 4. Tabel Histori Pelayanan (Ditambah efek Hover)
+                    // 4. Tabel Histori Pelayanan (Dengan Hover SEP dan Hover Rujukan)
                     let historiBody = document.getElementById('tableHistoriBody');
                     historiBody.innerHTML = '';
                     if (data.response.histori_pelayanan && data.response.histori_pelayanan.length > 0) {
                         data.response.histori_pelayanan.forEach(h => {
                             let jnsPelayanan = (h.jnsPelayanan == '1') ? 'Rawat Inap' : 'Rawat Jalan';
-                            let noRujukan = h.noRujukan ? `<span class="text-success fw-bold">${h.noRujukan}</span>` : '<span class="text-muted">-</span>';
                             
-                            // [HIGHLIGHT] Class 'sep-match' dan 'data-sep'
+                            // Highlight untuk No SEP
                             let noSepDisplay = h.noSep ? `<span class="fw-bold text-primary sep-match sep-${h.noSep}" data-sep="${h.noSep}" style="cursor: pointer; transition: 0.3s; padding: 2px 6px; border-radius: 4px;">${h.noSep}</span>` : '-';
+                            
+                            // Highlight untuk No Rujukan
+                            let noRujukanDisplay = h.noRujukan ? `<span class="fw-bold text-success rujukan-match rujukan-${h.noRujukan}" data-rujukan="${h.noRujukan}" style="cursor: pointer; transition: 0.3s; padding: 2px 6px; border-radius: 4px;">${h.noRujukan}</span>` : '<span class="text-muted">-</span>';
 
                             historiBody.innerHTML += `
                                 <tr>
                                     <td>${noSepDisplay}</td>
-                                    <td>${noRujukan}</td>
+                                    <td>${noRujukanDisplay}</td>
                                     <td>${h.tglSep || '-'}</td>
                                     <td>${h.poli || '-'}</td>
                                     <td>${h.ppkPelayanan || '-'}</td>
@@ -239,7 +243,7 @@
                         historiBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted fst-italic">Tidak ada histori kunjungan dalam 90 hari terakhir.</td></tr>`;
                     }
 
-                    // 5. Tabel Surat Rencana Kontrol (Dengan Validasi terbitSEP dan efek Hover)
+                    // 5. Tabel Surat Rencana Kontrol (Dengan Validasi terbitSEP dan Hover SEP)
                     let kontrolBody = document.getElementById('tableKontrolBody');
                     kontrolBody.innerHTML = '';
                     if (data.response.list_kontrol && data.response.list_kontrol.length > 0) {
@@ -262,7 +266,7 @@
                                 `;
                             }
 
-                            // [HIGHLIGHT] Class 'sep-match' dan 'data-sep' pada No SEP Asal
+                            // Highlight untuk No SEP Asal
                             let noSepAsalDisplay = k.noSepAsalKontrol ? `<code class="sep-match sep-${k.noSepAsalKontrol}" data-sep="${k.noSepAsalKontrol}" style="cursor: pointer; transition: 0.3s; padding: 2px 6px; border-radius: 4px;">${k.noSepAsalKontrol}</code>` : '-';
 
                             kontrolBody.innerHTML += `
@@ -284,26 +288,41 @@
                     resultCard.classList.remove('d-none');
 
                     // ----------------------------------------------------------------
-                    // LOGIKA JAVASCRIPT UNTUK HOVER HIGHLIGHT KESAMAAN NO SEP
+                    // LOGIKA JAVASCRIPT UNTUK HOVER HIGHLIGHT (SEP & RUJUKAN)
                     // ----------------------------------------------------------------
+                    
+                    // Highlight SEP
                     document.querySelectorAll('.sep-match').forEach(item => {
-                        // Saat Mouse Masuk (Hover)
                         item.addEventListener('mouseenter', function() {
                             let sepValue = this.getAttribute('data-sep');
                             document.querySelectorAll(`.sep-${sepValue}`).forEach(el => {
-                                el.classList.add('bg-warning', 'text-dark', 'shadow-sm'); // Tambah warna kuning
-                                el.classList.remove('text-primary'); // Hilangkan warna biru sementara
+                                el.classList.add('bg-warning', 'text-dark', 'shadow-sm'); 
+                                el.classList.remove('text-primary'); 
                             });
                         });
-
-                        // Saat Mouse Keluar
                         item.addEventListener('mouseleave', function() {
                             let sepValue = this.getAttribute('data-sep');
                             document.querySelectorAll(`.sep-${sepValue}`).forEach(el => {
                                 el.classList.remove('bg-warning', 'text-dark', 'shadow-sm');
-                                if(el.tagName === 'SPAN') {
-                                    el.classList.add('text-primary'); // Kembalikan warna biru
-                                }
+                                if(el.tagName === 'SPAN') { el.classList.add('text-primary'); }
+                            });
+                        });
+                    });
+
+                    // Highlight Rujukan
+                    document.querySelectorAll('.rujukan-match').forEach(item => {
+                        item.addEventListener('mouseenter', function() {
+                            let rujukanValue = this.getAttribute('data-rujukan');
+                            document.querySelectorAll(`.rujukan-${rujukanValue}`).forEach(el => {
+                                el.classList.add('bg-warning', 'text-dark', 'shadow-sm'); 
+                                el.classList.remove('text-success'); 
+                            });
+                        });
+                        item.addEventListener('mouseleave', function() {
+                            let rujukanValue = this.getAttribute('data-rujukan');
+                            document.querySelectorAll(`.rujukan-${rujukanValue}`).forEach(el => {
+                                el.classList.remove('bg-warning', 'text-dark', 'shadow-sm');
+                                el.classList.add('text-success'); // Kembalikan ke warna hijau
                             });
                         });
                     });
