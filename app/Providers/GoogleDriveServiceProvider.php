@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\Filesystem;
 use Masbug\Flysystem\GoogleDriveAdapter;
+use Illuminate\Filesystem\FilesystemAdapter;
   
 class GoogleDriveServiceProvider extends ServiceProvider
 {
@@ -25,10 +26,12 @@ class GoogleDriveServiceProvider extends ServiceProvider
             $client->refreshToken($config['refreshToken']);
 
             $service = new \Google\Service\Drive($client);
-            
             $adapter = new GoogleDriveAdapter($service, $config['folder'] ?? '/', $options);
+            
+            $driver = new Filesystem($adapter, $config);
 
-            return new Filesystem($adapter, $config);
+            // Wajib dibungkus dengan FilesystemAdapter Laravel agar method put(), exists(), delete() aktif
+            return new FilesystemAdapter($driver, $adapter, $config);
         });
     }
 }
