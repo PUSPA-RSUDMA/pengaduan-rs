@@ -29,9 +29,9 @@ class PermohonanInformasiController extends Controller
             $file = $request->file('file_lampiran');
             $fileName = time() . '_' . $file->getClientOriginalName();
             
-            // SIMPAN LANGSUNG KE GOOGLE DRIVE
-            // Ini akan menyimpannya ke folder dengan ID 13rr5Tlev7bWSZGJa16rP5sccROQayxT9
-            $filePath = $file->storeAs('', $fileName, 'google');
+            // Upload aman menggunakan put() ke Google Drive
+            Storage::disk('google')->put($fileName, file_get_contents($file));
+            $filePath = $fileName;
         }
 
         PermohonanInformasi::create([
@@ -66,7 +66,7 @@ class PermohonanInformasiController extends Controller
         $filePath = $permohonan->file_lampiran;
 
         if ($request->hasFile('file_lampiran')) {
-            // Hapus file lama di Google Drive
+            // Hapus file lama di Google Drive jika ada
             if ($permohonan->file_lampiran && Storage::disk('google')->exists($permohonan->file_lampiran)) {
                 Storage::disk('google')->delete($permohonan->file_lampiran);
             }
@@ -75,7 +75,8 @@ class PermohonanInformasiController extends Controller
             $fileName = time() . '_' . $file->getClientOriginalName();
             
             // Upload file baru ke Google Drive
-            $filePath = $file->storeAs('', $fileName, 'google');
+            Storage::disk('google')->put($fileName, file_get_contents($file));
+            $filePath = $fileName;
         }
 
         $permohonan->update([
