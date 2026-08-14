@@ -265,6 +265,9 @@
                         <a href="{{ route('permintaan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permintaan.index') ? 'active' : '' }}">
                             <i class="bi bi-journal-text me-2"></i> <span>Data Permintaan</span>
                         </a>
+                        <a href="{{ route('permohonan-informasi.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permohonan-informasi.*') ? 'active' : '' }}">
+                            <i class="bi bi-envelope-paper me-2"></i> <span>Permohonan Informasi</span>
+                        </a>
                     </div>
                 </div>
 
@@ -326,10 +329,6 @@
                     <i class="bi bi-credit-card-2-front-fill me-3 text-info"></i> <span>Cari Kepesertaan</span>
                 </a>
 
-                <a class="nav-link {{ request()->routeIs('permohonan-informasi.*') ? 'active' : '' }}" href="{{ route('permohonan-informasi.index') }}">
-                    <i class="bi bi-envelope-paper"></i>
-                    <span>Permohonan Informasi</span>
-                </a>
 
                 {{-- KELOMPOK MENU: DATA MASTER & SYSTEM --}}
                 @if(auth()->user()->role == 'admin')
