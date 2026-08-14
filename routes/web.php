@@ -19,6 +19,7 @@ use App\Http\Controllers\WhatsappController;
 use App\Http\Controllers\MainDashboardController;
 use App\Http\Controllers\WhatsappInboxController;
 use App\Http\Controllers\BpjsController;
+use App\Http\Controllers\PermohonanInformasiController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -101,6 +102,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/peserta/cari', [BpjsController::class, 'cariPeserta'])->name('bpjs.cari');
     });
     Route::post('/bpjs/update-kontrol', [BpjsController::class, 'updateKontrolDate'])->name('bpjs.updateKontrol');
+
+    Route::resource('permohonan-informasi', PermohonanInformasiController::class);
     // === AREA KHUSUS ADMIN (ROLE: ADMIN) ===
     Route::middleware(['role:admin'])->group(function () {
         
