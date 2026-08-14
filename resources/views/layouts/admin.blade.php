@@ -326,12 +326,10 @@
                     <i class="bi bi-credit-card-2-front-fill me-3 text-info"></i> <span>Cari Kepesertaan</span>
                 </a>
 
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('permohonan-informasi.*') ? 'active' : '' }}" href="{{ route('permohonan-informasi.index') }}">
-                        <i class="bi bi-envelope-paper"></i>
-                        <span>Permohonan Informasi</span>
-                    </a>
-                </li>
+                <a class="nav-link {{ request()->routeIs('permohonan-informasi.*') ? 'active' : '' }}" href="{{ route('permohonan-informasi.index') }}">
+                    <i class="bi bi-envelope-paper"></i>
+                    <span>Permohonan Informasi</span>
+                </a>
 
                 {{-- KELOMPOK MENU: DATA MASTER & SYSTEM --}}
                 @if(auth()->user()->role == 'admin')
