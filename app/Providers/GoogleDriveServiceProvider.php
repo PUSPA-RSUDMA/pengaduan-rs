@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\Filesystem;
+use Masbug\Flysystem\GoogleDriveAdapter;
   
 class GoogleDriveServiceProvider extends ServiceProvider
 {
@@ -24,9 +25,10 @@ class GoogleDriveServiceProvider extends ServiceProvider
             $client->refreshToken($config['refreshToken']);
 
             $service = new \Google\Service\Drive($client);
-            $adapter = new \Masbug\Flysystem\GoogleDriveAdapter($service, $config['folder'] ?? '/', $options);
+            
+            $adapter = new GoogleDriveAdapter($service, $config['folder'] ?? '/', $options);
 
-            return new Filesystem($adapter);
+            return new Filesystem($adapter, $config);
         });
     }
 }
