@@ -30,7 +30,6 @@ class GoogleDriveServiceProvider extends ServiceProvider
             
             $driver = new Filesystem($adapter, $config);
 
-            // Wajib dibungkus dengan FilesystemAdapter Laravel agar method put(), exists(), delete() aktif
             return new FilesystemAdapter($driver, $adapter, $config);
         });
     }

@@ -49,7 +49,7 @@
                         <label class="form-label fw-semibold small">Ganti Berkas Lampiran (Opsional)</label>
                         @if($permohonan->file_lampiran)
                             <div class="mb-2">
-                            <a href="{{ Storage::disk('google')->url($item->file_lampiran) }}" target="_blank" class="btn btn-sm btn-outline-info rounded-3">
+                            <a href="{{ Storage::disk('google')->url($permohonan->file_lampiran) }}" target="_blank" class="btn btn-sm btn-outline-info rounded-3">
                                 <i class="bi bi-cloud-arrow-down"></i> Lihat dari G-Drive
                             </a>
                             </div>
