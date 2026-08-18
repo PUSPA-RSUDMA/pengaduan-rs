@@ -21,7 +21,7 @@ class PermohonanInformasiController extends Controller
             'nama_pasien'  => 'required|string|max:255',
             'no_hp'        => 'required|string|max:20',
             'keperluan'    => 'required',
-            'file_lampiran'=> 'required|file|mimes:pdf,jpg,jpeg,png|max:2048', 
+            'file_lampiran'=> 'required|file|mimes:pdf,jpg,jpeg,png|max:10240', 
         ]);
 
         $filePath = null;
@@ -60,7 +60,7 @@ class PermohonanInformasiController extends Controller
             'nama_pasien'  => 'required|string|max:255',
             'no_hp'        => 'required|string|max:20',
             'keperluan'    => 'required',
-            'file_lampiran'=> 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'file_lampiran'=> 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
         $filePath = $permohonan->file_lampiran;

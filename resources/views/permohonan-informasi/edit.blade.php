@@ -55,7 +55,7 @@
                             </div>
                         @endif
                         <input type="file" name="file_lampiran" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                        <div class="form-text small text-muted">Abaikan jika tidak ingin mengganti file. Format: PDF, JPG, PNG (Max: 2MB).</div>
+                        <div class="form-text small text-muted">Abaikan jika tidak ingin mengganti file. Format: PDF, JPG, PNG (Max: 10MB).</div>
                     </div>
 
                     <div class="d-flex justify-content-between pt-3 border-top">
