@@ -122,7 +122,7 @@
                         <div class="col-md-12">
                             <label class="form-label fw-semibold small">Upload Berkas Lampiran <span class="text-danger">*</span></label>
                             <input type="file" name="file_lampiran" class="form-control" required accept=".pdf,.jpg,.jpeg,.png">
-                            <div class="form-text small">Format: PDF, JPG, PNG. Maksimal ukuran: 10MB.</div>
+                            <div class="form-text small">Format file: PDF, JPG, PNG. Maksimal ukuran: 10MB.</div>
                         </div>
                     </div>
                 </div>
