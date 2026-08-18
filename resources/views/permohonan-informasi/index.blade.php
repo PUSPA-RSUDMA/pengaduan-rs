@@ -12,6 +12,19 @@
             </div>
         @endif
 
+        {{-- TAMBAHKAN BLOK ERROR INI --}}
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>Gagal Menyimpan Data:</strong>
+                <ul class="mb-0 mt-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold text-primary mb-0"><i class="bi bi-envelope-paper me-2"></i>List Permohonan Informasi</h5>
