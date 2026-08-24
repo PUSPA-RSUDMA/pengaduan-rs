@@ -20,13 +20,11 @@ class GoogleDriveServiceProvider extends ServiceProvider
         Storage::extend('google', function($app, $config) {
             $options = $config['options'] ?? [];
 
-            dd($config);
-
             $client = new \Google\Client();
             $client->setClientId($config['clientId']);
             $client->setClientSecret($config['clientSecret']);
-            // $client->refreshToken($config['refreshToken']);
-            $client->fetchAccessTokenWithRefreshToken($config['refreshToken']);
+            $client->refreshToken($config['refreshToken']);
+            
 
             $service = new \Google\Service\Drive($client);
             $adapter = new GoogleDriveAdapter($service, $config['folder'] ?? '/', $options);
