@@ -20,6 +20,8 @@ class GoogleDriveServiceProvider extends ServiceProvider
         Storage::extend('google', function($app, $config) {
             $options = $config['options'] ?? [];
 
+            dd($config);
+
             $client = new \Google\Client();
             $client->setClientId($config['clientId']);
             $client->setClientSecret($config['clientSecret']);
