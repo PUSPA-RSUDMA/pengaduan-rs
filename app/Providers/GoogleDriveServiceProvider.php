@@ -20,17 +20,26 @@ class GoogleDriveServiceProvider extends ServiceProvider
         Storage::extend('google', function($app, $config) {
             $options = $config['options'] ?? [];
 
-            \Illuminate\Support\Facades\Log::info('Cek Config Google:', $config);
-
             $client = new \Google\Client();
             $client->setClientId($config['clientId']);
             $client->setClientSecret($config['clientSecret']);
-            // $client->refreshToken($config['refreshToken']);
-            $client->fetchAccessTokenWithRefreshToken($config['refreshToken']);
+            
+            // 1. Ambil token dan simpan responnya ke dalam variabel $token
+            $token = $client->fetchAccessTokenWithRefreshToken($config['refreshToken']);
+            
+            // 2. CEK ERROR: Jika Google menolak, hentikan aplikasi dan tampilkan alasannya!
+            if (isset($token['error'])) {
+                dd(
+                    'GAGAL MENDAPATKAN AKSES DARI GOOGLE!', 
+                    'Alasan Error: ' . $token['error'],
+                    'Deskripsi: ' . ($token['error_description'] ?? 'Tidak ada detail'),
+                    'Refresh Token yang terbaca oleh sistem: ' . $config['refreshToken']
+                );
+            }
 
             $service = new \Google\Service\Drive($client);
             $adapter = new GoogleDriveAdapter($service, $config['folder'] ?? '/', $options);
-            
+
             $driver = new Filesystem($adapter, $config);
 
             return new FilesystemAdapter($driver, $adapter, $config);
