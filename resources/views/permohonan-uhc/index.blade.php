@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Data Permohonan UHC')
+@section('title', 'Data Peralihan UHC')
 
 @section('content')
 <div class="row">

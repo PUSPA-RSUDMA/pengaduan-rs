@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Permohonan UHC')
+@section('title', 'Edit Peralihan UHC')
 
 @section('content')
 <div class="row justify-content-center">
