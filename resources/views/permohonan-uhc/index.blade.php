@@ -26,7 +26,7 @@
 
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold text-primary mb-0"><i class="bi bi-hospital me-2"></i>List Permohonan UHC</h5>
+                <h5 class="fw-bold text-primary mb-0"><i class="bi bi-hospital me-2"></i>List Peralihan UHC</h5>
                 <button type="button" class="btn btn-primary fw-medium rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
                     <i class="bi bi-plus-lg me-1"></i> Tambah Data
                 </button>
@@ -82,7 +82,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center text-muted fst-italic py-4">Belum ada data permohonan UHC.</td>
+                                    <td colspan="9" class="text-center text-muted fst-italic py-4">Belum ada data Peralihan UHC.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -98,7 +98,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content rounded-4 border-0 shadow">
             <div class="modal-header bg-light border-bottom-0">
-                <h5 class="modal-title fw-bold text-dark" id="modalTambahLabel">Tambah Permohonan UHC Baru</h5>
+                <h5 class="modal-title fw-bold text-dark" id="modalTambahLabel">Tambah Peralihan UHC Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ route('permohonan-uhc.store') }}" method="POST" enctype="multipart/form-data">

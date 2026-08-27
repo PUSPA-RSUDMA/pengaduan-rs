@@ -44,7 +44,7 @@ class PermohonanUhcController extends Controller
             'file_lampiran'      => $filePath, 
         ]);
 
-        return redirect()->back()->with('success', 'Permohonan UHC berhasil ditambahkan dan file tersimpan di Google Drive!');
+        return redirect()->back()->with('success', 'Peralihan UHC berhasil ditambahkan dan file tersimpan di Google Drive!');
     }
 
     public function edit($id)

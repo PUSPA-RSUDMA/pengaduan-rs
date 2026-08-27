@@ -269,7 +269,7 @@
                             <i class="bi bi-envelope-paper me-2"></i> <span>Permohonan Informasi</span>
                         </a>
                         <a href="{{ route('permohonan-uhc.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permohonan-uhc.*') ? 'active' : '' }}">
-                            <i class="bi bi-hospital me-2"></i> <span>Permohonan UHC</span>
+                            <i class="bi bi-hospital me-2"></i> <span>Peralihan UHC</span>
                         </a>
                     </div>
                 </div>

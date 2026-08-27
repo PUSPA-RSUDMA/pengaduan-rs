@@ -7,7 +7,7 @@
     <div class="col-md-8">
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-header bg-white p-4 border-bottom">
-                <h5 class="fw-bold text-primary mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Permohonan UHC</h5>
+                <h5 class="fw-bold text-primary mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Peralihan UHC</h5>
             </div>
             <div class="card-body p-4 p-md-5">
                 
