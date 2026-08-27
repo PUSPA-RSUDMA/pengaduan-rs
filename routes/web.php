@@ -20,6 +20,7 @@ use App\Http\Controllers\MainDashboardController;
 use App\Http\Controllers\WhatsappInboxController;
 use App\Http\Controllers\BpjsController;
 use App\Http\Controllers\PermohonanInformasiController;
+use App\Http\Controllers\PermohonanUhcController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -51,6 +52,8 @@ Route::resource('complaints', ComplaintController::class);
 Route::get('complaints/{id}/print', [ComplaintController::class, 'print'])->name('complaints.print');
 Route::post('complaints/import', [ComplaintController::class, 'import'])->name('complaints.import');
 Route::get('complaints/download-template', [ComplaintController::class, 'downloadTemplate'])->name('complaints.template');
+
+Route::resource('permohonan-uhc', PermohonanUhcController::class);
 
 
 /*
