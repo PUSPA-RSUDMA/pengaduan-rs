@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\PermohonanInformasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use App\Jobs\UploadToGoogleDrive;
-use App\Jobs\DeleteFromGoogleDrive;
 
 class PermohonanInformasiController extends Controller
 {
@@ -26,28 +24,25 @@ class PermohonanInformasiController extends Controller
             'file_lampiran'=> 'required|file|mimes:pdf,jpg,jpeg,png|max:10240', 
         ]);
 
-        // 1. Simpan data ke DB DULU dengan lampiran bernilai tulisan sementara (opsional)
-        $permohonan = PermohonanInformasi::create([
-            'nama_pemohon'  => $request->nama_pemohon,
-            'nama_pasien'   => $request->nama_pasien,
-            'no_hp'         => $request->no_hp,
-            'keperluan'     => $request->keperluan,
-            'file_lampiran' => null, // Akan diupdate oleh Job nanti
-        ]);
-
-        // 2. Jika ada file, simpan di lokal dan jalankan antrean
+        $filePath = null;
         if ($request->hasFile('file_lampiran')) {
             $file = $request->file('file_lampiran');
             $fileName = time() . '_' . $file->getClientOriginalName();
             
-            // Simpan ke disk lokal (folder: storage/app/temp) dengan sangat cepat
-            $localPath = $file->storeAs('temp', $fileName, 'local');
-            
-            // 3. Lempar tugas upload G-Drive ke Background Job
-            UploadToGoogleDrive::dispatch($permohonan->id, $localPath, $fileName);
+            // Upload aman menggunakan put() ke Google Drive
+            Storage::disk('google')->put($fileName, file_get_contents($file));
+            $filePath = $fileName;
         }
 
-        return redirect()->back()->with('success', 'Permohonan berhasil ditambahkan. File sedang diproses di belakang layar!');
+        PermohonanInformasi::create([
+            'nama_pemohon'  => $request->nama_pemohon,
+            'nama_pasien'   => $request->nama_pasien,
+            'no_hp'         => $request->no_hp,
+            'keperluan'     => $request->keperluan,
+            'file_lampiran' => $filePath, 
+        ]);
+
+        return redirect()->back()->with('success', 'Permohonan Informasi berhasil ditambahkan dan file tersimpan di Google Drive!');
     }
 
     public function edit($id)
@@ -68,24 +63,20 @@ class PermohonanInformasiController extends Controller
             'file_lampiran'=> 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
+        $filePath = $permohonan->file_lampiran;
+
         if ($request->hasFile('file_lampiran')) {
-            // 1. Lempar tugas HAPUS file lama ke background
-            if ($permohonan->file_lampiran) {
-                DeleteFromGoogleDrive::dispatch($permohonan->file_lampiran);
+            // Hapus file lama di Google Drive jika ada
+            if ($permohonan->file_lampiran && Storage::disk('google')->exists($permohonan->file_lampiran)) {
+                Storage::disk('google')->delete($permohonan->file_lampiran);
             }
 
-            // 2. Proses file BARU
             $file = $request->file('file_lampiran');
             $fileName = time() . '_' . $file->getClientOriginalName();
             
-            // Simpan sementara di lokal
-            $localPath = $file->storeAs('temp', $fileName, 'local');
-            
-            // Set kolom di database menjadi null sementara waktu
-            $permohonan->file_lampiran = null; 
-
-            // Dispatch job upload baru
-            UploadToGoogleDrive::dispatch($permohonan->id, $localPath, $fileName);
+            // Upload file baru ke Google Drive
+            Storage::disk('google')->put($fileName, file_get_contents($file));
+            $filePath = $fileName;
         }
 
         $permohonan->update([
@@ -93,7 +84,7 @@ class PermohonanInformasiController extends Controller
             'nama_pasien'   => $request->nama_pasien,
             'no_hp'         => $request->no_hp,
             'keperluan'     => $request->keperluan,
-            // file_lampiran jangan diupdate di sini jika ada file baru, biarkan job yang update
+            'file_lampiran' => $filePath,
         ]);
 
         return redirect()->route('permohonan-informasi.index')->with('success', 'Data berhasil diperbarui!');
@@ -103,14 +94,13 @@ class PermohonanInformasiController extends Controller
     {
         $permohonan = PermohonanInformasi::findOrFail($id);
 
-        // Lempar tugas HAPUS file ke background job
-        if ($permohonan->file_lampiran) {
-            DeleteFromGoogleDrive::dispatch($permohonan->file_lampiran);
+        // Hapus file dari Google Drive
+        if ($permohonan->file_lampiran && Storage::disk('google')->exists($permohonan->file_lampiran)) {
+            Storage::disk('google')->delete($permohonan->file_lampiran);
         }
 
-        // Langsung hapus record database (sangat cepat)
         $permohonan->delete();
 
-        return redirect()->back()->with('success', 'Data berhasil dihapus!');
+        return redirect()->back()->with('success', 'Data dan lampiran di Google Drive berhasil dihapus!');
     }
 }
