@@ -3,6 +3,10 @@
 @section('title', 'Data Keluhan')
 
 @section('content')
+{{-- CSS Select2 & Tema Bootstrap 5 --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white py-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -29,8 +33,9 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-lg-auto">
-                        <select name="unit_destination" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 140px;">
+                    <div class="col-6 col-lg-2">
+                        {{-- Tambahkan class select2-filter di sini --}}
+                        <select name="unit_destination" class="form-select form-select-sm select2-filter" onchange="this.form.submit()" style="min-width: 140px;">
                             <option value="">- Semua Unit -</option>
                             @foreach($unitDestinations as $unit)
                                 <option value="{{ $unit->name }}" {{ request('unit_destination') == $unit->name ? 'selected' : '' }}>
@@ -249,7 +254,8 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="small fw-bold text-muted">Unit Pelapor</label>
-                                                <select name="reporter_type" class="form-select form-select-sm" required>
+                                                {{-- Tambah select2-modal --}}
+                                                <select name="reporter_type" class="form-select form-select-sm select2-modal" required>
                                                     @foreach($reporterTypes as $type)
                                                         <option value="{{ $type->name }}" {{ $complaint->reporter_type == $type->name ? 'selected' : '' }}>{{ $type->name }}</option>
                                                     @endforeach
@@ -257,7 +263,8 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="small fw-bold text-muted">Media</label>
-                                                <select name="source_id" class="form-select form-select-sm" required>
+                                                {{-- Tambah select2-modal --}}
+                                                <select name="source_id" class="form-select form-select-sm select2-modal" required>
                                                     @foreach($sources as $source)
                                                         <option value="{{ $source->id }}" {{ $complaint->source_id == $source->id ? 'selected' : '' }}>{{ $source->name }}</option>
                                                     @endforeach
@@ -311,7 +318,8 @@
                                         <div class="row g-3 mt-1">
                                             <div class="col-md-4">
                                                 <label class="small fw-bold text-muted">Unit Tujuan</label>
-                                                <select name="unit_destination" class="form-select form-select-sm" required>
+                                                {{-- Tambah select2-modal --}}
+                                                <select name="unit_destination" class="form-select form-select-sm select2-modal" required>
                                                     @foreach($unitDestinations as $unit)
                                                         <option value="{{ $unit->name }}" {{ $complaint->unit_destination == $unit->name ? 'selected' : '' }}>{{ $unit->name }}</option>
                                                     @endforeach
@@ -319,7 +327,8 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="small fw-bold text-muted">Tingkat Kegawatan</label>
-                                                <select name="grade" class="form-select form-select-sm fw-bold">
+                                                {{-- Tambah select2-modal --}}
+                                                <select name="grade" class="form-select form-select-sm fw-bold select2-modal">
                                                     @foreach($grades as $grade)
                                                         <option value="{{ $grade->color_class ?? $grade->name }}" {{ $complaint->grade == ($grade->color_class ?? $grade->name) ? 'selected' : '' }}>
                                                             {{ $grade->name }}
@@ -329,7 +338,8 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="small fw-bold text-muted">Status</label>
-                                                <select name="status" class="form-select form-select-sm fw-bold">
+                                                {{-- Tambah select2-modal --}}
+                                                <select name="status" class="form-select form-select-sm fw-bold select2-modal">
                                                     <option value="Pending" {{ $complaint->status == 'Pending' ? 'selected' : '' }}>⏳ Pending</option>
                                                     <option value="Proses" {{ $complaint->status == 'Proses' ? 'selected' : '' }}>🔄 Proses</option>
                                                     <option value="Selesai" {{ $complaint->status == 'Selesai' ? 'selected' : '' }}>✅ Selesai</option>
@@ -412,14 +422,16 @@
                         </div>
                         <div class="col-md-3">
                             <label class="small fw-bold">Unit Pelapor <span class="text-danger">*</span></label>
-                            <select name="reporter_type" class="form-select form-select-sm" required>
+                            {{-- Tambah select2-modal --}}
+                            <select name="reporter_type" class="form-select form-select-sm select2-modal" required>
                                 <option value="">- Pilih -</option>
                                 @foreach($reporterTypes as $type) <option value="{{ $type->name }}">{{ $type->name }}</option> @endforeach
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label class="small fw-bold">Media <span class="text-danger">*</span></label>
-                            <select name="source_id" class="form-select form-select-sm" required>
+                            {{-- Tambah select2-modal --}}
+                            <select name="source_id" class="form-select form-select-sm select2-modal" required>
                                 <option value="">- Pilih -</option>
                                 @foreach($sources as $source) <option value="{{ $source->id }}">{{ $source->name }}</option> @endforeach
                             </select>
@@ -458,14 +470,16 @@
                         </div>
                         <div class="col-md-3">
                             <label class="small fw-bold">Unit Tujuan <span class="text-danger">*</span></label>
-                            <select name="unit_destination" class="form-select form-select-sm" required>
+                            {{-- Tambah select2-modal --}}
+                            <select name="unit_destination" class="form-select form-select-sm select2-modal" required>
                                 <option value="">- Tujuan -</option>
                                 @foreach($unitDestinations as $unit) <option value="{{ $unit->name }}">{{ $unit->name }}</option> @endforeach
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label class="small fw-bold">Grade (Kegawatan) <span class="text-danger">*</span></label>
-                            <select name="grade" class="form-select form-select-sm fw-bold" required>
+                            {{-- Tambah select2-modal --}}
+                            <select name="grade" class="form-select form-select-sm fw-bold select2-modal" required>
                                 <option value="">- Grade -</option>
                                 @foreach($grades as $grade) <option value="{{ $grade->color_class ?? $grade->name }}">{{ $grade->name }}</option> @endforeach
                             </select>
@@ -487,11 +501,42 @@
     </div>
 </div>
 
+{{-- LIBRARY JQUERY & SELECT2 JS (Diletakkan sebelum endsection) --}}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
     function showLoading() {
         document.getElementById('btnSubmit').classList.add('d-none');
         document.getElementById('btnLoading').classList.remove('d-none');
     }
+
+    $(document).ready(function() {
+        // 1. Inisialisasi Select2 untuk Form Filter (di luar modal)
+        $('.select2-filter').select2({
+            theme: 'bootstrap-5',
+            width: '100%'
+        });
+
+        // 2. Inisialisasi Select2 di dalam Modal Input Baru
+        $('#modalInput').on('shown.bs.modal', function () {
+            $(this).find('.select2-modal').select2({
+                theme: 'bootstrap-5',
+                dropdownParent: $('#modalInput'),
+                width: '100%'
+            });
+        });
+
+        // 3. Inisialisasi Select2 di dalam Modal Edit (Karena modal dinamis)
+        $('[id^=modalEdit]').on('shown.bs.modal', function () {
+            let modalId = $(this).attr('id');
+            $(this).find('.select2-modal').select2({
+                theme: 'bootstrap-5',
+                dropdownParent: $('#' + modalId),
+                width: '100%'
+            });
+        });
+    });
 </script>
 
 @endsection
