@@ -3,12 +3,16 @@
 @section('title', 'Data Layanan Informasi')
 
 @section('content')
+
+{{-- Tambahkan CSS Select2 --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white py-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="m-0 font-weight-bold text-primary"><i class="bi bi-table me-2"></i>Daftar Layanan Informasi</h5>
             
-            <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInput">    
+            <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInput">   
                 <i class="bi bi-plus-lg me-1"></i> Buat Baru
             </button>
         </div>
@@ -374,8 +378,8 @@
 
                                         <div class="col-md-4">
                                             <label class="form-label small fw-bold">Unit Terkait</label>
-                                            <select name="inputs[0][unit_terkait]" class="form-select form-select-sm" required>
-                                                <option value="">- Pilih Unit -</option>
+                                            <select name="inputs[0][unit_terkait]" class="form-select form-select-sm select2-unit" required>
+                                                <option value=""></option>
                                                 @foreach($unitDestinations as $unit)
                                                     <option value="{{ $unit->name }}">{{ $unit->name }}</option>
                                                 @endforeach
@@ -433,16 +437,30 @@
     </div>
 </div>
 
+{{-- Load jQuery dan Select2 JS --}}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
     let rowIndex = 0; 
     const masterUnits = {!! json_encode($unitDestinations) !!};
     const masterKategori = {!! json_encode($kategoriPermintaan) !!};
 
+    $(document).ready(function() {
+        // Inisialisasi Select2 untuk baris pertama (default) saat halaman diload
+        $('.select2-unit').select2({
+            placeholder: "- Ketik / Pilih Unit -",
+            width: '100%',
+            dropdownParent: $('#modalInput')
+        });
+    });
+
     function addRow() {
         rowIndex++;
         let container = document.getElementById('rowsAccordion');
 
-        let optionsUnit = '<option value="">- Pilih Unit -</option>';
+        // Pastikan opsi default adalah kosong agar Placeholder Select2 aktif
+        let optionsUnit = '<option value=""></option>';
         masterUnits.forEach(u => optionsUnit += `<option value="${u.name}">${u.name}</option>`);
 
         let kategoriHtml = '';
@@ -508,7 +526,7 @@
 
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold">Unit Terkait</label>
-                                <select name="inputs[${rowIndex}][unit_terkait]" class="form-select form-select-sm" required>${optionsUnit}</select>
+                                <select name="inputs[${rowIndex}][unit_terkait]" class="form-select form-select-sm select2-unit" required>${optionsUnit}</select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold">Tanggal Verifikasi (Opsional)</label>
@@ -535,6 +553,13 @@
         
         container.insertAdjacentHTML('beforeend', newItemHtml);
         updateRowNumbers();
+
+        // Inisialisasi Select2 untuk baris yang baru saja ditambahkan
+        $(`#row_${rowIndex} .select2-unit`).select2({
+            placeholder: "- Ketik / Pilih Unit -",
+            width: '100%',
+            dropdownParent: $('#modalInput')
+        });
     }
 
     function removeRow(btn) {

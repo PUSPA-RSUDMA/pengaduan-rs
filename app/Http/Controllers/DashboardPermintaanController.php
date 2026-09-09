@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permintaan;
-use App\Models\KategoriKeluhan; // 1. Import Model Master Kategori
+use App\Models\KategoriPermintaan; // 1. UBAH IMPORT: Gunakan KategoriPermintaan (Bukan KategoriKeluhan)
 use Illuminate\Http\Request;
 
 class DashboardPermintaanController extends Controller
@@ -82,8 +82,8 @@ class DashboardPermintaanController extends Controller
 
         $permintaansCategory = $catQuery->pluck('detail_keluhan');
 
-        // Ambil Master Kategori & Item dari Database
-        $masterKategori = KategoriKeluhan::with('items')->get();
+        // 2. PERBAIKAN: Gunakan Master Model KategoriPermintaan
+        $masterKategori = KategoriPermintaan::with('items')->get();
         
         $subCategoryCounts = [];
 
@@ -99,6 +99,12 @@ class DashboardPermintaanController extends Controller
 
         // Looping data permintaan untuk menghitung frekuensi item di dalam JSON detail_keluhan
         foreach ($permintaansCategory as $detailJson) {
+            
+            // 3. PERBAIKAN: Terkadang nilai yang di-pluck berbentuk string. Kita pastikan dia jadi Array.
+            if (is_string($detailJson)) {
+                $detailJson = json_decode($detailJson, true);
+            }
+
             if (!empty($detailJson) && is_array($detailJson)) {
                 foreach ($detailJson as $catName => $items) {
                     if (isset($subCategoryCounts[$catName]) && is_array($items)) {
@@ -120,7 +126,7 @@ class DashboardPermintaanController extends Controller
                 arsort($counts);
             }
         }
-        unset($counts);
+        unset($counts); // bersihkan reference memory
 
 
         return view('permintaan.dashboard', compact(
@@ -138,7 +144,6 @@ class DashboardPermintaanController extends Controller
             'unitLabels',
             'unitValues',
             'topPhones',
-            // Variabel Sub-Kategori Dinamis
             'catMonth', 
             'catYear', 
             'catSort', 

@@ -15,7 +15,7 @@ class PermintaanController extends Controller
 {
     public function index(Request $request)
     {
-        $unitDestinations = UnitDestination::all();
+        $unitDestinations = UnitDestination::orderBy('name', 'asc')->get();
         // Ambil master kategori keluhan beserta itemnya secara dinamis
         $kategoriPermintaan = KategoriPermintaan::with('items')->get();
         
