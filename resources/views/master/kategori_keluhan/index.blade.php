@@ -47,7 +47,8 @@
                                 </button>
                                 
                                 {{-- Tombol Hapus --}}
-                                <form action="{{ route('kategori-permintaan.items.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus pilihan ini?')">
+                                {{-- Kode yang BENAR --}}
+                                <form action="{{ route('kategori-keluhan.items.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus pilihan ini?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn btn-link text-danger p-0 m-0" title="Hapus"><i class="bi bi-x-circle-fill"></i></button>
                                 </form>
@@ -63,7 +64,8 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     {{-- PERHATIAN: Ubah route menjadi 'kategori-keluhan.items.update' jika Anda sedang mengedit file Kategori Keluhan --}}
-                                    <form action="{{ route('kategori-permintaan.items.update', $item->id) }}" method="POST">
+                                    {{-- Kode yang BENAR --}}
+                                    <form action="{{ route('kategori-keluhan.items.update', $item->id) }}" method="POST">
                                         @csrf @method('PUT')
                                         <div class="modal-body p-3">
                                             <label class="small fw-bold mb-1">Nama Pilihan (Sub Kategori)</label>
