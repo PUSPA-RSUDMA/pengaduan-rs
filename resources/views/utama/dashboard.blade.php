@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Dashboard Utama RSUD dr. H. Moh. Anwar Sumenep')
+@section('title', 'Dashboard Utama-IPP-RSUD dr. H. Moh. Anwar Sumenep')
 @section('content')
 <style>
     .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
