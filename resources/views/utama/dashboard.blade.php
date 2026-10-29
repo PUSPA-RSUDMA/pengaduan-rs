@@ -1,143 +1,208 @@
 @extends('layouts.admin')
-@section('title', 'Overview')
+@section('title', 'Dashboard Utama')
 @section('content')
 <style>
-    /* Styling Card Summary menyerupai referensi gambar */
-    .stat-card {
-        border-radius: 20px;
-        background: #ffffff;
-        border: none;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-        padding: 20px;
+    /* Styling Khusus Panel Dashboard */
+    .dashboard-panel { 
+        background: var(--bg-surface); 
+        border-radius: 16px; 
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .panel-header {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-primary);
         display: flex;
-        flex-direction: column;
         justify-content: space-between;
-        height: 100%;
-        transition: transform 0.3s ease;
-    }
-    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
-    
-    .stat-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
+        padding-bottom: 10px;
+    }
+    .panel-val { font-size: 1.8rem; font-weight: 700; color: #fff; margin-bottom: 5px; }
+    .panel-desc { font-size: 0.75rem; color: var(--text-secondary); }
+    
+    /* Box Statistik Kecil (Bagian Bawah Card) */
+    .inner-stat-box {
+        background: var(--bg-inner);
+        border-radius: 10px;
+        padding: 12px;
+        flex: 1;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.02);
+    }
+    .inner-stat-label { font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+    .inner-stat-value { font-size: 1rem; font-weight: 600; color: #fff; margin-top: 4px; }
+    .inner-stat-box.active {
+        background: rgba(108, 56, 255, 0.1);
+        border-bottom: 3px solid #9B51E0;
     }
     
-    /* Warna ikon ungu dan biru */
-    .icon-purple { background: rgba(85, 66, 246, 0.1); color: #5542F6; }
-    .icon-blue { background: rgba(50, 215, 243, 0.1); color: #32D7F3; }
+    /* Progress Bar Mirip Image */
+    .progress-neon { height: 6px; background-color: var(--bg-inner); border-radius: 4px; margin-top: 15px; }
+    .progress-bar-neon { border-radius: 4px; }
     
-    .chart-card {
-        border-radius: 24px;
-        background: #ffffff;
-        border: none;
-        box-shadow: 0 4px 25px rgba(0,0,0,0.03);
-        padding: 25px;
-    }
+    /* Select Tahun */
+    .year-select { background: var(--bg-inner); color: #fff; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.8rem; }
+    .year-select:focus { outline: none; border-color: #9B51E0; }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="text-muted" style="font-size: 0.9rem;">
-        Menampilkan data ringkasan layanan
+    <div>
+        <h4 class="fw-bold m-0 text-white">Ringkasan Layanan Publik</h4>
+        <small class="text-secondary">Overview seluruh aktivitas layanan publik RSUD</small>
     </div>
     
     <form action="{{ route('utama.dashboard') }}" method="GET" class="m-0">
-        <select name="year" class="form-select border-0 shadow-sm" style="border-radius: 15px; font-weight: 500; color: #2B3674;" onchange="this.form.submit()">
-            <option disabled>Show by years</option>
+        <select name="year" class="year-select px-3 py-2 fw-medium shadow-sm" onchange="this.form.submit()">
             @for($y = date('Y'); $y >= date('Y') - 4; $y--)
-                <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>Tahun {{ $y }}</option>
             @endfor
         </select>
     </form>
 </div>
 
-{{-- 1. KARTU STATISTIK (Disesuaikan jadi warna putih bersih) --}}
+{{-- 1. KARTU STATISTIK GRID --}}
 <div class="row g-4 mb-4">
-    <div class="col-12 col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="stat-icon icon-purple">
-                    <i class="bi bi-activity"></i>
-                </div>
-            </div>
+    
+    {{-- Kartu Grand Total (Theme: Info/Blue) --}}
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="dashboard-panel p-4 h-100 d-flex flex-column justify-content-between">
             <div>
-                <h6 class="text-muted mb-1" style="font-size: 0.8rem; font-weight: 500;">Total Interaksi</h6>
-                <h3 class="fw-bold mb-0" style="color: #2B3674;">{{ $grandTotal }}</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="stat-icon icon-blue">
-                    <i class="bi bi-chat-square-text"></i>
+                <div class="panel-header">
+                    Total Interaksi <i class="bi bi-chevron-right text-secondary" style="font-size: 0.75rem;"></i>
+                </div>
+                <div class="panel-val">{{ $grandTotal }}</div>
+                <div class="panel-desc">Total layanan tercatat tahun ini</div>
+                
+                <div class="progress-neon">
+                    <div class="progress-bar-neon bg-primary h-100" style="width: 100%;"></div>
                 </div>
             </div>
-            <div>
-                <h6 class="text-muted mb-1" style="font-size: 0.8rem; font-weight: 500;">Pengaduan Masuk</h6>
-                <div class="d-flex align-items-end justify-content-between">
-                    <h3 class="fw-bold mb-0" style="color: #2B3674;">{{ $pengaduanTotal }}</h3>
-                    <small class="text-success fw-bold" style="font-size: 0.75rem;">{{ $pengaduanSelesai }} Selesai</small>
+            
+            <div class="d-flex gap-2 mt-4">
+                <div class="inner-stat-box active" style="border-bottom-color: #0d6efd;">
+                    <div class="inner-stat-label">Tahun</div>
+                    <div class="inner-stat-value">{{ $tahun }}</div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="stat-icon icon-purple">
-                    <i class="bi bi-headset"></i>
-                </div>
-            </div>
-            <div>
-                <h6 class="text-muted mb-1" style="font-size: 0.8rem; font-weight: 500;">Permintaan Info</h6>
-                <div class="d-flex align-items-end justify-content-between">
-                    <h3 class="fw-bold mb-0" style="color: #2B3674;">{{ $permintaanTotal }}</h3>
-                    <small class="text-primary fw-bold" style="font-size: 0.75rem;">{{ $permintaanChat }} via WA</small>
+                <div class="inner-stat-box">
+                    <div class="inner-stat-label">Status</div>
+                    <div class="inner-stat-value text-success">Aktif</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-12 col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="stat-icon icon-blue">
-                    <i class="bi bi-car-front-fill"></i>
+    {{-- Kartu Pengaduan (Theme: Pink/Danger) --}}
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="dashboard-panel p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="panel-header">
+                    Pengaduan <i class="bi bi-chevron-right text-secondary" style="font-size: 0.75rem;"></i>
+                </div>
+                <div class="panel-val">{{ $pengaduanTotal }}</div>
+                <div class="panel-desc">Keluhan & Masukan Masyarakat</div>
+                
+                <div class="progress-neon">
+                    @php $persenPengaduan = $pengaduanTotal > 0 ? ($pengaduanSelesai / $pengaduanTotal) * 100 : 0; @endphp
+                    <div class="progress-bar-neon h-100" style="width: {{ $persenPengaduan }}%; background: linear-gradient(90deg, #ec4899, #f43f5e);"></div>
                 </div>
             </div>
+            
+            <div class="d-flex gap-2 mt-4">
+                <div class="inner-stat-box">
+                    <div class="inner-stat-label">Pending</div>
+                    <div class="inner-stat-value">{{ $pengaduanPending }}</div>
+                </div>
+                <div class="inner-stat-box active" style="border-bottom-color: #ec4899; background: rgba(236, 72, 153, 0.1);">
+                    <div class="inner-stat-label">Selesai</div>
+                    <div class="inner-stat-value">{{ $pengaduanSelesai }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Kartu Permintaan (Theme: Teal/Info) --}}
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="dashboard-panel p-4 h-100 d-flex flex-column justify-content-between">
             <div>
-                <h6 class="text-muted mb-1" style="font-size: 0.8rem; font-weight: 500;">Order LaSehat</h6>
-                <h3 class="fw-bold mb-0" style="color: #2B3674;">{{ $lasehatTotal }}</h3>
+                <div class="panel-header">
+                    Permintaan <i class="bi bi-chevron-right text-secondary" style="font-size: 0.75rem;"></i>
+                </div>
+                <div class="panel-val">{{ $permintaanTotal }}</div>
+                <div class="panel-desc">Informasi Layanan RSUD</div>
+                
+                <div class="progress-neon">
+                    <div class="progress-bar-neon h-100" style="width: 75%; background: linear-gradient(90deg, #14b8a6, #06b6d4);"></div>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2 mt-4">
+                <div class="inner-stat-box active" style="border-bottom-color: #06b6d4; background: rgba(6, 182, 212, 0.1);">
+                    <div class="inner-stat-label">Chat / WA</div>
+                    <div class="inner-stat-value">{{ $permintaanChat }}</div>
+                </div>
+                <div class="inner-stat-box">
+                    <div class="inner-stat-label">Telfon</div>
+                    <div class="inner-stat-value">{{ $permintaanTelfon }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Kartu LaSehat (Theme: Yellow/Success) --}}
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="dashboard-panel p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="panel-header">
+                    LaSehat <i class="bi bi-chevron-right text-secondary" style="font-size: 0.75rem;"></i>
+                </div>
+                <div class="panel-val">{{ $lasehatTotal }}</div>
+                <div class="panel-desc">Order Pengantaran Pasien</div>
+                
+                <div class="progress-neon">
+                    <div class="progress-bar-neon h-100" style="width: 100%; background: linear-gradient(90deg, #eab308, #f59e0b);"></div>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2 mt-4">
+                <div class="inner-stat-box w-100 active" style="border-bottom-color: #eab308; background: rgba(234, 179, 8, 0.1);">
+                    <div class="inner-stat-label">Status Delivery</div>
+                    <div class="inner-stat-value text-warning">Selesai</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-{{-- 2. GRAFIK (Warna disesuaikan ke Ungu & Biru) --}}
+{{-- 2. GRAFIK PERBANDINGAN --}}
 <div class="row g-4">
     <div class="col-lg-8">
-        <div class="chart-card h-100">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h6 class="fw-bold m-0" style="color: #2B3674;">Analytics Data</h6>
+        <div class="dashboard-panel h-100">
+            <div class="p-4 border-bottom" style="border-color: var(--border-color)!important;">
+                <span class="fw-semibold text-white">Perbandingan Volume Layanan</span>
             </div>
-            <div style="height: 300px; width: 100%;">
-                <canvas id="mainBarChart"></canvas>
+            <div class="p-4">
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="mainBarChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="col-lg-4">
-        <div class="chart-card h-100">
-            <h6 class="fw-bold mb-4" style="color: #2B3674;">Proporsi Layanan</h6>
-            <div class="d-flex justify-content-center align-items-center" style="height: 250px;">
-                <canvas id="mainDoughnutChart"></canvas>
+        <div class="dashboard-panel h-100">
+            <div class="p-4 border-bottom" style="border-color: var(--border-color)!important;">
+                <span class="fw-semibold text-white">Proporsi Layanan</span>
+            </div>
+            <div class="p-4 d-flex justify-content-center align-items-center">
+                <div style="height: 250px; width: 100%; position: relative;">
+                    <canvas id="mainDoughnutChart"></canvas>
+                    {{-- Indikator Persentase Tengah (Sesuai Konsep Gambar) --}}
+                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                        <span class="d-block fw-bold text-white fs-4">{{ $grandTotal }}</span>
+                        <span class="text-secondary" style="font-size: 0.65rem;">Total Data</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -148,51 +213,53 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Hapus DataLabels secara default agar chart terlihat lebih clean seperti gambar referensi
-        // Chart.register(ChartDataLabels); 
+        Chart.register(ChartDataLabels);
 
         const labels = {!! json_encode($chartLabels) !!};
         const dataValues = {!! json_encode($chartData) !!};
         
-        // Palette Warna sesuai gambar (Ungu tua, Biru terang, Abu-abu lembut)
-        const colors = ['#5542F6', '#32D7F3', '#E2E8F0']; 
+        // Colors corresponding to the glowing neon accents
+        const colors = ['#ec4899', '#06b6d4', '#eab308']; 
 
-        // BAR CHART (dibuat ramping dan ujung membulat)
+        // Global Chart Defaults untuk Dark Mode
+        Chart.defaults.color = '#8A869D';
+        Chart.defaults.font.family = "'Poppins', sans-serif";
+
+        // BAR CHART
         new Chart(document.getElementById('mainBarChart').getContext('2d'), {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Total',
+                    label: 'Total Layanan',
                     data: dataValues,
                     backgroundColor: colors,
-                    borderRadius: 10, // Lengkungan di ujung bar chart
-                    barThickness: 20, // Mengatur lebar bar agar tidak terlalu gemuk
+                    borderRadius: 6,
+                    barPercentage: 0.5
                 }]
             },
             options: {
-                responsive: true, 
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end', align: 'top', color: '#FFFFFF', font: { weight: 'bold', size: 12 },
+                        formatter: (val) => val > 0 ? val : ''
+                    },
+                    tooltip: { backgroundColor: '#211D32', titleColor: '#fff', bodyColor: '#fff', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }
                 },
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        grid: { borderDash: [5, 5], color: '#f1f1f1' }, 
-                        border: { display: false },
-                        ticks: { color: '#A3AED0', font: { size: 11 } }
+                        grid: { color: 'rgba(255, 255, 255, 0.05)', borderDash: [5, 5] }, 
+                        suggestedMax: Math.max(...dataValues) + 10 
                     },
-                    x: { 
-                        grid: { display: false },
-                        border: { display: false },
-                        ticks: { color: '#A3AED0', font: { size: 11 } }
-                    }
+                    x: { grid: { display: false } }
                 }
             }
         });
 
-        // DOUGHNUT CHART
+        // DOUGHNUT CHART (Mirip Grafik Lingkaran pada Gambar Referensi)
         new Chart(document.getElementById('mainDoughnutChart').getContext('2d'), {
             type: 'doughnut',
             data: {
@@ -201,23 +268,17 @@
                     data: dataValues,
                     backgroundColor: colors,
                     borderWidth: 0,
-                    hoverOffset: 4
+                    hoverOffset: 4,
+                    spacing: 5, // Memberikan jarak antar potongan lingkaran
+                    borderRadius: 10 // Ujung potongan melingkar (hanya disupport ChartJS 3.x+ / 4.x)
                 }]
             },
             options: {
-                responsive: true, 
-                maintainAspectRatio: false, 
-                cutout: '75%', // Lubang tengah yang besar
+                responsive: true, maintainAspectRatio: false, cutout: '80%',
                 plugins: {
-                    legend: { 
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20,
-                            color: '#A3AED0',
-                            font: { size: 11 }
-                        }
-                    }
+                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 20, color: '#8A869D' } },
+                    datalabels: { display: false }, // Sembunyikan label di dalam chart, fokus ke visual cincin
+                    tooltip: { backgroundColor: '#211D32', titleColor: '#fff', bodyColor: '#fff' }
                 }
             }
         });
