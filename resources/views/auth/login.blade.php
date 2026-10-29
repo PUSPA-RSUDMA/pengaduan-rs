@@ -14,41 +14,41 @@
         }
     </style>
 </head>
-<body class="relative min-h-screen bg-[#ebe5f7] flex items-center justify-center p-4 sm:p-6 lg:p-10 text-gray-900 antialiased overflow-x-hidden select-none">
+<body class="relative min-h-screen bg-[#ece6f6] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-10 text-gray-900 antialiased overflow-x-hidden select-none">
 
-    {{-- 1. WATERMARK TEKS RAKSASA DI OUTSIDE CANVAS (PERSIS GAMBAR CONTOH) --}}
-    <div class="absolute top-4 left-6 lg:top-8 lg:left-16 pointer-events-none z-0">
-        <p class="text-xs font-semibold uppercase tracking-widest text-[#a89bc9]">Selamat Datang di</p>
-        <h1 class="text-6xl sm:text-7xl lg:text-8xl font-black text-[#d8cdf0]/60 tracking-tight leading-none mt-1">
+    {{-- 1. WATERMARK TEKS RAKSASA DI OUTSIDE CANVAS (PERSIS SEPERTI GAMBAR ACUAN "Welcome to inSpace") --}}
+    <div class="absolute -top-4 left-6 sm:left-12 lg:left-24 pointer-events-none z-0">
+        <p class="text-xs sm:text-sm font-semibold tracking-wide text-[#a394c8] ml-1">Selamat Datang di</p>
+        <h1 class="text-7xl sm:text-8xl lg:text-[11rem] font-bold text-[#dcd2f0]/60 tracking-tight leading-none -mt-1 sm:-mt-2">
             SIM RSUD
         </h1>
     </div>
 
-    {{-- 2. ELEMEN DEKORATIF BACKGROUND OUTSIDE CARD (AGAR BERSATU/SEAMLESS) --}}
-    <div class="absolute -bottom-20 -right-20 w-[30rem] h-[30rem] bg-gradient-to-tr from-[#a251d1]/30 to-[#5b1f9b]/20 rounded-full blur-3xl pointer-events-none z-0"></div>
-    <div class="absolute top-1/3 -left-20 w-80 h-80 bg-purple-300/30 rounded-full blur-2xl pointer-events-none z-0"></div>
+    {{-- 2. DEKORASI LINGKARAN & BLUR BACKGROUND SEAMLESS --}}
+    <div class="absolute -bottom-16 -right-16 w-[32rem] h-[32rem] bg-purple-300/40 rounded-full blur-3xl pointer-events-none z-0"></div>
+    <div class="absolute top-1/4 -left-20 w-80 h-80 bg-purple-200/50 rounded-full blur-2xl pointer-events-none z-0"></div>
 
-    {{-- 3. MAIN CONTAINER CARD (MELAYANG DENGAN SOFT SHADOW & CORNER ROUNDED) --}}
-    <div class="relative z-10 w-full max-w-5xl bg-white rounded-[2.5rem] shadow-[0_25px_60px_-15px_rgba(80,50,135,0.2)] overflow-hidden flex flex-col lg:flex-row min-h-[560px]">
+    {{-- 3. MAIN FLOATING CARD --}}
+    <div class="relative z-10 w-full max-w-5xl bg-white rounded-[2.5rem] shadow-[0_30px_70px_-15px_rgba(60,30,110,0.2)] overflow-hidden flex flex-col lg:flex-row min-h-[560px] my-auto">
         
         {{-- PANEL KIRI: FORM LOGIN --}}
-        <div class="w-full lg:w-1/2 p-8 sm:p-12 lg:p-14 flex flex-col justify-between z-20 bg-white">
+        <div class="w-full lg:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-between z-20 bg-white">
             <div>
-                {{-- LOGO ORANGE DOT --}}
-                <div class="mb-8">
-                    <div class="w-5 h-5 rounded-full bg-[#f4a236] shadow-sm"></div>
+                {{-- LOGO / ORANGE DOT PERSIS PERSIS GAMBAR ACUAN --}}
+                <div class="mb-10">
+                    <div class="w-6 h-6 rounded-full bg-[#f2a83b] shadow-sm"></div>
                 </div>
 
                 {{-- JUDUL FORM --}}
                 <div class="mb-8">
-                    <p class="text-xs font-bold text-[#b0a5d1] tracking-wider uppercase">Selamat Datang di</p>
-                    <h2 class="text-3xl font-extrabold text-[#221543] tracking-tight mt-1">
+                    <p class="text-xs font-semibold text-[#8b7cb0] tracking-wide">Selamat Datang di</p>
+                    <h2 class="text-3xl font-extrabold text-[#2a174d] tracking-tight mt-0.5">
                         SIM RSUD
                     </h2>
                 </div>
 
                 @if(session('status'))
-                    <div class="mb-5 p-3 rounded-xl bg-green-50 text-xs font-semibold text-green-600 border border-green-200">
+                    <div class="mb-6 p-3 rounded-xl bg-green-50 text-xs font-semibold text-green-600 border border-green-200">
                         {{ session('status') }}
                     </div>
                 @endif
@@ -57,9 +57,9 @@
                 <form method="POST" action="{{ route('login') }}" class="space-y-6">
                     @csrf
 
-                    {{-- EMAIL FIELD --}}
+                    {{-- EMAIL FIELD (INPUT BORDER BAWAH ONLY) --}}
                     <div class="relative">
-                        <label for="email" class="block text-[11px] font-bold text-[#b0a5d1] tracking-wider uppercase mb-1">
+                        <label for="email" class="block text-xs font-semibold text-[#8b7cb0] mb-1">
                             Email Petugas
                         </label>
                         <input id="email" 
@@ -69,14 +69,14 @@
                                required 
                                autofocus 
                                autocomplete="username" 
-                               placeholder="admin@rsud.com" 
-                               class="w-full bg-transparent border-b border-[#e5def0] focus:border-[#a251d1] text-[#221543] text-sm py-2 px-0 outline-none transition-colors duration-200 placeholder-[#c7bedf]" />
+                               placeholder="bonjourguys@talk.com" 
+                               class="w-full bg-transparent border-b-2 border-[#e6dff2] focus:border-[#9b40ca] text-[#2a174d] text-sm py-2 px-0 outline-none transition-colors duration-200 placeholder-[#c5b8df]" />
                         <x-input-error :messages="$errors->get('email')" class="mt-1.5 text-xs text-red-500" />
                     </div>
 
                     {{-- PASSWORD FIELD --}}
                     <div class="relative">
-                        <label for="password" class="block text-[11px] font-bold text-[#b0a5d1] tracking-wider uppercase mb-1">
+                        <label for="password" class="block text-xs font-semibold text-[#8b7cb0] mb-1">
                             Kata Sandi
                         </label>
                         <input id="password" 
@@ -85,22 +85,22 @@
                                required 
                                autocomplete="current-password" 
                                placeholder="••••••••" 
-                               class="w-full bg-transparent border-b border-[#e5def0] focus:border-[#a251d1] text-[#221543] text-sm py-2 px-0 outline-none transition-colors duration-200 placeholder-[#c7bedf]" />
+                               class="w-full bg-transparent border-b-2 border-[#e6dff2] focus:border-[#9b40ca] text-[#2a174d] text-sm py-2 px-0 outline-none transition-colors duration-200 placeholder-[#c5b8df]" />
                         <x-input-error :messages="$errors->get('password')" class="mt-1.5 text-xs text-red-500" />
                     </div>
 
                     {{-- REMEMBER ME --}}
                     <div class="flex items-center justify-between text-xs pt-1">
-                        <label for="remember_me" class="inline-flex items-center cursor-pointer text-[#b0a5d1] hover:text-[#221543] transition-colors">
-                            <input id="remember_me" type="checkbox" class="rounded border-[#e5def0] text-[#a251d1] focus:ring-[#a251d1]" name="remember">
+                        <label for="remember_me" class="inline-flex items-center cursor-pointer text-[#8b7cb0] hover:text-[#2a174d] transition-colors">
+                            <input id="remember_me" type="checkbox" class="rounded border-[#e6dff2] text-[#9b40ca] focus:ring-[#9b40ca]" name="remember">
                             <span class="ms-2 font-medium">{{ __('Ingat Saya') }}</span>
                         </label>
                     </div>
 
                     {{-- BUTTON SUBMIT (CAPSULE / PILL SHAPE) --}}
-                    <div class="pt-2">
+                    <div class="pt-4">
                         <button type="submit" 
-                                class="bg-[#a844cf] hover:bg-[#9233b8] active:scale-[0.98] text-white text-xs font-bold uppercase tracking-wider py-3.5 px-10 rounded-full shadow-md shadow-purple-400/30 transition-all duration-200">
+                                class="bg-[#a843d0] hover:bg-[#9233be] active:scale-[0.98] text-white text-xs font-bold uppercase tracking-wider py-3.5 px-10 rounded-full shadow-lg shadow-purple-500/25 transition-all duration-200">
                             {{ __('LOGIN') }}
                         </button>
                     </div>
@@ -108,47 +108,78 @@
             </div>
 
             {{-- FOOTER DI DALAM CARD --}}
-            <div class="mt-8 text-xs text-[#b0a5d1]">
+            <div class="mt-10 text-xs text-[#8b7cb0]">
                 <span>Belum punya akun?</span>
-                <a href="#" class="font-bold text-[#a844cf] hover:underline ms-1">Hubungi Admin</a>
+                <a href="#" class="font-bold text-[#a843d0] hover:underline ms-1">Hubungi Admin</a>
             </div>
         </div>
 
-        {{-- PANEL KANAN: GAMBAR DENGAN FLUID ORGANIC WAVE MASK (MENYATU ORGANIK) --}}
-        <div class="hidden lg:block lg:w-1/2 relative bg-cover bg-center overflow-hidden"
-             style="background-image: url('{{ asset('images/gedung-rsud.png') }}');">
+        {{-- PANEL KANAN: ILUSTRASI NIGHT VIOLET DENGAN LEKUKAN ORGANIK (ORGANIC FLUID WAVE) --}}
+        <div class="hidden lg:block lg:w-1/2 relative overflow-hidden bg-[#1d093d]">
             
-            {{-- OVERLAY GRADIENT SERUPA VIOLET-NIGHT DESAIN ACUAN --}}
-            <div class="absolute inset-0 bg-gradient-to-br from-[#3c1477]/85 via-[#5c1c9c]/80 to-[#19063b]/90"></div>
-
-            {{-- SVG ORGANIC FLUID WAVE CURVE (LUKISAN LEKUKAN ORGANIK MANTAP) --}}
-            <svg class="absolute top-0 left-0 h-full w-full pointer-events-none text-white fill-current z-10" 
+            {{-- OVERLAY ORGANIC WAVE SEPARATOR (MENGHASILKAN LEKUKAN KANVAS PUTIH SAMA PERSIS GAMBAR CONTOH) --}}
+            <svg class="absolute top-0 left-0 h-full w-full pointer-events-none fill-white z-20" 
                  viewBox="0 0 500 600" preserveAspectRatio="none">
-                <path d="M 0 0 L 260 0 C 260 110, 130 180, 75 320 C 35 410, 0 500, 0 600 Z" />
+                <path d="M 0 0 L 230 0 C 280 0, 310 30, 275 90 C 235 160, 205 230, 205 320 C 205 420, 150 510, 110 600 L 0 600 Z" />
             </svg>
 
-            {{-- LINGKARAN CAHAYA BULAN DI ATAS KANAN --}}
-            <div class="absolute top-10 right-10 w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-300 to-amber-100 opacity-90 blur-[1px] shadow-[0_0_25px_rgba(251,191,36,0.7)]"></div>
+            {{-- ARTWORK VECTOR ILUSTRASI (PINTU TERBUKA, CAHAYA BULAN, POHON PINUS, MOUNTAIN & STARRY NIGHT) --}}
+            <div class="absolute inset-0 z-10 bg-gradient-to-br from-[#3b1273] via-[#591ca0] to-[#14042b]">
+                
+                {{-- EFEK BULAN DAN CAHAYA EMAS DI KANAN ATAS --}}
+                <div class="absolute top-8 right-12 w-16 h-16 rounded-full bg-gradient-to-tr from-amber-100 to-amber-300 shadow-[0_0_35px_rgba(251,191,36,0.8)] opacity-90"></div>
+                <div class="absolute top-6 right-10 w-20 h-20 rounded-full border border-amber-200/20"></div>
 
-            {{-- TEKS DESKRIPSI KANAN BISA DITAMPILKAN SECARA ELEGAT --}}
-            <div class="absolute inset-0 flex flex-col justify-end p-12 text-white z-20">
-                <div class="max-w-xs space-y-2 mb-2">
-                    <span class="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-bold tracking-widest text-amber-300 uppercase border border-white/10">
-                        Sistem Pengaduan
-                    </span>
-                    <h3 class="text-xl font-bold tracking-tight drop-shadow-md">RSUD dr. H. Moh. Anwar</h3>
-                    <p class="text-xs text-purple-200/80 leading-relaxed">
-                        Layanan pengaduan integratif, cepat, dan terpercaya bagi seluruh pengguna SIM RSUD.
-                    </p>
+                {{-- BINTANG-BINTANG KECIL DI LANGIT --}}
+                <div class="absolute top-12 right-36 w-1 h-1 bg-white/70 rounded-full"></div>
+                <div class="absolute top-24 right-28 w-1.5 h-1.5 bg-white/80 rounded-full"></div>
+                <div class="absolute top-16 right-48 w-1 h-1 bg-white/50 rounded-full"></div>
+
+                {{-- SHAPE PEGUNUNGAN & SILUET POHON PINUS --}}
+                <svg class="absolute bottom-0 right-0 w-full h-full text-[#14042b]/60 fill-current" viewBox="0 0 500 600" preserveAspectRatio="none">
+                    <!-- Gunung Belakang -->
+                    <polygon points="180,600 320,280 460,600" opacity="0.4" fill="#6b21a8" />
+                    <polygon points="280,600 400,220 500,600" opacity="0.3" fill="#8b5cf6" />
+                </svg>
+
+                {{-- PINTU TERBUKA DENGAN PANCARAN CAHAYA KUNING (CENTRAL ARTWORK) --}}
+                <div class="absolute bottom-16 right-12 w-64 h-72 flex flex-col items-end justify-end">
+                    <!-- Glow Pintu -->
+                    <div class="absolute bottom-4 right-10 w-36 h-48 bg-amber-400/30 blur-xl rounded-full"></div>
+                    
+                    <!-- Pintu Terbuka Emas -->
+                    <div class="relative w-28 h-44 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 rounded-t-sm border-2 border-amber-200 shadow-2xl flex items-center justify-center overflow-hidden">
+                        <div class="w-full h-full bg-[linear-gradient(90deg,transparent_49%,rgba(245,158,11,0.4)_50%)] bg-[size:12px_100%]"></div>
+                    </div>
+                    
+                    <!-- Tangga & Bangunan Siluet -->
+                    <div class="w-48 h-10 bg-[#2d0954] rounded-t-lg -mt-1 shadow-lg border-t border-purple-400/20"></div>
                 </div>
+
+            </div>
+
+            {{-- TEKS INFORMASI DI BAGIAN BAWAH PANEL KANAN --}}
+            <div class="absolute bottom-8 right-8 z-30 text-right text-white/90 max-w-xs pointer-events-none">
+                <span class="inline-block px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-bold tracking-widest text-amber-300 uppercase border border-white/15 mb-2">
+                    RSUD dr. H. Moh. Anwar
+                </span>
+                <p class="text-xs text-purple-200/80 leading-relaxed drop-shadow">
+                    Sistem Informasi Manajemen Rumah Sakit Terpadu
+                </p>
             </div>
         </div>
 
     </div>
 
-    {{-- 4. FOOTER LUAR CARD (SESUAI DENGAN POSISI TEKS BAWAH GAMBAR ACUAN) --}}
-    <div class="absolute bottom-4 left-6 lg:left-16 text-xs text-[#b0a5d1] pointer-events-none z-0">
-        <p>&copy; {{ date('Y') }} IPP-RSUD RSUD dr. H. Moh. Anwar Sumenep</p>
+    {{-- 4. FOOTER LUAR CARD (PERSIS POSISI TEKS BAWAH "Dont have an account? Sign up") --}}
+    <div class="w-full max-w-5xl flex justify-between items-center text-xs text-[#a394c8] px-4 mt-6 z-10">
+        <div>
+            <span>Belum punya akun?</span>
+            <a href="#" class="font-bold text-[#9b40ca] hover:underline ms-1">Hubungi Admin</a>
+        </div>
+        <div>
+            <p>&copy; {{ date('Y') }} RSUD dr. H. Moh. Anwar Sumenep</p>
+        </div>
     </div>
 
 </body>
