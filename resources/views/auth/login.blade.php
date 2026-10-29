@@ -8,24 +8,35 @@
     
     <script src="{{ asset('js/tailwind.js') }}"></script>
 
-    {{-- Custom Style Font & Background --}}
     <style>
         body { 
             font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#ebe6f5] via-[#f4f1f9] to-[#dfd7ee] min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 text-gray-900 antialiased">
+<body class="relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 antialiased overflow-x-hidden bg-slate-950">
+
+    {{-- FULLSCREEN BACKGROUND IMAGE (GEDUNG RSUD SEBAGAI BASE BACKGROUND LAYER) --}}
+    <div class="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat scale-105 transform transition-transform duration-1000"
+         style="background-image: url('{{ asset('images/gedung-rsud.png') }}');">
+    </div>
     
-    {{-- MAIN CONTAINER CARD --}}
-    <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[580px] relative">
+    {{-- GRADIENT OVERLAY & BLUR UNTUK EFEK KEDALAMAN KANVAS (3D DEPTH) --}}
+    <div class="fixed inset-0 z-0 bg-gradient-to-br from-[#12072b]/90 via-[#2a1052]/80 to-[#080214]/95 backdrop-blur-[3px]"></div>
+
+    {{-- GLOWING AMBIENT LIGHTS (CAHAYA DEKORATIF UNTUK EFEK POP-OUT 3D) --}}
+    <div class="fixed -top-24 -left-24 w-[30rem] h-[30rem] bg-purple-600/30 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed -bottom-24 -right-24 w-[35rem] h-[35rem] bg-indigo-500/25 rounded-full blur-[140px] pointer-events-none z-0"></div>
+
+    {{-- MAIN CONTAINER CARD (CARD MELAYANG DENGAN SHADOW KEBENAMAN DEEP 3D) --}}
+    <div class="relative z-10 w-full max-w-5xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] border border-white/20 overflow-hidden flex flex-col lg:flex-row min-h-[580px]">
         
         {{-- BAGIAN KIRI: FORM LOGIN --}}
         <div class="w-full lg:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-between z-20 bg-white">
             <div>
                 {{-- LOGO DOT KUNING/ORANGE --}}
                 <div class="mb-8">
-                    <div class="w-6 h-6 rounded-full bg-[#f3a638] shadow-sm"></div>
+                    <div class="w-6 h-6 rounded-full bg-[#f3a638] shadow-md shadow-orange-500/30"></div>
                 </div>
 
                 {{-- JUDUL HALAMAN --}}
@@ -90,7 +101,7 @@
                     {{-- SUBMIT BUTTON (PILL / CAPSULE SHAPE) --}}
                     <div class="pt-2">
                         <button type="submit" 
-                                class="bg-[#aa4bce] hover:bg-[#953cb7] active:scale-[0.98] text-white text-xs font-bold uppercase tracking-wider py-3 px-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
+                                class="bg-[#aa4bce] hover:bg-[#953cb7] active:scale-[0.98] text-white text-xs font-bold uppercase tracking-wider py-3 px-10 rounded-full shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-200">
                             {{ __('LOGIN') }}
                         </button>
                     </div>
@@ -105,29 +116,29 @@
             </div>
         </div>
 
-        {{-- BAGIAN KANAN: ILUSTRASI / GAMBAR DENGAN CURVED DIVIDER --}}
+        {{-- BAGIAN KANAN: PANEL DENGAN GAMBAR GEDUNG & CURVE YANG BERSATU DENGAN OUTDOOR BACKGROUND --}}
         <div class="hidden lg:block lg:w-1/2 relative bg-cover bg-center overflow-hidden"
-             style="background-image: url('{{ asset('images/gedung-rsud.jpg') }}');">
+             style="background-image: url('{{ asset('images/gedung-rsud.png') }}');">
             
-            {{-- OVERLAY DENGAN GRADIENT SERUPA DESAIN VIOLET/PURPLE NIGHT --}}
-            <div class="absolute inset-0 bg-gradient-to-br from-[#3b1578]/90 via-[#5b1f9b]/85 to-[#1c0a3d]/95"></div>
+            {{-- OVERLAY DENGAN GRADIENT SERUPA UNTUK CONTINUITY LAYERING --}}
+            <div class="absolute inset-0 bg-gradient-to-br from-[#3b1578]/80 via-[#5b1f9b]/75 to-[#1c0a3d]/90 backdrop-blur-[1px]"></div>
 
-            {{-- SVG CURVED MASK (MEMBUAT LEKUKAN ORGANIK SESUAI GAMBAR) --}}
+            {{-- SVG CURVED MASK --}}
             <svg class="absolute top-0 left-0 h-full w-full pointer-events-none text-white fill-current z-10" 
                  viewBox="0 0 500 600" preserveAspectRatio="none">
                 <path d="M 0 0 L 260 0 C 260 110, 140 230, 80 340 C 30 420, 0 510, 0 600 Z" />
             </svg>
 
             {{-- ELEMENT DEKORATIF GLOWING MOON & TEKS KANAN --}}
-            <div class="absolute top-10 right-10 w-16 h-16 rounded-full bg-gradient-to-tr from-yellow-300 to-amber-100 opacity-90 blur-[1px] shadow-[0_0_25px_rgba(251,191,36,0.6)]"></div>
+            <div class="absolute top-10 right-10 w-16 h-16 rounded-full bg-gradient-to-tr from-yellow-300 to-amber-100 opacity-90 blur-[1px] shadow-[0_0_30px_rgba(251,191,36,0.8)]"></div>
 
             <div class="absolute inset-0 flex flex-col justify-end p-12 text-white z-20">
                 <div class="max-w-xs space-y-2 mb-4">
-                    <span class="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-semibold tracking-wider text-amber-300 uppercase">
+                    <span class="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-semibold tracking-wider text-amber-300 uppercase border border-white/10 shadow-sm">
                         Sistem Pengaduan
                     </span>
-                    <h2 class="text-2xl font-bold tracking-tight drop-shadow-md">Layanan Pengaduan Integratif</h2>
-                    <p class="text-xs text-purple-200/80 leading-relaxed drop-shadow">
+                    <h2 class="text-2xl font-bold tracking-tight drop-shadow-lg">Layanan Pengaduan Integratif</h2>
+                    <p class="text-xs text-purple-200/90 leading-relaxed drop-shadow">
                         Memberikan pelayanan yang transparan, cepat, dan terpercaya bagi seluruh pengguna SIM RSUD Sumenep.
                     </p>
                 </div>
