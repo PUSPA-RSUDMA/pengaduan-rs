@@ -80,7 +80,7 @@
     <form action="{{ route('utama.dashboard') }}" method="GET" class="m-0">
         <select name="year" class="form-select border-0 shadow-sm fw-bold" style="border-radius: 20px; padding-left: 20px; padding-right: 35px; color: #4b5563; cursor: pointer;" onchange="this.form.submit()">
             @for($y = date('Y'); $y >= date('Y') - 4; $y--)
-                <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>Daily/Yearly: {{ $y }}</option>
+                <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
             @endfor
         </select>
     </form>
