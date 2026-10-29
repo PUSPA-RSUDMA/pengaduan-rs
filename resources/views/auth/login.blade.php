@@ -44,7 +44,7 @@
                 <!-- Overlay gradien untuk menggelapkan gambar -->
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/40 z-10"></div>
                 
-                <!-- HEADER KIRI: Keren & Elegan (Avatar Dihapus) -->
+                <!-- HEADER KIRI: Keren & Elegan -->
                 <div class="relative z-20 flex items-center gap-3.5 bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/20 self-start shadow-lg">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#dcfc43] to-emerald-400 flex items-center justify-center text-gray-900 shadow-md">
                         <!-- Ikon Medis / Keamanan -->
@@ -110,11 +110,25 @@
                             <x-input-error :messages="$errors->get('email')" class="mt-1 text-red-500 text-xs" />
                         </div>
 
-                        <!-- Field Password -->
-                        <div>
+                        <!-- Field Password dengan Tombol Ikon Mata -->
+                        <div class="relative">
                             <input id="password" type="password" name="password" required autocomplete="current-password" 
-                                   class="block w-full px-0 py-3 bg-transparent border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-gray-900 placeholder-gray-400 transition-colors"
+                                   class="block w-full px-0 pr-10 py-3 bg-transparent border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-gray-900 placeholder-gray-400 transition-colors"
                                    placeholder="Kata Sandi" />
+                            
+                            <!-- Tombol Toggle Password (Ikon Mata) -->
+                            <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-0 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none">
+                                <!-- Ikon Mata Terbuka (Default: Sembunyikan sandi) -->
+                                <svg id="eye-open" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <!-- Ikon Mata Dicoret (Muncul saat sandi terlihat) -->
+                                <svg id="eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.027 10.027 0 014.132-5.411m3.89-1.348A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                                </svg>
+                            </button>
+
                             <x-input-error :messages="$errors->get('password')" class="mt-1 text-red-500 text-xs" />
                         </div>
 
@@ -153,5 +167,24 @@
             </div>
         </div>
     </div>
+
+    <!-- Script untuk Toggle Show/Hide Password -->
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            } else {
+                passwordInput.type = 'password';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
