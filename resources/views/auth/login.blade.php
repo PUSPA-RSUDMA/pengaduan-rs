@@ -160,7 +160,7 @@
 
                     <!-- Footer Link -->
                     <div class="mt-8 text-center text-sm text-gray-600 font-medium">
-                        Bukan petugas? <a href="#" class="text-[#849c0c] hover:underline font-bold">Kunjungi Beranda</a>
+                        Bukan petugas? <a href="https://rsudma.sumenepkab.go.id/" class="text-[#849c0c] hover:underline font-bold">Kunjungi Beranda</a>
                     </div>
 
                 </div>
