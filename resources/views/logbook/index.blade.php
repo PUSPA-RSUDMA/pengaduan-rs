@@ -5,23 +5,92 @@
 <!-- Load CSS FullCalendar -->
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-        <h5 class="fw-bold m-0"><i class="bi bi-calendar-event text-primary me-2"></i>Kalender Agenda Logbook</h5>
-        <div class="d-flex align-items-center">
-            <span class="badge bg-danger me-2">Warna Merah = H-1 (Besok)</span>
-            <span class="badge bg-primary">Warna Biru = Normal</span>
-        </div>
-    </div>
+<style>
+    /* Global Styles matching the modern dashboard reference */
+    body {
+        background-color: #f4f7f6;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
     
-    <div class="card-body">
+    .card { 
+        border-radius: 16px !important; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03) !important; 
+        border: 1px solid rgba(0,0,0,0.02) !important;
+        background-color: #ffffff;
+    }
+
+    .text-title { color: #111827; font-weight: 700; font-size: 1.15rem; }
+    
+    /* Modern Button Styling */
+    .btn-modern-primary {
+        background-color: #10b981; /* Emerald green */
+        color: white; border: none; border-radius: 8px;
+        font-weight: 600; transition: all 0.2s;
+    }
+    .btn-modern-primary:hover { background-color: #059669; color: white; transform: translateY(-1px); }
+
+    /* Soft Badges */
+    .badge-soft { border-radius: 20px; padding: 0.35rem 0.8rem; font-weight: 600; font-size: 0.75rem; }
+    .badge-soft-danger { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-soft-primary { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+
+    /* Form Styling */
+    .form-control-modern, .form-select-modern {
+        border-radius: 8px; border: 1px solid #e5e7eb; font-size: 0.85rem; padding: 0.5rem 0.75rem;
+    }
+    .form-control-modern:focus, .form-select-modern:focus {
+        border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+    }
+
+    /* Modal Styling */
+    .modal-content { border-radius: 16px; border: none; }
+    .modal-header-modern { border-bottom: 1px solid #f3f4f6; padding: 1.25rem 1.5rem; background: white; border-radius: 16px 16px 0 0; }
+    .modal-title-modern { font-weight: 700; color: #111827; font-size: 1.1rem; }
+    .modal-footer-modern { border-top: 1px solid #f3f4f6; background: #f9fafb; border-radius: 0 0 16px 16px; }
+
+    /* FullCalendar Custom Enhancements */
+    .fc-daygrid-day { cursor: pointer; }
+    .fc-daygrid-day:hover { background-color: #f8fafc; }
+    .fc-event { cursor: pointer; border-radius: 6px; padding: 2px 4px; border: none !important; }
+    
+    /* Toolbar Styling */
+    .fc-toolbar-title { font-size: 1.15rem !important; font-weight: 700; color: #111827; }
+    .fc-button {
+        background-color: #f3f4f6 !important; border: 1px solid #e5e7eb !important; color: #374151 !important;
+        font-weight: 600 !important; border-radius: 8px !important; padding: 0.4rem 0.8rem !important;
+        box-shadow: none !important; text-transform: capitalize;
+    }
+    .fc-button-active, .fc-button:hover {
+        background-color: #10b981 !important; border-color: #10b981 !important; color: white !important;
+    }
+</style>
+
+<div class="card border-0 mb-4">
+    <div class="card-body p-4">
+        
+        {{-- HEADER SECTION --}}
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h5 class="text-title m-0"><i class="bi bi-calendar-event text-primary me-2"></i>Kalender Agenda Logbook</h5>
+                <small class="text-muted">Kelola dan pantau jadwal kegiatan serta agenda harian</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge-soft badge-soft-danger"><i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> H-1 (Besok)</span>
+                <span class="badge-soft badge-soft-primary"><i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> Normal</span>
+            </div>
+        </div>
+
+        {{-- ALERTS --}}
         @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
+            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 12px; background-color: #d1fae5; color: #065f46;">
+                <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         @endif
 
-        <p class="text-muted small mb-4">
-            <i class="bi bi-info-circle"></i> <b>Petunjuk:</b> Klik pada tanggal berapapun di kalender untuk <b>menambah agenda</b>. Klik pada nama agenda yang sudah ada untuk <b>mengedit atau menghapus</b>.
-        </p>
+        <div class="p-3 mb-4 rounded-3 bg-light border border-light" style="font-size: 0.85rem; color: #4b5563;">
+            <i class="bi bi-info-circle-fill text-primary me-1"></i> <b>Petunjuk:</b> Klik pada tanggal berapapun di kalender untuk <b>menambah agenda</b>. Klik pada nama agenda yang sudah ada untuk <b>mengedit atau menghapus</b>.
+        </div>
 
         <!-- Tempat Kalender Muncul -->
         <div id='calendar'></div>
@@ -29,78 +98,80 @@
 </div>
 
 {{-- 1. MODAL TAMBAH LOGBOOK --}}
-<div class="modal fade" id="modalTambahLogbook" tabindex="-1">
-    <div class="modal-dialog">
-        <form action="{{ route('logbook.store') }}" method="POST" class="modal-content">
+<div class="modal fade" id="modalTambahLogbook" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <form action="{{ route('logbook.store') }}" method="POST" class="modal-content shadow-lg">
             @csrf
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold">Tambah Agenda Baru</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header-modern d-flex justify-content-between align-items-center">
+                <h6 class="modal-title-modern m-0"><i class="bi bi-journal-plus text-primary me-2"></i>Tambah Agenda Baru</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Tanggal Pelaksanaan</label>
-                    <input type="date" id="inputTanggal" name="tanggal_acara" class="form-control" required readonly>
-                    <small class="text-muted">Tanggal terpilih dari kalender</small>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Judul Agenda / Kegiatan</label>
-                    <input type="text" name="judul_acara" class="form-control" required placeholder="Contoh: Rapat Evaluasi Bulanan">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Deskripsi / Catatan</label>
-                    <textarea name="deskripsi" class="form-control" rows="3" placeholder="Keterangan tambahan..."></textarea>
+            <div class="modal-body p-4 bg-light">
+                <div class="card border-0 shadow-sm p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small mb-1">Tanggal Pelaksanaan</label>
+                        <input type="date" id="inputTanggal" name="tanggal_acara" class="form-control form-control-modern bg-white" required readonly>
+                        <small class="text-muted" style="font-size: 0.75rem;">Tanggal terpilih otomatis dari kalender</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small mb-1">Judul Agenda / Kegiatan</label>
+                        <input type="text" name="judul_acara" class="form-control form-control-modern" required placeholder="Contoh: Rapat Evaluasi Bulanan">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold text-muted small mb-1">Deskripsi / Catatan</label>
+                        <textarea name="deskripsi" class="form-control form-control-modern" rows="3" placeholder="Keterangan tambahan..."></textarea>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary">Simpan Agenda</button>
+            <div class="modal-footer-modern p-3 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light shadow-sm btn-modern px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-modern-primary px-4">Simpan Agenda</button>
             </div>
         </form>
     </div>
 </div>
 
 {{-- 2. MODAL EDIT & HAPUS LOGBOOK --}}
-<div class="modal fade" id="modalEditLogbook" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square"></i> Edit / Hapus Agenda</h5>
+<div class="modal fade" id="modalEditLogbook" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header-modern d-flex justify-content-between align-items-center">
+                <h6 class="modal-title-modern m-0"><i class="bi bi-pencil-square text-warning me-2"></i>Edit / Hapus Agenda</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             
-            {{-- Form Edit --}}
-            <div class="modal-body">
-                <form id="formEditLogbook" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="mb-3">
-                        <label class="form-label">Tanggal Pelaksanaan</label>
-                        <input type="date" id="editTanggal" name="tanggal_acara" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Judul Agenda / Kegiatan</label>
-                        <input type="text" id="editJudul" name="judul_acara" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Deskripsi / Catatan</label>
-                        <textarea id="editDeskripsi" name="deskripsi" class="form-control" rows="3"></textarea>
-                    </div>
-                </form>
+            <div class="modal-body p-4 bg-light">
+                <div class="card border-0 shadow-sm p-4">
+                    <form id="formEditLogbook" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small mb-1">Tanggal Pelaksanaan</label>
+                            <input type="date" id="editTanggal" name="tanggal_acara" class="form-control form-control-modern" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small mb-1">Judul Agenda / Kegiatan</label>
+                            <input type="text" id="editJudul" name="judul_acara" class="form-control form-control-modern" required>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label fw-bold text-muted small mb-1">Deskripsi / Catatan</label>
+                            <textarea id="editDeskripsi" name="deskripsi" class="form-control form-control-modern" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
             </div>
             
-            <div class="modal-footer d-flex justify-content-between">
+            <div class="modal-footer-modern p-3 d-flex justify-content-between align-items-center">
                 {{-- Form Delete (Terpisah agar tidak bentrok dengan form Edit) --}}
-                <form id="formDeleteLogbook" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus agenda ini secara permanen?');">
+                <form id="formDeleteLogbook" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus agenda ini secara permanen?');" class="m-0">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Hapus Agenda</button>
+                    <button type="submit" class="btn btn-sm btn-danger px-3 py-2 fw-bold" style="border-radius: 8px;"><i class="bi bi-trash-fill me-1"></i> Hapus</button>
                 </form>
 
-                <div>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    {{-- Tombol submit untuk Form Edit --}}
-                    <button type="submit" form="formEditLogbook" class="btn btn-warning fw-bold">Simpan Perubahan</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light shadow-sm btn-modern px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" form="formEditLogbook" class="btn btn-warning text-dark fw-bold px-4 shadow-sm" style="border-radius: 8px;">Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -168,12 +239,5 @@
         calendar.render();
     });
 </script>
-
-<style>
-    /* Sedikit perbaikan tampilan kalender agar kursor berubah menjadi tangan saat diarahkan ke tanggal */
-    .fc-daygrid-day { cursor: pointer; }
-    .fc-daygrid-day:hover { background-color: #f8f9fa; }
-    .fc-event { cursor: pointer; }
-</style>
 
 @endsection
