@@ -23,6 +23,7 @@ use App\Http\Controllers\PermohonanInformasiController;
 use App\Http\Controllers\PermohonanUhcController;
 use App\Http\Controllers\MasterRequestPkrsController;
 use App\Http\Controllers\MasterOutputPkrsController;
+use App\Http\Controllers\PkrsController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -96,6 +97,8 @@ Route::middleware(['auth'])->group(function () {
     // Menu Admin Lama (Source & Category)
     Route::resource('sources', SourceController::class);
     Route::resource('categories', CategoryController::class);
+    Route::get('/pkrs/dashboard', [PkrsController::class, 'dashboard'])->name('pkrs.dashboard');
+    Route::resource('pkrs', PkrsController::class)->except(['create', 'show', 'edit']);
 
     // Export Data Complaints
     Route::get('export-excel', [ComplaintController::class, 'exportExcel'])->name('export.excel');
