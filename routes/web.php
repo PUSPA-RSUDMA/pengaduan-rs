@@ -21,6 +21,8 @@ use App\Http\Controllers\WhatsappInboxController;
 use App\Http\Controllers\BpjsController;
 use App\Http\Controllers\PermohonanInformasiController;
 use App\Http\Controllers\PermohonanUhcController;
+use App\Http\Controllers\MasterRequestPkrsController;
+use App\Http\Controllers\MasterOutputPkrsController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -157,6 +159,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/master/supir', [MasterController::class, 'supirIndex'])->name('master.supir.index');
         Route::post('/master/supir', [MasterController::class, 'supirStore'])->name('master.supir.store');
         Route::delete('/master/supir/{id}', [MasterController::class, 'supirDestroy'])->name('master.supir.destroy');
+        // Master Data PKRS
+        Route::resource('master/request-pkrs', MasterRequestPkrsController::class, [
+            'as' => 'master'
+        ]);
+        Route::resource('master/output-pkrs', MasterOutputPkrsController::class, [
+            'as' => 'master'
+        ]);
 
         // LASEHAT GROUP
         Route::prefix('lasehat')->group(function () {

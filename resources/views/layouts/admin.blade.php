@@ -245,6 +245,21 @@
                     </div>
                 </div>
 
+                <div class="sidebar-label menu-group-label mt-2">Promosi Kesehatan</div>
+                <a href="#submenuPkrs" data-bs-toggle="collapse" 
+                class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('pkrs.*') ? '' : 'collapsed' }}">
+                    <i class="bi bi-megaphone me-3"></i> <span>Data PKRS</span>
+                    <i class="bi bi-chevron-down menu-arrow"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('pkrs.*') ? 'show' : '' }}" id="submenuPkrs">
+                    <div class="sub-menu-wrapper">
+                        @if(auth()->user()->role == 'admin')
+                            <a href="{{ route('pkrs.dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('pkrs.dashboard') ? 'active' : '' }}">Dashboard PKRS</a>
+                        @endif
+                        <a href="{{ route('pkrs.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('pkrs.index') ? 'active' : '' }}">Kegiatan PKRS</a>
+                    </div>
+                </div>
+
                 <div class="sidebar-label menu-group-label mt-2">Agenda & Integrasi</div>
 
                 <a href="#submenuLogbook" data-bs-toggle="collapse" 
@@ -285,6 +300,8 @@
                             <a href="{{ route('kategori-permintaan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('kategori-permintaan.*') ? 'active' : '' }}">Kategori Permintaan</a>
                             <a href="{{ route('master.supir.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.supir.*') ? 'active' : '' }}">Master Supir</a>
                             <a href="{{ route('master.grades.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.grades.*') ? 'active' : '' }}">Kegawatan</a>
+                            <a href="{{ route('master.request-pkrs.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.request-pkrs.*') ? 'active' : '' }}">Master Request PKRS</a>
+                            <a href="{{ route('master.output-pkrs.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.output-pkrs.*') ? 'active' : '' }}">Master Output PKRS</a>
                         </div>
                     </div>
                     <a href="{{ route('users.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
