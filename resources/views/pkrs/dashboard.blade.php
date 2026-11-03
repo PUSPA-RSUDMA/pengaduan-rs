@@ -108,6 +108,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         Chart.defaults.font.family = "'Inter', sans-serif";
@@ -126,13 +127,20 @@
                     borderWidth: 3, tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: '#fff'
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, suggestedMax: 5 } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } }, 
+                scales: { 
+                    y: { beginAtZero: true, suggestedMax: 5, ticks: { stepSize: 1 } } 
+                } 
+            }
         });
 
         // 2. Bar Chart (Request By)
         const reqData = {!! json_encode($requestData) !!};
         new Chart(document.getElementById('requestChart').getContext('2d'), {
-            type: 'bar',
+            type: 'bar', // Menggunakan Bar Chart
             data: {
                 labels: Object.keys(reqData),
                 datasets: [{
@@ -140,25 +148,44 @@
                     data: Object.values(reqData),
                     backgroundColor: '#3b82f6',
                     borderRadius: 6,
-                    barPercentage: 0.5
+                    barPercentage: 0.4 // Mengecilkan lebar bar agar tidak terlalu penuh jika datanya sedikit
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } }, 
+                scales: { 
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } } 
+                } 
+            }
         });
 
-        // 3. Doughnut Chart (Output)
+        // 3. Pie Chart (Output)
         const outData = {!! json_encode($outputData) !!};
         new Chart(document.getElementById('outputChart').getContext('2d'), {
-            type: 'doughnut',
+            type: 'pie', // <-- Diubah menjadi pie
             data: {
                 labels: Object.keys(outData),
                 datasets: [{
                     data: Object.values(outData),
                     backgroundColor: chartColors,
-                    borderWidth: 0, hoverOffset: 5
+                    borderWidth: 1, 
+                    borderColor: '#ffffff',
+                    hoverOffset: 5
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: {size: 11} } } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                // cutout: '65%', <-- Dihapus karena ini untuk doughnut chart
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { usePointStyle: true, font: {size: 11}, padding: 20 } 
+                    } 
+                } 
+            }
         });
     });
 </script>
