@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pkrs;
-use App\Models\MasterRequestPkrs; // Pastikan model ini sudah dibuat
-use App\Models\MasterOutputPkrs; // Pastikan model ini sudah dibuat
+use App\Models\MasterRequestPkrs;
+use App\Models\MasterOutputPkrs;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -18,15 +18,24 @@ class PkrsController extends Controller
         
         $query = Pkrs::query();
 
+        // Pencarian dibungkus agar tidak bentrok dengan filter lain
         if ($request->filled('search')) {
-            $query->where('tema', 'like', "%{$request->search}%")
+            $query->where(function($q) use ($request) {
+                $q->where('tema', 'like', "%{$request->search}%")
                   ->orWhere('rencana_kegiatan', 'like', "%{$request->search}%");
+            });
         }
+
+        // Filter berdasarkan Status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $dataPkrs = $query->orderBy('tanggal', 'desc')->paginate(10)->withQueryString();
+        // Fitur Urutkan (Sorting) - Default terbaru (desc)
+        $sort = $request->input('sort', 'desc');
+        $query->orderBy('tanggal', $sort === 'asc' ? 'asc' : 'desc');
+
+        $dataPkrs = $query->paginate(10)->withQueryString();
 
         return view('pkrs.index', compact('dataPkrs', 'requests', 'outputs'));
     }

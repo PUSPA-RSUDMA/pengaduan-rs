@@ -40,6 +40,43 @@
             </div>
         @endif
 
+        {{-- FORM FILTER & SORTING --}}
+        <div class="mb-4 p-3 bg-light rounded-3 border" style="border-color: #f3f4f6 !important;">
+            <form action="{{ route('pkrs.index') }}" method="GET" class="row g-2 align-items-center">
+                {{-- Input Pencarian --}}
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control form-control-modern" placeholder="Cari Tema / Kegiatan..." value="{{ request('search') }}">
+                </div>
+                
+                {{-- Filter Status --}}
+                <div class="col-md-3">
+                    <select name="status" class="form-select form-control-modern" onchange="this.form.submit()">
+                        <option value="">-- Semua Status --</option>
+                        <option value="Belum" {{ request('status') == 'Belum' ? 'selected' : '' }}>Belum</option>
+                        <option value="Proses" {{ request('status') == 'Proses' ? 'selected' : '' }}>Proses</option>
+                        <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                    </select>
+                </div>
+                
+                {{-- Filter Sorting (Terbaru/Terlama) --}}
+                <div class="col-md-3">
+                    <select name="sort" class="form-select form-control-modern" onchange="this.form.submit()">
+                        <option value="desc" {{ request('sort', 'desc') == 'desc' ? 'selected' : '' }}>Urutkan: Tanggal Terbaru</option>
+                        <option value="asc" {{ request('sort') == 'asc' ? 'selected' : '' }}>Urutkan: Tanggal Terlama</option>
+                    </select>
+                </div>
+                
+                {{-- Tombol Terapkan & Reset --}}
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-modern-primary w-100 py-2"><i class="bi bi-funnel"></i> Terapkan</button>
+                    {{-- Tombol reset akan muncul jika ada filter aktif selain kondisi default --}}
+                    @if(request()->anyFilled(['search', 'status']) || request('sort') === 'asc')
+                        <a href="{{ route('pkrs.index') }}" class="btn btn-light border py-2 shadow-sm" title="Reset Filter"><i class="bi bi-arrow-clockwise"></i></a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
         {{-- TABLE --}}
         <div class="table-responsive border rounded-3" style="border-color: #f3f4f6 !important;">
             <table class="table table-modern align-middle table-hover">
@@ -59,7 +96,7 @@
                 <tbody class="text-center">
                     @forelse($dataPkrs as $item)
                     <tr>
-                        <td class="text-muted fw-bold">{{ $loop->iteration }}</td>
+                        <td class="text-muted fw-bold">{{ $loop->iteration + $dataPkrs->firstItem() - 1 }}</td>
                         <td>
                             <div class="fw-bold text-dark">{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}</div>
                             <small class="text-muted">{{ $item->hari }}</small>
@@ -161,7 +198,7 @@
                     </div>
                     @empty
                     <tr>
-                        <td colspan="9" class="text-center py-5 text-muted">Belum ada data kegiatan PKRS.</td>
+                        <td colspan="9" class="text-center py-5 text-muted">Belum ada data atau tidak ditemukan.</td>
                     </tr>
                     @endforelse
                 </tbody>
