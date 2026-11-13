@@ -161,7 +161,7 @@
                                     </td>
                                     <td class="text-center">
                                         @if($item->file_lampiran)
-                                            <a href="{{ Storage::disk('google')->url($item->file_lampiran) }}" target="_blank" class="btn btn-sm btn-light border text-info rounded-pill fw-bold shadow-sm py-1 px-3" style="font-size: 0.75rem;">
+                                            <a href="{{ route('permohonan-uhc.show', $item->id) }}" target="_blank" class="btn btn-sm btn-light border text-info rounded-pill fw-bold shadow-sm py-1 px-3" style="font-size: 0.75rem;">
                                                 <i class="bi bi-cloud-arrow-down-fill me-1"></i> Lihat
                                             </a>
                                         @else
@@ -249,7 +249,7 @@
                             <div class="col-md-12 border-top pt-3 mt-2">
                                 <label class="form-label fw-bold text-muted small mb-1">Upload Berkas Lampiran <span class="text-danger">*</span></label>
                                 <input type="file" name="file_lampiran" class="form-control form-control-modern" required accept=".pdf,.jpg,.jpeg,.png">
-                                <div class="form-text small text-muted mt-1"><i class="bi bi-info-circle me-1"></i>Format file: PDF, JPG, PNG. Maksimal ukuran: 10MB.</div>
+                                <div class="form-text small text-muted mt-1"><i class="bi bi-info-circle me-1"></i>Format file: PDF, JPG, PNG. Maksimal ukuran: 25MB.</div>
                             </div>
                         </div>
                     </div>

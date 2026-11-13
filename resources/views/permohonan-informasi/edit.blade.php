@@ -106,13 +106,13 @@
                             <label class="form-label fw-bold text-muted small mb-1">Ganti Berkas Lampiran (Opsional)</label>
                             @if($permohonan->file_lampiran)
                                 <div class="mb-3">
-                                    <a href="{{ Storage::disk('google')->url($permohonan->file_lampiran) }}" target="_blank" class="btn btn-sm btn-light border text-info rounded-pill fw-bold shadow-sm py-1 px-3" style="font-size: 0.8rem;">
+                                    <a href="{{ route('permohonan-informasi.show', $permohonan->id) }}" target="_blank" class="btn btn-sm btn-light border text-info rounded-pill fw-bold shadow-sm py-1 px-3" style="font-size: 0.8rem;">
                                         <i class="bi bi-cloud-arrow-down-fill me-1"></i> Lihat Berkas Saat Ini di G-Drive
                                     </a>
                                 </div>
                             @endif
                             <input type="file" name="file_lampiran" class="form-control form-control-modern" accept=".pdf,.jpg,.jpeg,.png">
-                            <div class="form-text small text-muted mt-1"><i class="bi bi-info-circle me-1"></i>Abaikan jika tidak ingin mengganti file. Format: PDF, JPG, PNG (Maks: 10MB).</div>
+                            <div class="form-text small text-muted mt-1"><i class="bi bi-info-circle me-1"></i>Abaikan jika tidak ingin mengganti file. Format: PDF, JPG, PNG (Maks: 25MB).</div>
                         </div>
                     </div>
 

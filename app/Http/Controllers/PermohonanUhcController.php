@@ -15,6 +15,22 @@ class PermohonanUhcController extends Controller
         return view('permohonan-uhc.index', compact('data'));
     }
 
+    public function show($id)
+    {
+        $permohonan = PermohonanUhc::findOrFail($id);
+
+        if (!$permohonan->file_lampiran) {
+            return redirect()->back()->withErrors(['File lampiran tidak ditemukan.']);
+        }
+
+        if (filter_var($permohonan->file_lampiran, FILTER_VALIDATE_URL)) {
+            return redirect()->away($permohonan->file_lampiran);
+        }
+
+        $url = Storage::disk('google')->url($permohonan->file_lampiran);
+        return redirect()->away($url);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -23,7 +39,7 @@ class PermohonanUhcController extends Controller
             'no_hp'              => 'required|string|max:20',
             'segmen_kepesertaan' => 'required|string|max:255',
             'alasan_peralihan'   => 'required|string',
-            'file_lampiran'      => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240', 
+            'file_lampiran'      => 'required|file|mimes:pdf,jpg,jpeg,png|max:25600', 
         ]);
 
         $filePath = null;
@@ -63,7 +79,7 @@ class PermohonanUhcController extends Controller
             'no_hp'              => 'required|string|max:20',
             'segmen_kepesertaan' => 'required|string|max:255',
             'alasan_peralihan'   => 'required|string',
-            'file_lampiran'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'file_lampiran'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:25600',
         ]);
 
         $filePath = $permohonan->file_lampiran;

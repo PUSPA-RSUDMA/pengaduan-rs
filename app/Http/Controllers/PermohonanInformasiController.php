@@ -14,6 +14,22 @@ class PermohonanInformasiController extends Controller
         return view('permohonan-informasi.index', compact('data'));
     }
 
+    public function show($id)
+    {
+        $permohonan = PermohonanInformasi::findOrFail($id);
+
+        if (!$permohonan->file_lampiran) {
+            return redirect()->back()->withErrors(['File lampiran tidak ditemukan.']);
+        }
+
+        if (filter_var($permohonan->file_lampiran, FILTER_VALIDATE_URL)) {
+            return redirect()->away($permohonan->file_lampiran);
+        }
+
+        $url = Storage::disk('google')->url($permohonan->file_lampiran);
+        return redirect()->away($url);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -21,7 +37,7 @@ class PermohonanInformasiController extends Controller
             'nama_pasien'  => 'required|string|max:255',
             'no_hp'        => 'required|string|max:20',
             'keperluan'    => 'required',
-            'file_lampiran'=> 'required|file|mimes:pdf,jpg,jpeg,png|max:10240', 
+            'file_lampiran'=> 'required|file|mimes:pdf,jpg,jpeg,png|max:25600', 
         ]);
 
         $filePath = null;
@@ -60,7 +76,7 @@ class PermohonanInformasiController extends Controller
             'nama_pasien'  => 'required|string|max:255',
             'no_hp'        => 'required|string|max:20',
             'keperluan'    => 'required',
-            'file_lampiran'=> 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'file_lampiran'=> 'nullable|file|mimes:pdf,jpg,jpeg,png|max:25600',
         ]);
 
         $filePath = $permohonan->file_lampiran;
