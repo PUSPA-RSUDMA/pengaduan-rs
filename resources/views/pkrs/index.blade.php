@@ -28,9 +28,11 @@
                 <h5 class="text-title m-0">Data Kegiatan PKRS</h5>
                 <small class="text-muted">Kelola jadwal dan laporan kegiatan Promosi Kesehatan RS</small>
             </div>
+            @if(auth()->user()->hasPermission('pkrs', 'create'))
             <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInput">   
                 <i class="bi bi-plus-lg me-1"></i> Tambah Kegiatan
             </button>
+            @endif
         </div>
 
         @if(session('success'))
@@ -123,13 +125,17 @@
                         </td>
                         <td>
                             <div class="d-flex justify-content-center gap-1">
+                                @if(auth()->user()->hasPermission('pkrs', 'edit'))
                                 <button type="button" class="btn btn-action-icon bg-warning-subtle text-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $item->id }}">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
+                                @endif
+                                @if(auth()->user()->hasPermission('pkrs', 'delete'))
                                 <form action="{{ route('pkrs.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?');" class="d-inline">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-action-icon bg-danger-subtle text-danger shadow-sm"><i class="bi bi-trash-fill"></i></button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

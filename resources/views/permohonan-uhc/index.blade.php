@@ -113,9 +113,11 @@
                         <small class="text-muted">Kelola data peralihan segmen kepesertaan ke UHC</small>
                     </div>
                     
+                    @if(auth()->user()->hasPermission('permohonan_uhc', 'create'))
                     <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">   
                         <i class="bi bi-plus-lg me-1"></i> Tambah Data
                     </button>
+                    @endif
                 </div>
 
                 {{-- TABLE SECTION --}}
@@ -170,9 +172,12 @@
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-center gap-1">
+                                            @if(auth()->user()->hasPermission('permohonan_uhc', 'edit'))
                                             <a href="{{ route('permohonan-uhc.edit', $item->id) }}" class="btn btn-action-icon bg-warning-subtle text-warning shadow-sm" title="Edit">
                                                 <i class="bi bi-pencil-fill"></i>
                                             </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('permohonan_uhc', 'delete'))
                                             <form action="{{ route('permohonan-uhc.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini? File lampiran juga akan terhapus permanen.')">
                                                 @csrf
                                                 @method('DELETE')
@@ -180,6 +185,7 @@
                                                     <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

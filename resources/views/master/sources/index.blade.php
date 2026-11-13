@@ -95,9 +95,11 @@
                     </div>
                     
                     {{-- TOMBOL TAMBAH --}}
+                    @if(auth()->user()->hasPermission('master', 'create'))
                     <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCreate">
                         <i class="bi bi-plus-lg me-1"></i> Tambah Baru
                     </button>
+                    @endif
                 </div>
 
                 {{-- TABLE SECTION --}}
@@ -118,17 +120,21 @@
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
                                         {{-- TOMBOL EDIT --}}
+                                        @if(auth()->user()->hasPermission('master', 'edit'))
                                         <button type="button" class="btn btn-action-icon bg-warning-subtle text-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $source->id }}" title="Edit Media">
                                             <i class="bi bi-pencil-fill"></i>
                                         </button>
+                                        @endif
                                         
                                         {{-- TOMBOL HAPUS --}}
+                                        @if(auth()->user()->hasPermission('master', 'delete'))
                                         <form action="{{ route('sources.destroy', $source->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?')" class="d-inline">
                                             @csrf @method('DELETE')
                                             <button class="btn btn-action-icon bg-danger-subtle text-danger shadow-sm" title="Hapus Media">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
 
                                     {{-- ========================================== --}}

@@ -81,9 +81,11 @@
                         <h5 class="text-title m-0"><i class="bi bi-buildings text-primary me-2"></i>Daftar Unit Pelapor</h5>
                         <small class="text-muted">Kelola data master unit atau instansi pelapor aduan</small>
                     </div>
+                    @if(auth()->user()->hasPermission('master', 'create'))
                     <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addModal">
                         <i class="bi bi-plus-lg me-1"></i> Tambah Baru
                     </button>
+                    @endif
                 </div>
 
                 {{-- TABLE SECTION --}}
@@ -110,17 +112,21 @@
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
                                         {{-- TOMBOL EDIT --}}
+                                        @if(auth()->user()->hasPermission('master', 'edit'))
                                         <button type="button" class="btn btn-action-icon bg-warning-subtle text-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $r->id }}" title="Edit Unit Pelapor">
                                             <i class="bi bi-pencil-fill"></i>
                                         </button>
+                                        @endif
                                         
                                         {{-- TOMBOL HAPUS --}}
+                                        @if(auth()->user()->hasPermission('master', 'delete'))
                                         <form action="{{ route('master.reporters.destroy', $r->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus unit pelapor ini?')" class="d-inline">
                                             @csrf @method('DELETE')
                                             <button class="btn btn-action-icon bg-danger-subtle text-danger shadow-sm" title="Hapus Unit Pelapor">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
 
                                     {{-- MODAL EDIT --}}

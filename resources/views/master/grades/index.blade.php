@@ -84,9 +84,11 @@
                         <h5 class="text-title m-0"><i class="bi bi-exclamation-triangle text-danger me-2"></i>Level Kegawatan</h5>
                         <small class="text-muted">Kelola data prioritas dan indikator warna kegawatan</small>
                     </div>
+                    @if(auth()->user()->hasPermission('master', 'create'))
                     <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addModal">
                         <i class="bi bi-plus-lg me-1"></i> Tambah Baru
                     </button>
+                    @endif
                 </div>
 
                 {{-- TABLE SECTION --}}
@@ -125,17 +127,21 @@
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
                                         {{-- TOMBOL EDIT --}}
+                                        @if(auth()->user()->hasPermission('master', 'edit'))
                                         <button type="button" class="btn btn-action-icon bg-warning-subtle text-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $g->id }}" title="Edit Level">
                                             <i class="bi bi-pencil-fill"></i>
                                         </button>
+                                        @endif
                                         
                                         {{-- TOMBOL HAPUS --}}
+                                        @if(auth()->user()->hasPermission('master', 'delete'))
                                         <form action="{{ route('master.grades.destroy', $g->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus level kegawatan ini?')" class="d-inline">
                                             @csrf @method('DELETE')
                                             <button class="btn btn-action-icon bg-danger-subtle text-danger shadow-sm" title="Hapus Level">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
 
                                     {{-- MODAL EDIT --}}

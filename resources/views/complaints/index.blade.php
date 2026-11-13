@@ -102,7 +102,7 @@
                 <small class="text-muted">Kelola dan pantau semua data keluhan yang masuk</small>
             </div>
             
-            @if(auth()->user()->role !== 'relationship')
+            @if(auth()->user()->hasPermission('complaints', 'create'))
             <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInput">    
                 <i class="bi bi-plus-lg me-1"></i> Buat Laporan Baru
             </button>
@@ -157,9 +157,11 @@
                         
                         <div class="vr mx-1"></div>
 
+                        @if(auth()->user()->hasPermission('complaints', 'create'))
                         <button type="button" class="btn btn-modern-primary d-flex align-items-center gap-2" style="padding: 0.35rem 0.75rem;" data-bs-toggle="modal" data-bs-target="#modalImport" title="Import Excel">
                             <i class="bi bi-cloud-upload"></i> <span class="d-none d-sm-inline font-weight-normal" style="font-size: 0.85rem;">Import</span>
                         </button>
+                        @endif
                         <a href="{{ route('export.excel', request()->query()) }}" class="btn btn-action-icon bg-success-subtle text-success shadow-sm" title="Download Excel"><i class="bi bi-file-earmark-excel-fill"></i></a>
                         <a href="{{ route('export.pdf', request()->query()) }}" target="_blank" class="btn btn-action-icon bg-danger-subtle text-danger shadow-sm" title="Download PDF"><i class="bi bi-file-earmark-pdf-fill"></i></a>
                     </div>
@@ -272,10 +274,12 @@
                         {{-- AKSI --}}
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-1">
+                                @if(auth()->user()->hasPermission('complaints', 'edit'))
                                 <button type="button" class="btn btn-action-icon bg-warning-subtle text-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $complaint->id }}" title="Edit">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
-                                @if(auth()->user()->role == 'admin')
+                                @endif
+                                @if(auth()->user()->hasPermission('complaints', 'delete'))
                                     <form action="{{ route('complaints.destroy', $complaint->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?');" class="d-inline">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-action-icon bg-danger-subtle text-danger shadow-sm" title="Hapus"><i class="bi bi-trash-fill"></i></button>

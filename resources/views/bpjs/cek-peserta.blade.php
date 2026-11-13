@@ -251,8 +251,11 @@
                             let jnsPelayananText = k.jnsPelayanan || '-';
                             let terbitSepStatus = k.terbitSEP ? k.terbitSEP.trim() : 'Belum';
                             
+                            let canEditBpjs = {{ auth()->user()->hasPermission('bpjs', 'edit') ? 'true' : 'false' }};
                             let actionButton = '';
-                            if (terbitSepStatus.toLowerCase() === 'belum') {
+                            if (!canEditBpjs) {
+                                actionButton = `<span class="text-muted small">-</span>`;
+                            } else if (terbitSepStatus.toLowerCase() === 'belum') {
                                 actionButton = `
                                     <button class="btn btn-sm btn-warning fw-semibold shadow-sm" onclick="promptUpdateDate('${k.noSuratKontrol}', '${k.tglRencanaKontrol}')">
                                         <i class="bi bi-pencil-square"></i> Edit

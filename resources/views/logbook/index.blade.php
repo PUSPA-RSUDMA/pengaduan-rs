@@ -181,19 +181,25 @@
             </div>
             
             <div class="modal-footer-modern p-3 d-flex justify-content-between align-items-center">
-                {{-- Form Delete (Selalu tampil di kiri) --}}
-                <form id="formDeleteLogbook" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus agenda ini secara permanen?');" class="m-0">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-sm btn-outline-danger px-3 py-2 fw-bold" style="border-radius: 8px;"><i class="bi bi-trash-fill me-1"></i> Hapus</button>
-                </form>
+                {{-- Form Delete (Selalu tampil di kiri jika punya akses) --}}
+                <div>
+                    @if(auth()->check() && auth()->user()->hasPermission('logbook', 'delete'))
+                    <form id="formDeleteLogbook" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus agenda ini secara permanen?');" class="m-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-outline-danger px-3 py-2 fw-bold" style="border-radius: 8px;"><i class="bi bi-trash-fill me-1"></i> Hapus</button>
+                    </form>
+                    @endif
+                </div>
 
                 {{-- Tombol View Mode --}}
                 <div id="btnViewMode" class="d-flex gap-2">
                     <button type="button" class="btn btn-light shadow-sm btn-modern px-3 border" data-bs-dismiss="modal">Tutup</button>
+                    @if(auth()->check() && auth()->user()->hasPermission('logbook', 'edit'))
                     <button type="button" class="btn btn-warning text-dark fw-bold px-4 shadow-sm" style="border-radius: 8px;" onclick="toggleEditMode(true)">
                         <i class="bi bi-pencil-square me-1"></i> Edit
                     </button>
+                    @endif
                 </div>
 
                 {{-- Tombol Edit Mode --}}
@@ -244,9 +250,11 @@
             
             // KLIK TANGGAL KOSONG -> TAMBAH AGENDA
             dateClick: function(info) {
+                @if(auth()->check() && auth()->user()->hasPermission('logbook', 'create'))
                 document.getElementById('inputTanggal').value = info.dateStr;
                 var modalTambah = new bootstrap.Modal(document.getElementById('modalTambahLogbook'));
                 modalTambah.show();
+                @endif
             },
 
             // KLIK AGENDA -> LIHAT DETAIL / EDIT
@@ -272,8 +280,10 @@
 
                 // Atur Action Form Update & Delete
                 var baseURL = "{{ url('logbook') }}";
-                document.getElementById('formEditLogbook').action = baseURL + '/' + id;
-                document.getElementById('formDeleteLogbook').action = baseURL + '/' + id;
+                var formEdit = document.getElementById('formEditLogbook');
+                var formDelete = document.getElementById('formDeleteLogbook');
+                if (formEdit) formEdit.action = baseURL + '/' + id;
+                if (formDelete) formDelete.action = baseURL + '/' + id;
 
                 // Reset modal ke View Mode lalu tampilkan
                 toggleEditMode(false);

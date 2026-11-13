@@ -15,16 +15,15 @@ class BpjsService
 
     public function __construct()
     {
-        $this->baseUrl = config('bpjs.vclaim.base_url');
-        $this->consId = config('bpjs.vclaim.cons_id');
-        $this->secretKey = config('bpjs.vclaim.secret_key');
-        $this->userKey = config('bpjs.vclaim.user_key');
+        $this->baseUrl = rtrim((string) config('bpjs.vclaim.base_url'), '/') . '/';
+        $this->consId = trim((string) config('bpjs.vclaim.cons_id'));
+        $this->secretKey = trim((string) config('bpjs.vclaim.secret_key'));
+        $this->userKey = trim((string) config('bpjs.vclaim.user_key'));
     }
 
     private function generateHeader()
     {
-        date_default_timezone_set('UTC');
-        $timestamp = strval(time() - strtotime('1970-01-01 00:00:00'));
+        $timestamp = strval(time());
         $signature = hash_hmac('sha256', $this->consId . "&" . $timestamp, $this->secretKey, true);
         $encodedSignature = base64_encode($signature);
 

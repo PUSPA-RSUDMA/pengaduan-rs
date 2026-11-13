@@ -64,6 +64,7 @@
 
 <div class="row g-4">
     {{-- Form Tambah Supir --}}
+    @if(auth()->user()->hasPermission('master', 'create'))
     <div class="col-lg-4 col-md-5">
         <div class="card border-0 h-100">
             <div class="card-header bg-white pt-4 pb-2 px-4 border-bottom-0">
@@ -86,9 +87,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     {{-- Tabel Daftar Supir --}}
-    <div class="col-lg-8 col-md-7">
+    <div class="{{ auth()->user()->hasPermission('master', 'create') ? 'col-lg-8 col-md-7' : 'col-12' }}">
         <div class="card border-0 h-100">
             <div class="card-header bg-white pt-4 pb-2 px-4 border-bottom-0">
                 <h6 class="fw-bold text-dark m-0"><i class="bi bi-list-ul text-success me-2"></i>Daftar Supir Terdaftar</h6>
@@ -124,6 +126,7 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
+                                    @if(auth()->user()->hasPermission('master', 'delete'))
                                     <form action="{{ route('master.supir.destroy', $supir->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus supir ini dari sistem?');" class="m-0">
                                         @csrf
                                         @method('DELETE')
@@ -131,6 +134,9 @@
                                             <i class="bi bi-trash-fill"></i>
                                         </button>
                                     </form>
+                                    @else
+                                    <span class="text-muted">-</span>
+                                    @endif
                                 </td>
                             </tr>
                             @empty

@@ -36,9 +36,11 @@
                         <h5 class="text-title m-0"><i class="bi bi-person-lines-fill text-primary me-2"></i>Master Request PKRS</h5>
                         <small class="text-muted">Kelola data master pengusul / requestor kegiatan PKRS</small>
                     </div>
+                    @if(auth()->user()->hasPermission('master', 'create'))
                     <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addModal">
                         <i class="bi bi-plus-lg me-1"></i> Tambah Baru
                     </button>
+                    @endif
                 </div>
 
                 <div class="table-responsive border rounded-3" style="border-color: #f3f4f6 !important;">
@@ -57,13 +59,17 @@
                                 <td class="text-start fw-bold text-dark">{{ $req->name }}</td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
+                                        @if(auth()->user()->hasPermission('master', 'edit'))
                                         <button type="button" class="btn btn-action-icon bg-warning-subtle text-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $req->id }}" title="Edit">
                                             <i class="bi bi-pencil-fill"></i>
                                         </button>
+                                        @endif
+                                        @if(auth()->user()->hasPermission('master', 'delete'))
                                         <form action="{{ route('master.request-pkrs.destroy', $req->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')" class="d-inline">
                                             @csrf @method('DELETE')
                                             <button class="btn btn-action-icon bg-danger-subtle text-danger shadow-sm" title="Hapus"><i class="bi bi-trash-fill"></i></button>
                                         </form>
+                                        @endif
                                     </div>
                                     
                                     {{-- MODAL EDIT --}}

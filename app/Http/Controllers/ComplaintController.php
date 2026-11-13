@@ -95,7 +95,7 @@ class ComplaintController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (Auth::user()->role === 'user') {
+        if (!Auth::user()->hasPermission('complaints', 'edit')) {
             abort(403, 'Akses ditolak.');
         }
 

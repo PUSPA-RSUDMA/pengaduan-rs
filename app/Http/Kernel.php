@@ -57,5 +57,6 @@ class Kernel extends HttpKernel
         
         // --- AGAR ERROR 'ROLE' HILANG ---
         'role' => \App\Http\Middleware\CheckRole::class,
+        'permission' => \App\Http\Middleware\CheckPermission::class,
     ];
 }

@@ -80,6 +80,7 @@
                 <small class="text-muted">Kelola data pengantaran pasien ambulans dan sinkronisasi spreadsheet</small>
             </div>
             <div class="d-flex gap-2">
+                @if(auth()->user()->hasPermission('lasehat', 'create'))
                 {{-- Tombol Sync Google Sheets --}}
                 <a href="{{ route('lasehat.sync') }}" class="btn btn-sm px-3 py-2 fw-bold text-success bg-success-subtle border-success-subtle shadow-sm rounded-pill d-flex align-items-center">
                     <i class="bi bi-google me-1"></i> Sync Spreadsheet
@@ -88,6 +89,7 @@
                 <button type="button" class="btn-modern-primary btn-sm px-3 py-2 shadow-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalTambah">
                     <i class="bi bi-plus-circle me-1"></i> Tambah Manual
                 </button>
+                @endif
             </div>
         </div>
         
@@ -179,15 +181,22 @@
                             @if($item->supir_ambulance)
                                 <div class="d-flex flex-column align-items-center gap-1">
                                     <span class="fw-bold text-success small"><i class="bi bi-check-circle-fill me-1"></i> {{ $item->supir_ambulance }}</span>
+                                    @if(auth()->user()->hasPermission('lasehat', 'edit'))
                                     <button class="btn btn-sm btn-link py-0 text-decoration-none" style="font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#modalSupir{{ $item->id }}">Ubah Supir</button>
+                                    @endif
                                 </div>
                             @else
+                                @if(auth()->user()->hasPermission('lasehat', 'edit'))
                                 <button class="btn btn-warning btn-sm fw-bold px-3 py-1 shadow-sm" style="font-size: 0.75rem; border-radius: 20px;" data-bs-toggle="modal" data-bs-target="#modalSupir{{ $item->id }}">
                                     <i class="bi bi-person-plus me-1"></i> Isi Supir
                                 </button>
+                                @else
+                                <span class="badge bg-light text-muted border">Belum Ada</span>
+                                @endif
                             @endif
                         </td>
                         <td>
+                            @if(auth()->user()->hasPermission('lasehat', 'delete'))
                             <form action="{{ route('lasehat.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data pasien {{ $item->nama_pasien }}?');" class="d-inline">
                                 @csrf
                                 @method('DELETE')
@@ -195,6 +204,9 @@
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
                             </form>
+                            @else
+                            <span class="text-muted">-</span>
+                            @endif
                         </td>
                     </tr>
 

@@ -99,9 +99,11 @@
                 <small class="text-muted">Kelola data permintaan layanan dan informasi pelanggan</small>
             </div>
             
+            @if(auth()->user()->hasPermission('permintaan', 'create'))
             <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInput">   
                 <i class="bi bi-plus-lg me-1"></i> Buat Baru
             </button>
+            @endif
         </div>
 
         {{-- FILTER SECTION --}}
@@ -242,13 +244,17 @@
                         
                         <td>
                             <div class="d-flex justify-content-center gap-1">
+                                @if(auth()->user()->hasPermission('permintaan', 'edit'))
                                 <button type="button" class="btn btn-action-icon bg-warning-subtle text-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $item->id }}" title="Edit">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
+                                @endif
+                                @if(auth()->user()->hasPermission('permintaan', 'delete'))
                                 <form action="{{ route('permintaan.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?');" class="d-inline">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-action-icon bg-danger-subtle text-danger shadow-sm" title="Hapus"><i class="bi bi-trash-fill"></i></button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

@@ -92,9 +92,11 @@
                         <h5 class="text-title m-0"><i class="bi bi-info-square text-primary me-2"></i>Master Kategori & Detail Permintaan (Informasi)</h5>
                         <small class="text-muted">Kelola struktur kategori dan daftar spesifik permintaan informasi</small>
                     </div>
+                    @if(auth()->user()->hasPermission('master', 'create'))
                     <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCreateCategory">
                         <i class="bi bi-plus-lg me-1"></i> Tambah Kategori
                     </button>
+                    @endif
                 </div>
 
                 {{-- KATEGORI GRID SECTION --}}
@@ -107,15 +109,19 @@
                             <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
                                 <h6 class="fw-bold text-dark m-0">{{ $kategori->name }}</h6>
                                 <div class="d-flex gap-1">
+                                    @if(auth()->user()->hasPermission('master', 'edit'))
                                     <button class="btn btn-action-icon bg-warning-subtle text-warning" data-bs-toggle="modal" data-bs-target="#modalEditCat{{ $kategori->id }}" title="Edit Kategori">
                                         <i class="bi bi-pencil-fill" style="font-size: 0.75rem;"></i>
                                     </button>
+                                    @endif
+                                    @if(auth()->user()->hasPermission('master', 'delete'))
                                     <form action="{{ route('kategori-permintaan.destroy', $kategori->id) }}" method="POST" onsubmit="return confirm('Hapus seluruh kategori ini beserta detailnya?')" class="m-0">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-action-icon bg-danger-subtle text-danger" title="Hapus Kategori">
                                             <i class="bi bi-trash-fill" style="font-size: 0.75rem;"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </div>
                             

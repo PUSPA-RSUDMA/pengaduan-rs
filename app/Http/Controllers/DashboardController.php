@@ -11,8 +11,8 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // === 1. PENGAMANAN (HANYA ADMIN BOLEH MASUK) ===
-        if (auth()->user()->role !== 'admin') {
+        // === 1. PENGAMANAN (CEK HAK AKSES DASHBOARD PENGADUAN) ===
+        if (!auth()->user()->hasPermission('pengaduan_dashboard', 'view')) {
             return redirect()->route('complaints.index');
         }
 

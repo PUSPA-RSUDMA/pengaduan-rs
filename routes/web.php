@@ -30,8 +30,6 @@ use Illuminate\Support\Facades\Artisan;
 |--------------------------------------------------------------------------
 | Web Routes (AREA BEBAS LOGIN / PUBLIK)
 |--------------------------------------------------------------------------
-| Semua route yang ada di atas "middleware('auth')" bisa diakses 
-| tanpa harus login terlebih dahulu.
 */
 
 Route::get('/', function () {
@@ -47,87 +45,124 @@ Route::get('/cron/send-reminder/{token}', function ($token) {
     return "Sukses mengeksekusi pengingat H-1: " . Artisan::output();
 });
 
-// 2. Logbook View (Bisa dilihat siapa saja tanpa login)
+// 2. Logbook View (Bisa dilihat siapa saja tanpa login jika publik, atau dengan hak akses)
 Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
-
-// 3. Area Complaints Umum
-Route::resource('complaints', ComplaintController::class);
-Route::get('complaints/{id}/print', [ComplaintController::class, 'print'])->name('complaints.print');
-Route::post('complaints/import', [ComplaintController::class, 'import'])->name('complaints.import');
-Route::get('complaints/download-template', [ComplaintController::class, 'downloadTemplate'])->name('complaints.template');
-
-Route::resource('permohonan-uhc', PermohonanUhcController::class);
 
 
 /*
 |--------------------------------------------------------------------------
-| AREA WAJIB LOGIN (AUTH)
+| AREA WAJIB LOGIN (AUTH) & HAK AKSES DINAMIS PER MENU/ACTION
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
     
-    Route::get('/dashboard-utama', [MainDashboardController::class, 'index'])->middleware(['verified'])->name('utama.dashboard');
+    // --- HOME DASHBOARD UTAMA ---
+    Route::get('/dashboard-utama', [MainDashboardController::class, 'index'])
+        ->middleware(['verified', 'permission:utama_dashboard,view'])
+        ->name('utama.dashboard');
 
-    // --- UBAH NAMA ROUTE PENGADUAN (Jika diperlukan) ---
-    // (Route yang lama tetap ada, ini adalah Dashboard khusus Pengaduan)
-    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['verified'])->name('dashboard');
+    // --- PENGADUAN ---
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware(['verified', 'permission:pengaduan_dashboard,view'])
+        ->name('dashboard');
 
-    // === AKSI LOGBOOK (Tambah & Hapus Wajib Login agar aman) ===
-    // === AKSI LOGBOOK (Tambah, Edit, & Hapus Wajib Login) ===
-    Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
-    Route::put('/logbook/{id}', [LogbookController::class, 'update'])->name('logbook.update'); // <--- TAMBAHAN BARU
-    Route::delete('/logbook/{id}', [LogbookController::class, 'destroy'])->name('logbook.destroy');
-    // 1. Rute Dashboard Permintaan
-    Route::get('/dashboard-permintaan', [DashboardPermintaanController::class, 'index'])->name('dashboard.permintaan');
-
-    // 2. Rute CRUD Permintaan
-    Route::get('/permintaan', [PermintaanController::class, 'index'])->name('permintaan.index');
-    Route::post('/permintaan', [PermintaanController::class, 'store'])->name('permintaan.store');
-    Route::put('/permintaan/{id}', [PermintaanController::class, 'update'])->name('permintaan.update');
-    Route::delete('/permintaan/{id}', [PermintaanController::class, 'destroy'])->name('permintaan.destroy');
-    Route::get('/permintaan/export/pdf', [PermintaanController::class, 'exportPdf'])->name('permintaan.export.pdf');
-    Route::get('/permintaan/export/excel', [PermintaanController::class, 'exportExcel'])->name('permintaan.export.excel');
-
-    // FITUR PROFIL (DATA DIRI)
-    Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profil', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::put('/password-baru', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
-
-    // Menu Admin Lama (Source & Category)
-    Route::resource('sources', SourceController::class);
-    Route::resource('categories', CategoryController::class);
-    Route::get('/pkrs/dashboard', [PkrsController::class, 'dashboard'])->name('pkrs.dashboard');
-    Route::resource('pkrs', PkrsController::class)->except(['create', 'show', 'edit']);
-
-    // Export Data Complaints
-    Route::get('export-excel', [ComplaintController::class, 'exportExcel'])->name('export.excel');
-    Route::get('/export-pdf', [ComplaintController::class, 'exportPdf'])->name('export.pdf');
-
-
-    Route::prefix('bpjs')->group(function () {
-        Route::get('/peserta', [BpjsController::class, 'index'])->name('bpjs.index');
-        Route::get('/peserta/cari', [BpjsController::class, 'cariPeserta'])->name('bpjs.cari');
+    Route::middleware(['permission:complaints'])->group(function () {
+        Route::resource('complaints', ComplaintController::class);
+        Route::get('complaints/{id}/print', [ComplaintController::class, 'print'])->name('complaints.print');
+        Route::post('complaints/import', [ComplaintController::class, 'import'])->name('complaints.import');
+        Route::get('complaints/download-template', [ComplaintController::class, 'downloadTemplate'])->name('complaints.template');
+        Route::get('export-excel', [ComplaintController::class, 'exportExcel'])->name('export.excel');
+        Route::get('/export-pdf', [ComplaintController::class, 'exportPdf'])->name('export.pdf');
     });
-    Route::post('/bpjs/update-kontrol', [BpjsController::class, 'updateKontrolDate'])->name('bpjs.updateKontrol');
 
-    Route::resource('permohonan-informasi', PermohonanInformasiController::class);
-    // === AREA KHUSUS ADMIN (ROLE: ADMIN) ===
-    Route::middleware(['role:admin'])->group(function () {
-        
-        // Pengaturan & Test WA
+    // --- LAYANAN INFORMASI & PERMINTAAN ---
+    Route::get('/dashboard-permintaan', [DashboardPermintaanController::class, 'index'])
+        ->middleware(['permission:permintaan_dashboard,view'])
+        ->name('dashboard.permintaan');
+
+    Route::middleware(['permission:permintaan'])->group(function () {
+        Route::get('/permintaan', [PermintaanController::class, 'index'])->name('permintaan.index');
+        Route::post('/permintaan', [PermintaanController::class, 'store'])->name('permintaan.store');
+        Route::put('/permintaan/{id}', [PermintaanController::class, 'update'])->name('permintaan.update');
+        Route::delete('/permintaan/{id}', [PermintaanController::class, 'destroy'])->name('permintaan.destroy');
+        Route::get('/permintaan/export/pdf', [PermintaanController::class, 'exportPdf'])->name('permintaan.export.pdf');
+        Route::get('/permintaan/export/excel', [PermintaanController::class, 'exportExcel'])->name('permintaan.export.excel');
+    });
+
+    // --- PERMOHONAN INFORMASI ---
+    Route::middleware(['permission:permohonan_informasi'])->group(function () {
+        Route::resource('permohonan-informasi', PermohonanInformasiController::class);
+    });
+
+    // --- PERALIHAN UHC ---
+    Route::middleware(['permission:permohonan_uhc'])->group(function () {
+        Route::resource('permohonan-uhc', PermohonanUhcController::class);
+    });
+
+    // --- PROMOSI KESEHATAN (PKRS) ---
+    Route::get('/pkrs/dashboard', [PkrsController::class, 'dashboard'])
+        ->middleware(['permission:pkrs_dashboard,view'])
+        ->name('pkrs.dashboard');
+
+    Route::middleware(['permission:pkrs'])->group(function () {
+        Route::resource('pkrs', PkrsController::class)->except(['create', 'show', 'edit']);
+    });
+
+    // --- MOBIL LASEHAT ---
+    Route::prefix('lasehat')->group(function () {
+        Route::get('/dashboard', [LasehatController::class, 'dashboard'])
+            ->middleware(['permission:lasehat_dashboard,view'])
+            ->name('lasehat.dashboard');
+
+        Route::middleware(['permission:lasehat'])->group(function () {
+            Route::get('/data', [LasehatController::class, 'index'])->name('lasehat.index');
+            Route::post('/store', [LasehatController::class, 'store'])->name('lasehat.store');
+            Route::post('/update-supir/{id}', [LasehatController::class, 'updateSupir'])
+                ->middleware(['permission:lasehat,edit'])
+                ->name('lasehat.update_supir');
+            Route::get('/sync-spreadsheet', [LasehatController::class, 'syncGoogleSheet'])
+                ->middleware(['permission:lasehat,create'])
+                ->name('lasehat.sync');
+            Route::delete('/destroy/{id}', [LasehatController::class, 'destroy'])->name('lasehat.destroy');
+        });
+    });
+
+    // --- LOGBOOK ---
+    Route::middleware(['permission:logbook'])->group(function () {
+        Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
+        Route::put('/logbook/{id}', [LogbookController::class, 'update'])->name('logbook.update');
+        Route::delete('/logbook/{id}', [LogbookController::class, 'destroy'])->name('logbook.destroy');
+    });
+
+    // --- WHATSAPP GATEWAY & LIVE CHAT ---
+    Route::middleware(['permission:whatsapp'])->group(function () {
         Route::get('/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp.index');
         Route::get('/whatsapp/status', [WhatsappController::class, 'checkStatus'])->name('whatsapp.status');
         Route::post('/whatsapp/test', [WhatsappController::class, 'testSend'])->name('whatsapp.test');
         Route::get('/whatsapp/api/chats', [WhatsappController::class, 'getChats'])->name('whatsapp.api.chats');
         Route::get('/whatsapp/api/messages', [WhatsappController::class, 'getMessages'])->name('whatsapp.api.messages');
         Route::delete('/whatsapp/api/chats', [WhatsappController::class, 'deleteChat'])->name('whatsapp.api.chats.delete');
-        Route::post('/whatsapp/api/sync', [WhatsappController::class, 'syncChats'])->name('whatsapp.api.sync');
+        Route::post('/whatsapp/api/sync', [WhatsappController::class, 'syncChats'])
+            ->middleware(['permission:whatsapp,view'])
+            ->name('whatsapp.api.sync');
+    });
 
-        // Kelola User
-        Route::resource('users', UserController::class);
+    // --- BPJS KEPESERTAAN ---
+    Route::middleware(['permission:bpjs'])->group(function () {
+        Route::prefix('bpjs')->group(function () {
+            Route::get('/peserta', [BpjsController::class, 'index'])->name('bpjs.index');
+            Route::get('/peserta/cari', [BpjsController::class, 'cariPeserta'])->name('bpjs.cari');
+        });
+        Route::post('/bpjs/update-kontrol', [BpjsController::class, 'updateKontrolDate'])
+            ->middleware(['permission:bpjs,edit'])
+            ->name('bpjs.updateKontrol');
+    });
 
-        // DATA MASTER
+    // --- DATA MASTER ---
+    Route::middleware(['permission:master'])->group(function () {
+        Route::resource('sources', SourceController::class);
+        Route::resource('categories', CategoryController::class);
+
         // UNIT PELAPOR
         Route::get('/master/reporters', [MasterController::class, 'reporterIndex'])->name('master.reporters.index');
         Route::post('/master/reporters', [MasterController::class, 'reporterStore'])->name('master.reporters.store');
@@ -162,6 +197,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/master/supir', [MasterController::class, 'supirIndex'])->name('master.supir.index');
         Route::post('/master/supir', [MasterController::class, 'supirStore'])->name('master.supir.store');
         Route::delete('/master/supir/{id}', [MasterController::class, 'supirDestroy'])->name('master.supir.destroy');
+
         // Master Data PKRS
         Route::resource('master/request-pkrs', MasterRequestPkrsController::class, [
             'as' => 'master'
@@ -169,17 +205,18 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('master/output-pkrs', MasterOutputPkrsController::class, [
             'as' => 'master'
         ]);
-
-        // LASEHAT GROUP
-        Route::prefix('lasehat')->group(function () {
-            Route::get('/dashboard', [LasehatController::class, 'dashboard'])->name('lasehat.dashboard');
-            Route::get('/data', [LasehatController::class, 'index'])->name('lasehat.index');
-            Route::post('/store', [LasehatController::class, 'store'])->name('lasehat.store');
-            Route::post('/update-supir/{id}', [LasehatController::class, 'updateSupir'])->name('lasehat.update_supir');
-            Route::get('/sync-spreadsheet', [LasehatController::class, 'syncGoogleSheet'])->name('lasehat.sync');
-            Route::delete('/destroy/{id}', [LasehatController::class, 'destroy'])->name('lasehat.destroy');
-        });
     });
+
+    // --- MANAGEMENT USER & HAK AKSES ---
+    Route::middleware(['permission:users'])->group(function () {
+        Route::resource('users', UserController::class);
+    });
+
+    // --- FITUR PROFIL (DATA DIRI - Semua user login) ---
+    Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profil', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::put('/password-baru', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 });
 
 require __DIR__.'/auth.php';

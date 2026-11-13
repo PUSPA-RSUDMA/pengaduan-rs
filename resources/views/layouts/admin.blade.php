@@ -186,127 +186,168 @@
                 <h4 class="fw-bold mb-0 text-dark" style="letter-spacing: -0.5px;">IPP-RSUD</h4>
             </div>
             
-            <div class="sidebar-label menu-group-label mt-2">Home</div>
             <div class="list-group list-group-flush pb-4" id="sidebarMenuList">
-                @if(auth()->user()->role == 'admin')
+                @php $currUser = auth()->user(); @endphp
+
+                @if($currUser && $currUser->hasPermission('utama_dashboard', 'view'))
+                    <div class="sidebar-label menu-group-label mt-2">Home</div>
                     <a href="{{ route('utama.dashboard') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('utama.dashboard') ? 'active' : '' }}">
                         <i class="bi bi-house-door-fill me-3"></i> <span>Dashboard</span>
                     </a>
                 @endif
                 
                 {{-- KELOMPOK MENU: LAYANAN PUBLIK --}}
-                <div class="sidebar-label menu-group-label mt-2">Layanan Publik</div>
+                @if($currUser && $currUser->hasAnyMenuPermission(['pengaduan_dashboard', 'complaints', 'permintaan_dashboard', 'permintaan', 'permohonan_informasi', 'permohonan_uhc', 'lasehat_dashboard', 'lasehat']))
+                    <div class="sidebar-label menu-group-label mt-2">Layanan Publik</div>
 
-                <a href="#submenuPengaduan" data-bs-toggle="collapse" 
-                   class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('dashboard', 'complaints.*') ? '' : 'collapsed' }}">
-                    <i class="bi bi-chat-square-text me-3"></i> <span>Pengaduan</span>
-                    <i class="bi bi-chevron-down menu-arrow"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('dashboard', 'complaints.*') ? 'show' : '' }}" id="submenuPengaduan">
-                    <div class="sub-menu-wrapper">
-                        @if(auth()->user()->role == 'admin')
-                            <a href="{{ route('dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                                Dashboard Utama
-                            </a>
-                        @endif
-                        <a href="{{ route('complaints.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
-                            Data Keluhan
+                    @if($currUser->hasAnyMenuPermission(['pengaduan_dashboard', 'complaints']))
+                        <a href="#submenuPengaduan" data-bs-toggle="collapse" 
+                           class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('dashboard', 'complaints.*') ? '' : 'collapsed' }}">
+                            <i class="bi bi-chat-square-text me-3"></i> <span>Pengaduan</span>
+                            <i class="bi bi-chevron-down menu-arrow"></i>
                         </a>
-                    </div>
-                </div>
-
-                <a href="#submenuPermintaan" data-bs-toggle="collapse" 
-                   class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('dashboard.permintaan', 'permintaan.*', 'permohonan-informasi.*', 'permohonan-uhc.*') ? '' : 'collapsed' }}">
-                    <i class="bi bi-file-earmark-medical me-3"></i> <span>Layanan Informasi</span>
-                    <i class="bi bi-chevron-down menu-arrow"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('dashboard.permintaan', 'permintaan.*', 'permohonan-informasi.*', 'permohonan-uhc.*') ? 'show' : '' }}" id="submenuPermintaan">
-                    <div class="sub-menu-wrapper">
-                        @if(auth()->user()->role == 'admin')
-                            <a href="{{ route('dashboard.permintaan') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('dashboard.permintaan') ? 'active' : '' }}">Dashboard Info</a>
-                        @endif
-                        <a href="{{ route('permintaan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permintaan.index') ? 'active' : '' }}">Data Permintaan</a>
-                        <a href="{{ route('permohonan-informasi.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permohonan-informasi.*') ? 'active' : '' }}">Permohonan Informasi</a>
-                        <a href="{{ route('permohonan-uhc.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permohonan-uhc.*') ? 'active' : '' }}">Peralihan UHC</a>
-                    </div>
-                </div>
-
-                <a href="#submenuLasehat" data-bs-toggle="collapse" 
-                   class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('lasehat.*') ? '' : 'collapsed' }}">
-                    <i class="bi bi-car-front me-3"></i> <span>Mobil LaSehat</span>
-                    <i class="bi bi-chevron-down menu-arrow"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('lasehat.*') ? 'show' : '' }}" id="submenuLasehat">
-                    <div class="sub-menu-wrapper">
-                        @if(auth()->user()->role == 'admin')
-                            <a href="{{ route('lasehat.dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('lasehat.dashboard') ? 'active' : '' }}">Dashboard LaSehat</a>
-                        @endif
-                        <a href="{{ route('lasehat.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('lasehat.index') ? 'active' : '' }}">Data Mobil LaSehat</a>
-                    </div>
-                </div>
-
-                <div class="sidebar-label menu-group-label mt-2">Promosi Kesehatan</div>
-                <a href="#submenuPkrs" data-bs-toggle="collapse" 
-                class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('pkrs.*') ? '' : 'collapsed' }}">
-                    <i class="bi bi-megaphone me-3"></i> <span>Data PKRS</span>
-                    <i class="bi bi-chevron-down menu-arrow"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('pkrs.*') ? 'show' : '' }}" id="submenuPkrs">
-                    <div class="sub-menu-wrapper">
-                        @if(auth()->user()->role == 'admin')
-                            <a href="{{ route('pkrs.dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('pkrs.dashboard') ? 'active' : '' }}">Dashboard PKRS</a>
-                        @endif
-                        <a href="{{ route('pkrs.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('pkrs.index') ? 'active' : '' }}">Kegiatan PKRS</a>
-                    </div>
-                </div>
-
-                <div class="sidebar-label menu-group-label mt-2">Agenda & Integrasi</div>
-
-                <a href="#submenuLogbook" data-bs-toggle="collapse" 
-                   class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('logbook.*', 'whatsapp.*') ? '' : 'collapsed' }}">
-                    <i class="bi bi-calendar-event me-3"></i> <span>Logbook & WA</span>
-                    @if($notifCount > 0)
-                        <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.65rem;">{{ $notifCount }}</span>
+                        <div class="collapse {{ request()->routeIs('dashboard', 'complaints.*') ? 'show' : '' }}" id="submenuPengaduan">
+                            <div class="sub-menu-wrapper">
+                                @if($currUser->hasPermission('pengaduan_dashboard', 'view'))
+                                    <a href="{{ route('dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                                        Dashboard Utama
+                                    </a>
+                                @endif
+                                @if($currUser->hasPermission('complaints', 'view'))
+                                    <a href="{{ route('complaints.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
+                                        Data Keluhan
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
                     @endif
-                    <i class="bi bi-chevron-down menu-arrow"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('logbook.*', 'whatsapp.*') ? 'show' : '' }}" id="submenuLogbook">
-                    <div class="sub-menu-wrapper">
-                        <a href="{{ route('logbook.index') }}" class="list-group-item sub-menu-item sidebar-nav-item d-flex justify-content-between align-items-center {{ request()->routeIs('logbook.*') ? 'active' : '' }}">
-                            <span>Kalender Logbook</span>
-                            @if($notifCount > 0) <span class="badge bg-danger rounded-pill">{{ $notifCount }}</span> @endif
+
+                    @if($currUser->hasAnyMenuPermission(['permintaan_dashboard', 'permintaan', 'permohonan_informasi', 'permohonan_uhc']))
+                        <a href="#submenuPermintaan" data-bs-toggle="collapse" 
+                           class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('dashboard.permintaan', 'permintaan.*', 'permohonan-informasi.*', 'permohonan-uhc.*') ? '' : 'collapsed' }}">
+                            <i class="bi bi-file-earmark-medical me-3"></i> <span>Layanan Informasi</span>
+                            <i class="bi bi-chevron-down menu-arrow"></i>
                         </a>
-                        <a href="{{ route('whatsapp.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}">Koneksi WhatsApp</a>
-                    </div>
-                </div>
+                        <div class="collapse {{ request()->routeIs('dashboard.permintaan', 'permintaan.*', 'permohonan-informasi.*', 'permohonan-uhc.*') ? 'show' : '' }}" id="submenuPermintaan">
+                            <div class="sub-menu-wrapper">
+                                @if($currUser->hasPermission('permintaan_dashboard', 'view'))
+                                    <a href="{{ route('dashboard.permintaan') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('dashboard.permintaan') ? 'active' : '' }}">Dashboard Info</a>
+                                @endif
+                                @if($currUser->hasPermission('permintaan', 'view'))
+                                    <a href="{{ route('permintaan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permintaan.index') ? 'active' : '' }}">Data Permintaan</a>
+                                @endif
+                                @if($currUser->hasPermission('permohonan_informasi', 'view'))
+                                    <a href="{{ route('permohonan-informasi.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permohonan-informasi.*') ? 'active' : '' }}">Permohonan Informasi</a>
+                                @endif
+                                @if($currUser->hasPermission('permohonan_uhc', 'view'))
+                                    <a href="{{ route('permohonan-uhc.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('permohonan-uhc.*') ? 'active' : '' }}">Peralihan UHC</a>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
 
-                <a href="{{ route('bpjs.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('bpjs.*') ? 'active' : '' }}">
-                    <i class="bi bi-credit-card-2-front me-3"></i> <span>Cari Kepesertaan</span>
-                </a>
+                    @if($currUser->hasAnyMenuPermission(['lasehat_dashboard', 'lasehat']))
+                        <a href="#submenuLasehat" data-bs-toggle="collapse" 
+                           class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('lasehat.*') ? '' : 'collapsed' }}">
+                            <i class="bi bi-car-front me-3"></i> <span>Mobil LaSehat</span>
+                            <i class="bi bi-chevron-down menu-arrow"></i>
+                        </a>
+                        <div class="collapse {{ request()->routeIs('lasehat.*') ? 'show' : '' }}" id="submenuLasehat">
+                            <div class="sub-menu-wrapper">
+                                @if($currUser->hasPermission('lasehat_dashboard', 'view'))
+                                    <a href="{{ route('lasehat.dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('lasehat.dashboard') ? 'active' : '' }}">Dashboard LaSehat</a>
+                                @endif
+                                @if($currUser->hasPermission('lasehat', 'view'))
+                                    <a href="{{ route('lasehat.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('lasehat.index') ? 'active' : '' }}">Data Mobil LaSehat</a>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                @endif
 
-                @if(auth()->user()->role == 'admin')
-                    <div class="sidebar-label menu-group-label mt-2">Pengaturan Admin</div>
-                    <a href="#submenuMaster" data-bs-toggle="collapse" 
-                        class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*', 'kategori-permintaan.*') ? '' : 'collapsed' }}">
-                        <i class="bi bi-database me-3"></i> <span>Data Master</span>
+                {{-- KELOMPOK MENU: PROMOSI KESEHATAN --}}
+                @if($currUser && $currUser->hasAnyMenuPermission(['pkrs_dashboard', 'pkrs']))
+                    <div class="sidebar-label menu-group-label mt-2">Promosi Kesehatan</div>
+                    <a href="#submenuPkrs" data-bs-toggle="collapse" 
+                    class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('pkrs.*') ? '' : 'collapsed' }}">
+                        <i class="bi bi-megaphone me-3"></i> <span>Data PKRS</span>
                         <i class="bi bi-chevron-down menu-arrow"></i>
                     </a>
-                    <div class="collapse {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*', 'kategori-permintaan.*') ? 'show' : '' }}" id="submenuMaster">
+                    <div class="collapse {{ request()->routeIs('pkrs.*') ? 'show' : '' }}" id="submenuPkrs">
                         <div class="sub-menu-wrapper">
-                            <a href="{{ route('master.units.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.units.*') ? 'active' : '' }}">Unit Tujuan</a>
-                            <a href="{{ route('sources.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('sources.*') ? 'active' : '' }}">Media Pengaduan</a>
-                            <a href="{{ route('master.reporters.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.reporters.*') ? 'active' : '' }}">Unit Pelapor</a>
-                            <a href="{{ route('kategori-keluhan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('kategori-keluhan.*') ? 'active' : '' }}">Kategori Keluhan</a>
-                            <a href="{{ route('kategori-permintaan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('kategori-permintaan.*') ? 'active' : '' }}">Kategori Permintaan</a>
-                            <a href="{{ route('master.supir.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.supir.*') ? 'active' : '' }}">Master Supir</a>
-                            <a href="{{ route('master.grades.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.grades.*') ? 'active' : '' }}">Kegawatan</a>
-                            <a href="{{ route('master.request-pkrs.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.request-pkrs.*') ? 'active' : '' }}">Master Request PKRS</a>
-                            <a href="{{ route('master.output-pkrs.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.output-pkrs.*') ? 'active' : '' }}">Master Output PKRS</a>
+                            @if($currUser->hasPermission('pkrs_dashboard', 'view'))
+                                <a href="{{ route('pkrs.dashboard') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('pkrs.dashboard') ? 'active' : '' }}">Dashboard PKRS</a>
+                            @endif
+                            @if($currUser->hasPermission('pkrs', 'view'))
+                                <a href="{{ route('pkrs.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('pkrs.index') ? 'active' : '' }}">Kegiatan PKRS</a>
+                            @endif
                         </div>
                     </div>
-                    <a href="{{ route('users.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                        <i class="bi bi-people me-3"></i> <span>Kelola User</span>
-                    </a>
+                @endif
+
+                {{-- KELOMPOK MENU: AGENDA & INTEGRASI --}}
+                @if($currUser && $currUser->hasAnyMenuPermission(['logbook', 'whatsapp', 'bpjs']))
+                    <div class="sidebar-label menu-group-label mt-2">Agenda & Integrasi</div>
+
+                    @if($currUser->hasAnyMenuPermission(['logbook', 'whatsapp']))
+                        <a href="#submenuLogbook" data-bs-toggle="collapse" 
+                           class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('logbook.*', 'whatsapp.*') ? '' : 'collapsed' }}">
+                            <i class="bi bi-calendar-event me-3"></i> <span>Logbook & WA</span>
+                            @if($notifCount > 0)
+                                <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.65rem;">{{ $notifCount }}</span>
+                            @endif
+                            <i class="bi bi-chevron-down menu-arrow"></i>
+                        </a>
+                        <div class="collapse {{ request()->routeIs('logbook.*', 'whatsapp.*') ? 'show' : '' }}" id="submenuLogbook">
+                            <div class="sub-menu-wrapper">
+                                @if($currUser->hasPermission('logbook', 'view'))
+                                    <a href="{{ route('logbook.index') }}" class="list-group-item sub-menu-item sidebar-nav-item d-flex justify-content-between align-items-center {{ request()->routeIs('logbook.*') ? 'active' : '' }}">
+                                        <span>Kalender Logbook</span>
+                                        @if($notifCount > 0) <span class="badge bg-danger rounded-pill">{{ $notifCount }}</span> @endif
+                                    </a>
+                                @endif
+                                @if($currUser->hasPermission('whatsapp', 'view'))
+                                    <a href="{{ route('whatsapp.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}">Koneksi WhatsApp</a>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($currUser->hasPermission('bpjs', 'view'))
+                        <a href="{{ route('bpjs.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('bpjs.*') ? 'active' : '' }}">
+                            <i class="bi bi-credit-card-2-front me-3"></i> <span>Cari Kepesertaan</span>
+                        </a>
+                    @endif
+                @endif
+
+                {{-- KELOMPOK MENU: PENGATURAN ADMIN & MASTER --}}
+                @if($currUser && $currUser->hasAnyMenuPermission(['master', 'users']))
+                    <div class="sidebar-label menu-group-label mt-2">Pengaturan Admin</div>
+                    @if($currUser->hasPermission('master', 'view'))
+                        <a href="#submenuMaster" data-bs-toggle="collapse" 
+                            class="list-group-item sidebar-nav-toggle d-flex align-items-center {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*', 'kategori-permintaan.*') ? '' : 'collapsed' }}">
+                            <i class="bi bi-database me-3"></i> <span>Data Master</span>
+                            <i class="bi bi-chevron-down menu-arrow"></i>
+                        </a>
+                        <div class="collapse {{ request()->routeIs('master.*', 'sources.*', 'kategori-keluhan.*', 'kategori-permintaan.*') ? 'show' : '' }}" id="submenuMaster">
+                            <div class="sub-menu-wrapper">
+                                <a href="{{ route('master.units.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.units.*') ? 'active' : '' }}">Unit Tujuan</a>
+                                <a href="{{ route('sources.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('sources.*') ? 'active' : '' }}">Media Pengaduan</a>
+                                <a href="{{ route('master.reporters.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.reporters.*') ? 'active' : '' }}">Unit Pelapor</a>
+                                <a href="{{ route('kategori-keluhan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('kategori-keluhan.*') ? 'active' : '' }}">Kategori Keluhan</a>
+                                <a href="{{ route('kategori-permintaan.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('kategori-permintaan.*') ? 'active' : '' }}">Kategori Permintaan</a>
+                                <a href="{{ route('master.supir.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.supir.*') ? 'active' : '' }}">Master Supir</a>
+                                <a href="{{ route('master.grades.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.grades.*') ? 'active' : '' }}">Kegawatan</a>
+                                <a href="{{ route('master.request-pkrs.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.request-pkrs.*') ? 'active' : '' }}">Master Request PKRS</a>
+                                <a href="{{ route('master.output-pkrs.index') }}" class="list-group-item sub-menu-item sidebar-nav-item {{ request()->routeIs('master.output-pkrs.*') ? 'active' : '' }}">Master Output PKRS</a>
+                            </div>
+                        </div>
+                    @endif
+                    @if($currUser->hasPermission('users', 'view'))
+                        <a href="{{ route('users.index') }}" class="list-group-item sidebar-nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                            <i class="bi bi-people me-3"></i> <span>Management User</span>
+                        </a>
+                    @endif
                 @endif
                 
                 {{-- Logout Mobile --}}
