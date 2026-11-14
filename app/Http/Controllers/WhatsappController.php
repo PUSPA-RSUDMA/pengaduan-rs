@@ -57,10 +57,16 @@ class WhatsappController extends Controller
         ]);
 
         try {
-            $response = Http::post('http://localhost:3000/api/send', [
+            $payload = [
                 'number'  => $request->nomor,
                 'message' => $request->pesan,
-            ]);
+            ];
+
+            if ($request->filled('chatId')) {
+                $payload['chatId'] = $request->chatId;
+            }
+
+            $response = Http::timeout(15)->post('http://localhost:3000/api/send', $payload);
 
             $result = $response->json();
 
@@ -69,7 +75,7 @@ class WhatsappController extends Controller
                 if ($response->successful()) {
                     return response()->json(['success' => true]);
                 }
-                return response()->json(['error' => $result['error'] ?? 'Gagal mengirim'], 400);
+                return response()->json(['error' => $result['error'] ?? 'Gagal mengirim pesan'], 400);
             }
 
             // Jika request berasal dari Form Uji Coba (Submit biasa)
@@ -80,7 +86,7 @@ class WhatsappController extends Controller
             }
         } catch (\Exception $e) {
             if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['error' => 'Koneksi ke WA Engine Gagal'], 500);
+                return response()->json(['error' => 'Koneksi ke WA Engine Gagal: ' . $e->getMessage()], 500);
             }
             return back()->with('error', 'Gagal terhubung ke Engine WA (Pastikan Node.js menyala): ' . $e->getMessage());
         }
@@ -89,13 +95,24 @@ class WhatsappController extends Controller
     // 5. API Lokal: Hapus Chat
     public function deleteChat(Request $request)
     {
+        $chatId = $request->input('chatId') ?? $request->query('chatId');
+
+        if (empty($chatId)) {
+            return response()->json(['success' => false, 'error' => 'chatId diperlukan'], 400);
+        }
+
         try {
-            $response = Http::timeout(5)->delete('http://localhost:3000/api/chats', [
-                'chatId' => $request->chatId
-            ]);
-            return response()->json($response->json());
+            // Kirim chatId baik di query string URL maupun di JSON body agar kompatibel dengan Express req.query & req.body
+            $url = 'http://localhost:3000/api/chats?chatId=' . urlencode($chatId);
+            $response = Http::timeout(10)
+                ->asJson()
+                ->send('DELETE', $url, [
+                    'json' => ['chatId' => $chatId],
+                ]);
+
+            return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Gagal menghapus chat.'], 500);
+            return response()->json(['success' => false, 'error' => 'Gagal menghapus chat: ' . $e->getMessage()], 500);
         }
     }
 

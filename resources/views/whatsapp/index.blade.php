@@ -319,12 +319,14 @@ document.addEventListener("DOMContentLoaded", function() {
         event.stopPropagation(); 
         if (!confirm("Apakah Anda yakin ingin menghapus obrolan ini?")) return;
 
-        fetch(`{{ route('whatsapp.api.chats.delete') }}?chatId=${chatId}`, {
+        fetch(`{{ route('whatsapp.api.chats.delete') }}?chatId=${encodeURIComponent(chatId)}`, {
             method: "DELETE",
             headers: {
+                "Content-Type": "application/json",
                 "X-CSRF-TOKEN": "{{ csrf_token() }}",
                 "Accept": "application/json"
-            }
+            },
+            body: JSON.stringify({ chatId: chatId })
         })
         .then(res => res.json())
         .then(data => {
@@ -372,7 +374,7 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     function loadMessages(chatId) {
-        fetch(`{{ route('whatsapp.api.messages') }}?chatId=${chatId}`).then(res => res.json()).then(messages => {
+        fetch(`{{ route('whatsapp.api.messages') }}?chatId=${encodeURIComponent(chatId)}`).then(res => res.json()).then(messages => {
             if(messages.error) return;
             const messagesEl = document.getElementById('chatMessages');
             messagesEl.innerHTML = '';
@@ -391,17 +393,45 @@ document.addEventListener("DOMContentLoaded", function() {
 
         input.value = '';
         const messagesEl = document.getElementById('chatMessages');
-        messagesEl.innerHTML += `<div class="bubble me">${text} <span class="bubble-time">Mengirim...</span></div>`;
+        const tempBubble = document.createElement('div');
+        tempBubble.className = 'bubble me';
+        tempBubble.innerHTML = `${text} <span class="bubble-time">Mengirim...</span>`;
+        messagesEl.appendChild(tempBubble);
         messagesEl.scrollTop = messagesEl.scrollHeight;
 
-        const number = currentChatId.split('@')[0];
+        // Kirim currentChatId utuh jika bukan format nomor @c.us standar (mis. @lid atau @g.us),
+        // sekaligus kirim nomor bersih untuk @c.us agar Node.js WA Engine bisa menangani keduanya
+        const isDirectNumber = currentChatId.endsWith('@c.us') || currentChatId.endsWith('@s.whatsapp.net');
+        const targetNumber = isDirectNumber ? currentChatId.split('@')[0] : currentChatId;
+
         fetch("{{ route('whatsapp.test') }}", {
             method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": "{{ csrf_token() }}", "Accept": "application/json" },
-            body: JSON.stringify({ nomor: number, pesan: text })
-        }).then(() => {
-            setTimeout(() => loadMessages(currentChatId), 1000);
-            setTimeout(() => loadChats(), 1500);
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                nomor: targetNumber,
+                chatId: currentChatId,
+                pesan: text
+            })
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok || data.error) {
+                tempBubble.style.background = '#fee2e2';
+                tempBubble.querySelector('.bubble-time').innerText = 'Gagal terkirim';
+                alert(data.error || 'Gagal mengirim pesan WhatsApp.');
+                return;
+            }
+            setTimeout(() => loadMessages(currentChatId), 800);
+            setTimeout(() => loadChats(), 1200);
+        })
+        .catch(err => {
+            tempBubble.style.background = '#fee2e2';
+            tempBubble.querySelector('.bubble-time').innerText = 'Gagal terkirim';
+            alert('Gagal mengirim pesan: ' + err.message);
         });
     };
 
