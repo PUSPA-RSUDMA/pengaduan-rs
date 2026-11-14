@@ -23,16 +23,21 @@
 <div class="card border-0 mb-4">
     <div class="card-body p-4">
         {{-- HEADER --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
             <div>
                 <h5 class="text-title m-0">Data Kegiatan PKRS</h5>
                 <small class="text-muted">Kelola jadwal dan laporan kegiatan Promosi Kesehatan RS</small>
             </div>
-            @if(auth()->user()->hasPermission('pkrs', 'create'))
-            <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInput">   
-                <i class="bi bi-plus-lg me-1"></i> Tambah Kegiatan
-            </button>
-            @endif
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('pkrs.export.excel', request()->only(['search', 'status', 'sort'])) }}" class="btn btn-outline-success fw-semibold shadow-sm" style="border-radius: 8px; padding: 0.5rem 1rem;">
+                    <i class="bi bi-file-earmark-excel-fill me-1"></i> Export Excel
+                </a>
+                @if(auth()->user()->hasPermission('pkrs', 'create'))
+                <button type="button" class="btn-modern-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInput">   
+                    <i class="bi bi-plus-lg me-1"></i> Tambah Kegiatan
+                </button>
+                @endif
+            </div>
         </div>
 
         @if(session('success'))

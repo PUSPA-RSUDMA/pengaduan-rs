@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Pkrs;
 use App\Models\MasterRequestPkrs;
 use App\Models\MasterOutputPkrs;
+use App\Exports\PkrsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -95,6 +97,15 @@ class PkrsController extends Controller
     {
         Pkrs::findOrFail($id)->delete();
         return redirect()->back()->with('success', 'Data berhasil dihapus!');
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $fileName = 'Laporan_Kegiatan_PKRS_' . date('Y-m-d_His') . '.xlsx';
+        return Excel::download(
+            new PkrsExport($request->search, $request->status, $request->input('sort', 'desc')),
+            $fileName
+        );
     }
 
     public function dashboard(Request $request)

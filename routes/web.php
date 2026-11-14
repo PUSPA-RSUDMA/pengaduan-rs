@@ -105,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('pkrs.dashboard');
 
     Route::middleware(['permission:pkrs'])->group(function () {
+        Route::get('/pkrs/export/excel', [PkrsController::class, 'exportExcel'])->name('pkrs.export.excel');
         Route::resource('pkrs', PkrsController::class)->except(['create', 'show', 'edit']);
     });
 
