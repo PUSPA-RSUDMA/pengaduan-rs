@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\Http;
 
 class WhatsappController extends Controller
 {
+    private function engineUrl(string $path = ''): string
+    {
+        $base = rtrim((string) env('WA_ENGINE_URL', 'http://localhost:3000'), '/');
+        return $base . '/' . ltrim($path, '/');
+    }
+
     // Tampilkan View Utama (Gabungan)
     public function index()
     {
@@ -17,7 +23,7 @@ class WhatsappController extends Controller
     public function checkStatus()
     {
         try {
-            $response = Http::timeout(3)->get('http://localhost:3000/api/status');
+            $response = Http::timeout(3)->get($this->engineUrl('/api/status'));
             return response()->json($response->json());
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Node.js server tidak aktif.']);
@@ -28,7 +34,7 @@ class WhatsappController extends Controller
     public function getChats()
     {
         try {
-            $response = Http::timeout(5)->get('http://localhost:3000/api/chats');
+            $response = Http::timeout(5)->get($this->engineUrl('/api/chats'));
             return response()->json($response->json());
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gagal mengambil chat. Pastikan engine WA menyala.'], 500);
@@ -39,7 +45,7 @@ class WhatsappController extends Controller
     public function getMessages(Request $request)
     {
         try {
-            $response = Http::timeout(5)->get('http://localhost:3000/api/messages', [
+            $response = Http::timeout(5)->get($this->engineUrl('/api/messages'), [
                 'chatId' => $request->chatId
             ]);
             return response()->json($response->json());
@@ -66,7 +72,7 @@ class WhatsappController extends Controller
                 $payload['chatId'] = $request->chatId;
             }
 
-            $response = Http::timeout(15)->post('http://localhost:3000/api/send', $payload);
+            $response = Http::timeout(15)->post($this->engineUrl('/api/send'), $payload);
 
             $result = $response->json();
 
@@ -103,7 +109,7 @@ class WhatsappController extends Controller
 
         try {
             // Kirim chatId baik di query string URL maupun di JSON body agar kompatibel dengan Express req.query & req.body
-            $url = 'http://localhost:3000/api/chats?chatId=' . urlencode($chatId);
+            $url = $this->engineUrl('/api/chats') . '?chatId=' . urlencode($chatId);
             $response = Http::timeout(10)
                 ->asJson()
                 ->send('DELETE', $url, [
@@ -116,12 +122,11 @@ class WhatsappController extends Controller
         }
     }
 
-    // 6. Sinkronisasi Kontak WA
     // 6. Sinkronisasi Kontak WA (Safe Mode)
     public function syncChats()
     {
         try {
-            $response = Http::timeout(15)->post('http://localhost:3000/api/sync');
+            $response = Http::timeout(15)->post($this->engineUrl('/api/sync'));
             $result = $response->json();
 
             if ($response->successful()) {
