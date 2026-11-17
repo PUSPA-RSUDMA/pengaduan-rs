@@ -128,17 +128,17 @@ class ComplaintController extends Controller
 
     public function destroy($id)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Hanya Admin yang boleh menghapus data.');
+        if (!Auth::user()->hasPermission('complaints', 'delete')) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus data.');
         }
 
         Complaint::findOrFail($id)->delete();
-        return redirect()->back()->route('complaints.index')->with('success', 'Data berhasil dihapus!');
+        return redirect()->route('complaints.index')->with('success', 'Data berhasil dihapus!');
     }
 
     public function exportPdf()
     {
-        if (Auth::user()->role === 'user') abort(403);
+        if (!Auth::user()->hasPermission('complaints', 'view')) abort(403);
         $complaints = Complaint::orderBy('date', 'desc')->get();
         $pdf = Pdf::loadView('exports.pdf', compact('complaints'))->setPaper('a4', 'landscape');
         return $pdf->download('Laporan-Pengaduan-RSUD.pdf');
@@ -146,7 +146,7 @@ class ComplaintController extends Controller
 
     public function exportExcel()
     {
-        if (Auth::user()->role === 'user') abort(403);
+        if (!Auth::user()->hasPermission('complaints', 'view')) abort(403);
         return Excel::download(new ComplaintsExport, 'Laporan-Pengaduan-RSUD.xlsx');
     }
 

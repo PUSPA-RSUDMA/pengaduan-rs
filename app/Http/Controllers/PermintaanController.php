@@ -115,7 +115,7 @@ class PermintaanController extends Controller
     public function destroy($id)
     {
         Permintaan::findOrFail($id)->delete();
-        return redirect()->back()->route('permintaan.index')->with('success', 'Data berhasil dihapus!');
+        return redirect()->route('permintaan.index')->with('success', 'Data berhasil dihapus!');
     }
 
     public function exportPdf(Request $request)
